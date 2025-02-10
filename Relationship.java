@@ -25,6 +25,7 @@ public class Relationship{
     public Relationship(ClassObject source, ClassObject dest){
         this.SOURCE = source;
         this.DESTINATION = dest;
+        this.name = "";
     }
 
     /**
