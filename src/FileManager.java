@@ -1,8 +1,9 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-class FileManager implements FileManagerInterface {
-	public void save(String path, RelationshipManagerInterface relationships, ClassManagerInterface classes)
+public class FileManager implements FileManagerInterface {
+	public void save(String path, ArrayList<RelationshipInterface> relationships, ArrayList<ClassObjectInterface> classes)
 			throws IOException {
 		File jsonFile = new File(path);
 		if (!jsonFile.canWrite())
