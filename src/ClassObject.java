@@ -1,5 +1,3 @@
-
-
 import java.util.ArrayList;
 
 //Creates a Class object
@@ -64,4 +62,3 @@ public class ClassObject implements ClassObjectInterface {
         return null;
 	}
 }
-
