@@ -1,0 +1,2 @@
+interface ClassManagerInterface {// TODO
+}
