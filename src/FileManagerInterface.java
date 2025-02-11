@@ -15,8 +15,7 @@ interface FileManagerInterface {
 	/**
 	 * Take a path to json and return the state from that file.
 	 *
-	 * @return An array of 2 objects [0] is the RelatonshipManager, [1] is the
-	 *         ClassManager.
+	 * @return a model object holding the loaded state
 	 */
-	public Object[] load(String path) throws IOException;
+	public modelInterface load(String path) throws IOException;
 }

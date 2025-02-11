@@ -12,7 +12,7 @@ public class FileManager implements FileManagerInterface {
 		// TODO
 	}
 
-	public Object[] load(String path) throws IOException {
+	public modelInterface load(String path) throws IOException {
 		File jsonFile = new File(path);
 		if (!jsonFile.canRead())
 			throw new IOException("Can not read given path.");
