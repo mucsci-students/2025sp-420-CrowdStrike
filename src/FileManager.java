@@ -3,12 +3,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class FileManager implements FileManagerInterface {
-	public void save(String path, ArrayList<RelationshipInterface> relationships, ArrayList<ClassObjectInterface> classes)
-			throws IOException {
+	public void save(String path, modelInterface state) throws IOException {
 		File jsonFile = new File(path);
 		if (!jsonFile.canWrite())
 			throw new IOException("Can not write to given path.");
-
 		// TODO
 	}
 
@@ -16,9 +14,7 @@ public class FileManager implements FileManagerInterface {
 		File jsonFile = new File(path);
 		if (!jsonFile.canRead())
 			throw new IOException("Can not read given path.");
-
 		// TODO
-		Object[] ret = {};
-		return ret;
+		return new model();
 	}
 }

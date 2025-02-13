@@ -1,2 +1,2 @@
-public class ClassObject{ // TODO
+public class ClassObject implements ClassObjectInterface{ // TODO
 }

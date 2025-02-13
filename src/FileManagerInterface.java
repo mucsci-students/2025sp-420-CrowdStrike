@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.util.ArrayList;
 
 interface FileManagerInterface {
 	/**
@@ -9,8 +8,7 @@ interface FileManagerInterface {
 	 * @param classes       The current classes.
 	 * @param relationships The current relationships.
 	 */
-    	public void save(String path, ArrayList<RelationshipInterface> relationships, ArrayList<ClassObjectInterface> classes)
-			throws IOException;
+    	public void save(String path, modelInterface state) throws IOException;
 
 	/**
 	 * Take a path to json and return the state from that file.
