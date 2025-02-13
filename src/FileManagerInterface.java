@@ -4,16 +4,15 @@ interface FileManagerInterface {
 	/**
 	 * Take a current state and save it to a file.
 	 *
-	 * @param path          The path to save to.
-	 * @param classes       The current classes.
-	 * @param relationships The current relationships.
+	 * @param path  The path to save to.
+	 * @param state The model to save to the path.
 	 */
-    	public void save(String path, modelInterface state) throws IOException;
+	public void save(String path, UMLModelInterface model) throws IOException;
 
 	/**
 	 * Take a path to json and return the state from that file.
 	 *
-	 * @return a model object holding the loaded state
+	 * @return A model object holding the loaded state.
 	 */
-	public modelInterface load(String path) throws IOException;
+	public UMLModelInterface load(String path) throws IOException;
 }
