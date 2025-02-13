@@ -3,10 +3,12 @@
 import java.util.ArrayList;
 
 //Creates a Class object
-public class ClassObject implements ClassObjectIntrface {
+public class ClassObject implements ClassObjectInterface {
 
+	//Name of a class
 	private String name;
 
+	//Stores all attributes belonging to a class
 	private ArrayList<Attribute> attrList;
 	
 	/**
@@ -40,26 +42,16 @@ public class ClassObject implements ClassObjectIntrface {
 		return attrList;
 	}
 	
-	/**
-	 * Adds an attribute to the attribute list that is assigned to this class object
-	 * @param attr		| The new attribute that will be added to the attribute list
-	 */
+	@Override
 	public void addAttribute(Attribute attr) {
 		attrList.add(attr);
 	}
-	
-	/**
-	 * Removes a specific attribute from the list of attributes
-	 * @param attr		| The attribute that will be removed from the attribute list 
-	 */
+	@Override
 	public void removeAttribute(Attribute attr) {
 		attrList.remove(attr);
 	}
 	
-	/**
-	 * Fetches the specific attribute from the list of attribute
-	 * @param attrName		| The given name that will be searched for
-	 */
+	@Override
 	public Attribute fetchAttribute(String attrName) {
 		int index = 0;
         	// Iterate through the array of classes
