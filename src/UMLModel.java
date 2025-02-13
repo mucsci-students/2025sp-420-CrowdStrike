@@ -86,8 +86,8 @@ public class UMLModel {
     	// Iterate through the array of relationships
     	while (index < relationshipList.size()) {
     		curRelationship = relationshipList.get(index);
-    		// Check if the current relationship is between sourse and dest
-    		if (curRelationship.getSource().equals(source) && curRelationship.getDestination().equals(dest)) {
+    		// Check if the current relationship is between source and dest
+    		if (curRelationship.getSource().getName().equals(source) && curRelationship.getDestination().getName().equals(dest)) {
     			// Relationship between source and dest already exists
     			return curRelationship;
     		}
@@ -141,16 +141,16 @@ public class UMLModel {
             // Iterate through relationship list to find all relationships involving the current class
             while (index2 < relationshipList.size()) {
                 curRelationship = relationshipList.get(index2);
-                if (curRelationship.getSource().equals(curClass.getName())) {
+                if (curRelationship.getSource().getName().equals(curClass.getName())) {
                     // Current class is current relationship's source
                     // Create a String of the curRelationship and format using relationshipLength
-                	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource() + " -> " + curRelationship.getDestination();
+                	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
                 	// Add formatted String to sourceRelatiosnhips
                 	sourceRelationships = sourceRelationships + "\n    " + newSource;
-                } else if (curRelationship.getDestination().equals(curClass.getName())) {
+                } else if (curRelationship.getDestination().getName().equals(curClass.getName())) {
                     // Current class is current relationhip's destination
                     // Create a String of the curRelationship and format using relationshipLength
-                	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource() + " -> " + curRelationship.getDestination();
+                	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
                 	// Add formatted String to destRelatiosnhips
                 	destRelationships = destRelationships + "\n    " + newDest;
                 } else {
@@ -199,16 +199,16 @@ public class UMLModel {
         while(index < relationshipList.size()) {
             // Set current relationship to curRelationship
             curRelationship = relationshipList.get(index);
-            if (curRelationship.getSource().equals(printClass.getName())) {
+            if (curRelationship.getSource().getName().equals(printClass.getName())) {
             	// Current class is current relationship's source
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource() + " -> " + curRelationship.getDestination();
+            	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to sourceRelatiosnhips
             	sourceRelationships = sourceRelationships + "\n    " + newSource;
-            } else if (curRelationship.getDestination().equals(printClass.getName())) {
+            } else if (curRelationship.getDestination().getName().equals(printClass.getName())) {
             	// Current class is current relationhip's destination
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource() + " -> " + curRelationship.getDestination();
+            	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to destRelatiosnhips
             	destRelationships = destRelationships + "\n    " + newDest;
             } else {
@@ -233,9 +233,65 @@ public class UMLModel {
         Relationship curRelationship;
         while (index < relationshipList.size()) {
             curRelationship = relationshipList.get(index);
-            relString = relString + "\n  " + curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource() + " -> " + curRelationship.getDestination();
+            relString = relString + "\n  " + curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             index++;
         }
         return relString;
+    }
+    
+    /**
+     * Creates a list of all created class names that user can reference
+     * @return List of class names
+     */
+    public String listClassNames() {
+    	if (classList.size() == 0) {
+    		return "";
+    	}
+    	int countNewLine = 0;
+    	int index = 1;
+    	String finalString = "- " + classList.get(0).getName();
+    	ClassObject curClass;
+    	while (index < classList.size()) {
+    		curClass = classList.get(index);
+    		if (countNewLine >= 5) {
+    			// Create a new line after every six names
+    			finalString = finalString + "\n- " + curClass.getName();
+    			countNewLine = 0;
+    		} else {
+    			finalString = finalString + "   - " + curClass.getName();
+    			countNewLine++;
+    		}
+    		index++;
+    	}
+    	return finalString;
+    }
+    
+    /**
+     * Creates a list of all created attributes in a given class
+     * @param className		| Class whose attributes are being listed
+     * @return A String of all attributes in the class
+     */
+    public String listAttributes(String className) {
+    	ArrayList<Attribute> attrList = fetchClass(className).getAttrList();
+    	if (attrList.size() == 0) {
+    		return "";
+    	}
+    	int countNewLine = 0;
+    	int index = 1;
+    	String finalString = "- " + attrList.get(0).getName();
+    	Attribute attr;
+    	while (index < attrList.size()) {
+    		attr = attrList.get(index);
+    		if (countNewLine >= 5) {
+    			// Create a new line after every six names
+    			finalString = finalString + "\n- " + attr.getName();
+    			countNewLine = 0;
+    		} else {
+    			finalString = finalString + "   - " + attr.getName();
+    			countNewLine++;
+    		}
+    		index++;
+    	}
+    	return finalString;
     }
 }

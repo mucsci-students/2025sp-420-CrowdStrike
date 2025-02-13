@@ -1,5 +1,4 @@
 
-
 public class UMLEditor {
 	
 	// The model that is being edited
@@ -49,6 +48,25 @@ public class UMLEditor {
 		activeClass = model.fetchClass(className);
 		if (activeClass != null) {
 			// Class exists
+			// Check if activeClass is part of any relationships
+			// Delete relationship if yes
+			Relationship curRelationship;
+			for (int index = 0; index < model.getRelationshipList().size(); index++) {
+				//Iterate through relationship list to check if activeClass is part of any
+				curRelationship = model.getRelationshipList().get(index);
+				if (curRelationship.getSource().getName().equals(className)) {
+					// Current relationship contains class being deleted
+					deleteRelationship(className, curRelationship.getDestination().getName());
+					// Decrement index because next class will be at same index
+					index--;
+				} else if (curRelationship.getDestination().getName().equals(className)) {
+					deleteRelationship(curRelationship.getSource().getName(), className);
+					// Decrement index because next class will be at same index
+					index--;
+				} else {
+					// Current relationship does not contain class being deleted
+				}
+			}
 			model.getClassList().remove(activeClass);
 			resetActiveClass();
 			return true;
@@ -87,15 +105,17 @@ public class UMLEditor {
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean addRelationship(String name, String source, String dest) {
-		if (model.fetchClass(source) != null) {
+		ClassObject sourceClass = model.fetchClass(source);
+		if (source != null) {
 			// Source class does exist
-			if (model.fetchClass(dest) != null) {
+			ClassObject destClass = model.fetchClass(dest);
+			if (destClass != null) {
 				// Destination class does exist
 				// Check if relationship already exists
 				if (model.relationshipExist(source, dest) == null) {
-					// Relationship does not exist
+					// Relationship does not already exist
 					// Create new Relationship
-					Relationship newRel = new Relationship(name, source, dest);
+					Relationship newRel = new Relationship(name, sourceClass, destClass);
 					// Update longest relationship name if needed
 					if (newRel.getName().length() > model.getRelationshipLength()) {
 						model.setRelationshipLength(newRel.getName().length());

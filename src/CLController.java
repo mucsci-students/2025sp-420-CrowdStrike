@@ -30,20 +30,47 @@ public class CLController {
 		this.view = view;
 		this.sc = new Scanner(System.in);
 	}
-
+	
+	/**
+	 * Checks if any classes exist before printing them
+	 */
+	private void CL_listClasses() {
+		if (model.getClassList().size() != 0) {
+			view.show(model.listClasses());
+		} else {
+			view.show("No classes currently exist");
+		}
+	}
+	
 	
 	/**
 	 * Gets the class to be listed and tells user if action failed
 	 */
 	private void CL_listClassInfo() {
-		view.show("What class would you like printed?");
-		input = sc.nextLine();
-		String classInfo = model.listClassInfo(input);
-		if (classInfo.equals("")) {
-			// Class does not exist
-			view.show("Requested class does not exist");
+		if (listClassNames()) {
+			view.show("What class would you like printed?");
+			input = sc.nextLine();
+			String classInfo = model.listClassInfo(input);
+			if (classInfo.equals("")) {
+				// Class does not exist
+				view.show("Requested class does not exist");
+			} else {
+				view.show(classInfo);
+			}
 		} else {
-			view.show(classInfo);
+			view.show("No classes currently exist");
+		}
+		
+	}
+	
+	/**
+	 * Checks if any relationships exist before printing them
+	 */
+	private void CL_listRelationships() {
+		if (model.getRelationshipList().size() != 0) {
+			view.show(model.listRelationships());
+		} else {
+			view.show("No relationships currently exist");
 		}
 	}
 	
@@ -62,32 +89,47 @@ public class CLController {
 		}
 	}
 	
+	/**
+	 * Gets class info from user and displays if class was deleted
+	 */
 	private void CL_deleteClass() {
-		view.show("What class would you like to delete?");
-		input = sc.nextLine();
-		if (editor.deleteClass(input)) {
-			view.show("Class " + input + " successfully deleted");
+		if (listClassNames()) {
+			view.show("What class would you like to delete?");
+			input = sc.nextLine();
+			if (editor.deleteClass(input)) {
+				view.show("Class " + input + " successfully deleted");
+			} else {
+				view.show("Class " + input + " could not be deleted");
+			}
 		} else {
-			view.show("Class " + input + " could not be deleted");
+			view.show("No classes currently exist");
 		}
 	}
 	
+	/**
+	 * Gets class info from user and displays if class was renamed
+	 */
 	private void CL_renameClass() {
-		view.show("What class would you like to rename?");
-		input = sc.nextLine();
-		view.show("What would you like the new name to be?");
-		String newName = sc.nextLine();
-		int result = editor.renameClass(input, newName);
-		if (result == 0) {
-			// Success
-			view.show("Class " + input + " renamed to " + newName);
-		} else if (result == 1){
-			// Failed b/c class does not exist
-			view.show("Class " + input + " does not exist");
+		if (listClassNames()) {
+			view.show("What class would you like to rename?");
+			input = sc.nextLine();
+			view.show("What would you like the new name to be?");
+			String newName = sc.nextLine();
+			int result = editor.renameClass(input, newName);
+			if (result == 0) {
+				// Success
+				view.show("Class " + input + " renamed to " + newName);
+			} else if (result == 1){
+				// Failed b/c class does not exist
+				view.show("Class " + input + " does not exist");
+			} else {
+				// Failed b/c tried to rename to existing name
+				view.show("Tried to rename to existing name");
+			}
 		} else {
-			// Failed b/c tried to rename to existing name
-			view.show("Tried to rename to existing name");
+			view.show("No classes currently exist");
 		}
+		
 	}
 	
 	/**
@@ -102,58 +144,86 @@ public class CLController {
 		} else {
 			input = "";
 		}
-		view.show("Enter the source class");
-		String source = sc.nextLine();
-		view.show("Enter the destination class");
-		String dest = sc.nextLine();
-		if (editor.addRelationship(input, source, dest)) {
-			view.show("Relationship " + input + " successfully created");
+		if (listClassNames()) {
+			view.show("Enter the source class");
+			String source = sc.nextLine();
+			view.show("Enter the destination class");
+			String dest = sc.nextLine();
+			if (editor.addRelationship(input, source, dest)) {
+				view.show("Relationship " + input + " successfully created");
+			} else {
+				view.show("Relationship " + input + " could not be created");
+			}
 		} else {
-			view.show("Relationship " + input + " could not be created");
+			view.show("No classes currently exist");
 		}
+		
 	}
 	
+	/**
+	 * Gets relationship info from user and returns if it was deleted
+	 */
 	private void CL_deleteRelationship() {
-		view.show("What is the source of the relationship?");
-		input = sc.nextLine();
-		view.show("What is the destination of the relationship?");
-		String dest = sc.nextLine();
-		if (editor.deleteRelationship(input, dest)) {
-			view.show("Relaionship between " + input + " and " + dest + " deleted");
+		if (listClassNames()) {
+			view.show("What is the source of the relationship?");
+			input = sc.nextLine();
+			view.show("What is the destination of the relationship?");
+			String dest = sc.nextLine();
+			if (editor.deleteRelationship(input, dest)) {
+				view.show("Relaionship between " + input + " and " + dest + " deleted");
+			} else {
+				view.show("Relaionship between " + input + " and " + dest + " could not be deleted");
+			}
 		} else {
-			view.show("Relaionship between " + input + " and " + dest + " could not be deleted");
+			view.show("No classes currently exist");
 		}
+		
 	}
 	
 	/**
 	 * Gets class and attribute info from user and returns if action succeeded or not
 	 */
 	private void CL_addAttribute() {
-		view.show("What class would you like to add an attribute to?");
-		String className = sc.nextLine();
-		view.show("What do you want to name the attribute?");
-		input = sc.nextLine();
-		if (editor.addAttribute(className, input)) {
-			// editor.addAttribute succeeded
-			view.show("Attribute " + input + " was successfully added to class " + className);
+		if (listClassNames()) {
+			view.show("What class would you like to add an attribute to?");
+			String className = sc.nextLine();
+			view.show("What do you want to name the attribute?");
+			input = sc.nextLine();
+			if (editor.addAttribute(className, input)) {
+				// editor.addAttribute succeeded
+				view.show("Attribute " + input + " was successfully added to class " + className);
+			} else {
+				view.show("Attribute " + input + " could not be created");
+			}
 		} else {
-			view.show("Attribute " + input + " could not be created");
+			view.show("No classes currently exist");
 		}
+		
 	}
 	
 	/**
 	 * Gets class and attribute info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteAttribute() {
-		view.show("What class would you like to delete an attribute from?");
-		input = sc.nextLine();
-		view.show("What is the name fo the attribute you want to delete?");
-		String attrName = sc.nextLine();
-		if (editor.deleteAttribute(attrName, attrName)) {
-			view.show("Attribute " + attrName + " deleted from " + input);
+		if (listClassNames()) {
+			view.show("What class would you like to delete an attribute from?");
+			input = sc.nextLine();
+			if (listAttrNames(input)) {
+				view.show("What is the name of the attribute you want to delete?");
+				String attrName = sc.nextLine();
+				if (editor.deleteAttribute(input, attrName)) {
+					view.show("Attribute " + attrName + " deleted from " + input);
+				} else {
+					view.show("Attribute could not be deleted");
+				}
+			} else {
+				view.show("Class has no attributes");
+			}
+			
 		} else {
-			view.show("Attribute could not be deleted");
+			view.show("No classes currently exist");
 		}
+		
 	}
 	
 	/**
@@ -161,17 +231,55 @@ public class CLController {
 	 * operation succeeded
 	 */
 	private void CL_renameAttribute() {
-		view.show("What class do you want to rename an attribute from?");
-		input = sc.nextLine();
-		view.show("What attribute do you want to rename?");
-		String attrName = sc.nextLine();
-		view.show("What do you want to rename the attribute to?");
-		String newName = sc.nextLine();
-		if (editor.renameAttribute(input, attrName, newName)) {
-			view.show("Attribute " + attrName + " renamed to " + newName);
+		if (listClassNames()) {
+			view.show("What class do you want to rename an attribute from?");
+			input = sc.nextLine();
+			if (listAttrNames(input)) {
+				view.show("What attribute do you want to rename?");
+				String attrName = sc.nextLine();
+				view.show("What do you want to rename the attribute to?");
+				String newName = sc.nextLine();
+				if (editor.renameAttribute(input, attrName, newName)) {
+					view.show("Attribute " + attrName + " renamed to " + newName);
+				} else {
+					view.show("Attribute " + attrName + " could not be renamed");
+				}
+			} else {
+				view.show("Class has no attributes");
+			}
 		} else {
-			view.show("Attribute " + attrName + " could not be renamed");
+			view.show("No classes currently exist");
 		}
+		
+	}
+	
+	/**
+	 * Helper class to return if any classes have been listed
+	 * Used for error catching and avoiding redundant code
+	 * @return True if classes have been listed, false otherwise
+	 */
+	private boolean listClassNames() {
+		String classNames = model.listClassNames();
+		if (!classNames.equals("")) {
+			view.show("Available Classes:\n" + classNames);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Helper class to return if any attributes have been listed
+	 * Used for error catching and avoiding redundant code
+	 * @param className		| Name of the class being checked
+	 * @return True if attributes have been listed, false otherwise
+	 */
+	private boolean listAttrNames(String className) {
+		String attrNames = model.listAttributes(className);
+		if (!attrNames.equals("")) {
+			view.show("Available Attributes:\n" + attrNames);
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -190,7 +298,7 @@ public class CLController {
         	
         	switch(input.toLowerCase()) {
         	case "help":
-        		showHelp();
+        		//TODO
         		break;
         	case "save":
         		//TODO
@@ -202,15 +310,13 @@ public class CLController {
         		loop = false;
         		break;
         	case "list classes":
-        		// Store this as a String and then use view.show(String) to print
-        		view.show(model.listClasses());
+        		CL_listClasses();
         		break;
         	case "list class":
-        		// Should you print just class names so user doesn't have to memorize everything?
         		CL_listClassInfo();
         		break;
         	case "list relationships":
-        		view.show(model.listRelationships());
+        		CL_listRelationships();
         		break;
         	case "add class":
         		//TODO
@@ -228,7 +334,7 @@ public class CLController {
         		//TODO
         		CL_addRelationship();
         		break;
-        	case "delete relatonship":
+        	case "delete relationship":
         		//TODO
         		CL_deleteRelationship();
         		break;
@@ -250,6 +356,8 @@ public class CLController {
         	}
         	// Reset Variables
         	input = "";
+        	// Skip a line to break up user actions in the command line
+        	view.show("");
         }
 	}
 }
