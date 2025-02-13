@@ -27,10 +27,7 @@ public class ClassObject implements ClassObjectInterface {
 		return name;
 	}
 	
-	/**
-	 * Sets the name of the class object 
-	 * @param newName		| The new name to replace and be assigned to the class
-	 */
+	@Override
 	public void setName(String newName) {
 		this.name = newName;
 	}
