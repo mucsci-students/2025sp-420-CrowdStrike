@@ -28,14 +28,16 @@ public class UMLEditor {
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean addClass(String newClassName) {
-		if (model.fetchClass(newClassName) != null) {
-			// Class already exists
-			return false;
-		} else {
-			// Class does not exist
-			ClassObject newClass = new ClassObject(newClassName);
-			model.getClassList().add(newClass);
-			return true;
+		if(isValidClassName(newClassName)==0){
+			if (model.fetchClass(newClassName) != null) {
+				// Class already exists
+				return false;
+			} else {
+				// Class does not exist
+				ClassObject newClass = new ClassObject(newClassName);
+				model.getClassList().add(newClass);
+				return true;
+			}
 		}
 	}
 	
@@ -81,6 +83,10 @@ public class UMLEditor {
 	 * @return Number indicating status of operation
 	 */
 	public int renameClass(String className, String newName) {
+		
+		if(isValidClassName(newName)!=0){
+			return 3;
+		}
 		activeClass = model.fetchClass(newName);
 		if (activeClass != null) {
 			// Class with newName already exists
@@ -223,5 +229,59 @@ public class UMLEditor {
 		}
 		resetActiveClass();
 		return false;
+	}
+
+		/**
+	 * Validates whether the provided string could be a valid Java class name
+	 * 
+	 * A string is valid as a class name assuming:
+	 * 			1. It isn't blank or null
+	 * 			2. It begins with a letter, underscore, or dollar sign
+	 * 			3. It contains only letters, numbers, underscores, and/or dollar signs
+	 * 			4. It is not one of the reserved keywords in Java
+	 * 
+	 * @param className | The class name to be validated
+	 * @return 0 on success, 1-3 on fail
+	 */
+	public static int isValidClassName(String className) {
+		// Check if the className is null or an empty string.
+		if (className == null || className.isEmpty()) {
+			return 1;
+		}
+			
+		// Verify that the first character is valid: in Java, this can be a letter, underscore, or dollar sign
+        for (int i = 0; i < className.length(); i++) {
+            if (!Character.isLetter(className.charAt(i)) && className.charAt(i) != '_' && className.charAt(i) != '$') {
+                return 2;
+            }
+        }
+		
+		// Verify that the characters are valid: in Java, this can be a letter, number, underscore, or dollar sign
+        for (int i = 0; i < className.length(); i++) {
+            if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_' && className.charAt(i) != '$') {
+                return 3;
+            }
+        }
+		
+		// String array of all the keywords in java (can't be used as a class name)
+		// THIS LIST WAS AI-GENERATED AND HAS NOT BEEN PERSONALLY VERIFIED FOR CORRECTNESS OR COMPLETION	
+		String[] reservedWords = {
+			"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const",
+			"continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float",
+			"for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native",
+			"new", "package", "private", "protected", "public", "return", "short", "static", "strictfp",
+			"super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
+			"volatile", "while", "null", "true", "false"
+		};
+		
+		// Check the name against the list of reserved words
+		for (String keyword:reservedWords) {
+			if (className.equalsIgnoreCase(keyword)) {
+				return 4;
+			}
+		}
+		
+		// The className passed all checks and will be declared valid
+		return 0;
 	}
 }
