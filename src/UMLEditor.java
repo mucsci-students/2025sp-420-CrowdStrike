@@ -243,10 +243,11 @@ public class UMLEditor {
 	/**
 	 * Validates whether the provided string could be a valid Java class name
 	 * 
-	 * A string is valid as a class name assuming: 1. It isn't blank or null 2. It
-	 * begins with a letter, underscore, or dollar sign 3. It contains only letters,
-	 * numbers, underscores, and/or dollar signs 4. It is not one of the reserved
-	 * keywords in Java
+	 * A string is valid as a class name assuming: 
+	 * 							1. It isn't blank or null 
+	 * 							2. It begins with a letter, underscore, or dollar sign
+	 * 							3. It contains only letters, numbers, underscores, and/or dollar signs
+	 * 							4. It is not one of the reserved keywords in Java
 	 * 
 	 * @param className | The class name to be validated
 	 * @return 0 on success, 1-3 on fail
