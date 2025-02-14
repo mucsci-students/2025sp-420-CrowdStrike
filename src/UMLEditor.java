@@ -1,34 +1,36 @@
 
+
 public class UMLEditor {
-	
 	// The model that is being edited
 	private UMLModel model;
 	// Holds the class actively being worked on
 	private ClassObject activeClass;
-	
+
 	/**
 	 * Constructs an instance of the UMLEditor
-	 * @param model		| The list of existing classes and relationships
+	 * 
+	 * @param model | The list of existing classes and relationships
 	 */
 	public UMLEditor(UMLModel model) {
 		this.model = model;
 		activeClass = null;
 	}
-	
+
 	/**
 	 * Set the activeClass to null
 	 */
 	private void resetActiveClass() {
 		activeClass = null;
 	}
-	
+
 	/**
 	 * Adds a new class to the list of classes
-	 * @param newClass		| ClassObject to be added to classList
+	 * 
+	 * @param newClass | ClassObject to be added to classList
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean addClass(String newClassName) {
-		if(isValidClassName(newClassName)==0){
+		if (isValidClassName(newClassName) == 0) {
 			if (model.fetchClass(newClassName) != null) {
 				// Class already exists
 				return false;
@@ -39,11 +41,13 @@ public class UMLEditor {
 				return true;
 			}
 		}
+		return false;
 	}
-	
+
 	/**
 	 * Deletes specified class from classList
-	 * @param className		| Name of class to be deleted
+	 * 
+	 * @param className | Name of class to be deleted
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean deleteClass(String className) {
@@ -54,7 +58,7 @@ public class UMLEditor {
 			// Delete relationship if yes
 			Relationship curRelationship;
 			for (int index = 0; index < model.getRelationshipList().size(); index++) {
-				//Iterate through relationship list to check if activeClass is part of any
+				// Iterate through relationship list to check if activeClass is part of any
 				curRelationship = model.getRelationshipList().get(index);
 				if (curRelationship.getSource().getName().equals(className)) {
 					// Current relationship contains class being deleted
@@ -75,16 +79,16 @@ public class UMLEditor {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Renames a class
-	 * @param className		| Name of class to be renamed
-	 * @param newName		| New name to give the class
+	 * 
+	 * @param className | Name of class to be renamed
+	 * @param newName   | New name to give the class
 	 * @return Number indicating status of operation
 	 */
 	public int renameClass(String className, String newName) {
-		
-		if(isValidClassName(newName)!=0){
+		if (isValidClassName(newName) != 0) {
 			return 3;
 		}
 		activeClass = model.fetchClass(newName);
@@ -103,11 +107,12 @@ public class UMLEditor {
 		resetActiveClass();
 		return 0;
 	}
-	
+
 	/**
-	 * Adds relationship to relationshipList
-	 * Updates relationshipLength if newRel's name is new longest name
-	 * @param newRel	| Relationship to be added to relationshipList
+	 * Adds relationship to relationshipList Updates relationshipLength if newRel's
+	 * name is new longest name
+	 * 
+	 * @param newRel | Relationship to be added to relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean addRelationship(String name, String source, String dest) {
@@ -134,10 +139,11 @@ public class UMLEditor {
 		// Adding relationship failed
 		return false;
 	}
-	
+
 	/**
 	 * Deletes the indicated relationship from relationshipList
-	 * @param delRel	| Relationship to be removed from relationshipList
+	 * 
+	 * @param delRel | Relationship to be removed from relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean deleteRelationship(String source, String dest) {
@@ -160,11 +166,12 @@ public class UMLEditor {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Adds attribute to the indicated class
-	 * @param className		| Name of class to add attribute to
-	 * @param newAttr		| Attribute to be added
+	 * 
+	 * @param className | Name of class to add attribute to
+	 * @param newAttr   | Attribute to be added
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean addAttribute(String className, String attrName) {
@@ -183,11 +190,12 @@ public class UMLEditor {
 		resetActiveClass();
 		return false;
 	}
-	
+
 	/**
 	 * Deletes attribute from the indicated class
-	 * @param className		| Name of class to delete attribute from
-	 * @param delAttr		| Attribute to be removed
+	 * 
+	 * @param className | Name of class to delete attribute from
+	 * @param delAttr   | Attribute to be removed
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean deleteAttribute(String className, String attrName) {
@@ -206,12 +214,13 @@ public class UMLEditor {
 		resetActiveClass();
 		return false;
 	}
-	
+
 	/**
 	 * Renames the indicated attribute in the indicated class
-	 * @param className		| Name of class attribute is in
-	 * @param curName		| Current name of the attribute to be renamed
-	 * @param newName		| New name to give attribute
+	 * 
+	 * @param className | Name of class attribute is in
+	 * @param curName   | Current name of the attribute to be renamed
+	 * @param newName   | New name to give attribute
 	 * @return True if operation succeeded, false otherwise
 	 */
 	public boolean renameAttribute(String className, String curName, String newName) {
@@ -231,14 +240,13 @@ public class UMLEditor {
 		return false;
 	}
 
-		/**
+	/**
 	 * Validates whether the provided string could be a valid Java class name
 	 * 
-	 * A string is valid as a class name assuming:
-	 * 			1. It isn't blank or null
-	 * 			2. It begins with a letter, underscore, or dollar sign
-	 * 			3. It contains only letters, numbers, underscores, and/or dollar signs
-	 * 			4. It is not one of the reserved keywords in Java
+	 * A string is valid as a class name assuming: 1. It isn't blank or null 2. It
+	 * begins with a letter, underscore, or dollar sign 3. It contains only letters,
+	 * numbers, underscores, and/or dollar signs 4. It is not one of the reserved
+	 * keywords in Java
 	 * 
 	 * @param className | The class name to be validated
 	 * @return 0 on success, 1-3 on fail
@@ -248,39 +256,39 @@ public class UMLEditor {
 		if (className == null || className.isEmpty()) {
 			return 1;
 		}
-			
-		// Verify that the first character is valid: in Java, this can be a letter, underscore, or dollar sign
-        for (int i = 0; i < className.length(); i++) {
-            if (!Character.isLetter(className.charAt(i)) && className.charAt(i) != '_' && className.charAt(i) != '$') {
-                return 2;
-            }
-        }
-		
-		// Verify that the characters are valid: in Java, this can be a letter, number, underscore, or dollar sign
-        for (int i = 0; i < className.length(); i++) {
-            if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_' && className.charAt(i) != '$') {
-                return 3;
-            }
-        }
-		
+
+		// Verify that the first character is valid: in Java, this can be a letter,
+		// underscore, or dollar sign(Only have to check char(0))
+		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_' && className.charAt(0) != '$') {
+			return 2;
+		}
+
+		// Verify that the characters are valid: in Java, this can be a letter, number,
+		// underscore, or dollar sign
+		for (int i = 0; i < className.length(); i++) {
+			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_'
+					&& className.charAt(i) != '$') {
+				return 3;
+			}
+		}
+
 		// String array of all the keywords in java (can't be used as a class name)
-		// THIS LIST WAS AI-GENERATED AND HAS NOT BEEN PERSONALLY VERIFIED FOR CORRECTNESS OR COMPLETION	
-		String[] reservedWords = {
-			"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const",
-			"continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float",
-			"for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native",
-			"new", "package", "private", "protected", "public", "return", "short", "static", "strictfp",
-			"super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
-			"volatile", "while", "null", "true", "false"
-		};
-		
+		// THIS LIST WAS AI-GENERATED AND HAS NOT BEEN PERSONALLY VERIFIED FOR
+		// CORRECTNESS OR COMPLETION
+		String[] reservedWords = { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
+				"const", "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float",
+				"for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new",
+				"package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+				"synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "null",
+				"true", "false" };
+
 		// Check the name against the list of reserved words
-		for (String keyword:reservedWords) {
+		for (String keyword : reservedWords) {
 			if (className.equalsIgnoreCase(keyword)) {
 				return 4;
 			}
 		}
-		
+
 		// The className passed all checks and will be declared valid
 		return 0;
 	}
