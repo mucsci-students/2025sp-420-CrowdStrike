@@ -5,6 +5,10 @@ public class Attribute implements AttributeInterface {
 	// Attribute Name
 	private String name;
 	
+	/**
+	 * Constructor to create a new attribute
+	 * @param name	| the name of the attribute
+	 */
 	public Attribute(String name) {
 		this.name = name;
 	}

@@ -25,7 +25,6 @@ javac -d out/ -cp lib/*.jar;out test/*.java
 java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out;lib/*.jar --scan-class-path
 ```
 
-
 ### Project
 #### Linux/Macos
 ```sh

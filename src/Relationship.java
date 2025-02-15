@@ -26,19 +26,22 @@ public class Relationship{
         this.SOURCE = source;
         this.DESTINATION = dest;
         this.name = "";
+        this.ID = source.hashCode() + dest.hashCode();
     }
 
     /**
      * Constructor for a named relationship
      * Creates a relationship between a source class and destination class, and names it
+     * @param String name           |   the name given to this relationship
      * @param ClassObject source    |   the source of the relationship
      * @param ClassObject dest      |   the destination of this relationship
-     * @param ClassObject name      |   the name given to this relationship
+
      */
-    public Relationship(ClassObject source, ClassObject dest, String relationshipName){
+    public Relationship(String relationshipName, ClassObject source, ClassObject dest){
         this.SOURCE = source;
         this.DESTINATION = dest;
         this.name = relationshipName;
+        this.ID = source.hashCode() + dest.hashCode();
     }
 
 
@@ -65,8 +68,16 @@ public class Relationship{
      * Returns the name of this relationship (could be empty)
      * @return String name
      */
-    public ClassObject getName()
+    public String getName()
         {return this.name;}
+
+    /**
+     * Relationship.getID();
+     * Returns the ID of this relationship based on the hash of its source and destination
+     * @return int
+     */
+    public int getID()
+        {return this.ID;}
 
     // Mutator methods
     /**
