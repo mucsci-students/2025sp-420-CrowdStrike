@@ -38,6 +38,3 @@ javac -d out/ -cp lib/*.jar src/*.java
 jar cfe uml.jar CommandLineUMLClassEditorApp -C out/ .
 java -jar uml.jar
 ```
-
-## Useage
-TODO: add valid commands and info on eatch.
