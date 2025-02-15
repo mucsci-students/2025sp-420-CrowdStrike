@@ -122,9 +122,12 @@ public class CLController {
 			} else if (result == 1){
 				// Failed b/c class does not exist
 				view.show("Class " + input + " does not exist");
-			} else {
+			} else if (result == 2) {
 				// Failed b/c tried to rename to existing name
 				view.show("Tried to rename to existing name");
+			} else {
+				// Failed b/c newName is invalid
+				view.show("Name " + newName + " is invalid");
 			}
 		} else {
 			view.show("No classes currently exist");
