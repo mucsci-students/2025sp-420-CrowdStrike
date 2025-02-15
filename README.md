@@ -9,6 +9,8 @@ A cli uml edditor.
 
 ## Running
 ### Tests
+First you must download [junit](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar) and place it in the lib directory.
+[junit download](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar)
 #### Linux/Macos
 ```sh
 javac -d out/ -cp lib/*.jar src/*.java
