@@ -1,18 +1,41 @@
-# 2025sp-420-CrowdStrike
+# CrowdStrike UML
+A cli uml edditor.
 
-## Running tests
+## Table of Contents
+- [Running](#running)
+  - [Tests](#tests)
+  - [Project](#project)
+- [Usage](#useage)
+
+## Running
+### Tests
 First you must download [junit](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar) and place it in the lib directory.
 [junit download](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar)
-### Linux/Macos
+#### Linux/Macos
 ```sh
-javac -d out/ src/*.java
-javac -d out/ -cp lib/junit-platform-console-standalone-1.11.4.jar:out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out --scan-class-path
+javac -d out/ -cp lib/*.jar src/*.java
+javac -d out/ -cp lib/*.jar:out test/*.java
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out:lib/*.jar --scan-class-path
 ```
 
-### Windows
+#### Windows
 ```sh
-javac -d out/ src/*.java
-javac -d out/ -cp lib/junit-platform-console-standalone-1.11.4.jar;out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out --scan-class-path
+javac -d out/ -cp lib/*.jar src/*.java
+javac -d out/ -cp lib/*.jar;out test/*.java
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out;lib/*.jar --scan-class-path
+```
+
+### Project
+#### Linux/Macos
+```sh
+javac -d out/ -cp lib/*.jar src/*.java
+jar cfe uml.jar CommandLineUMLClassEditorApp -C out/ .
+java -jar uml.jar
+```
+
+#### Windows
+```sh
+javac -d out/ -cp lib/*.jar src/*.java
+jar cfe uml.jar CommandLineUMLClassEditorApp -C out/ .
+java -jar uml.jar
 ```
