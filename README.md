@@ -17,7 +17,7 @@ Created for MU's CSCI420 in the Spring semester of 2025.
 
 
 ## Installing
-Clone the project from GitHub: git clone https://github.com/mucsci-students/2025sp-420-CrowdStrike.git
+Clone the project from GitHub: `git clone https://github.com/mucsci-students/2025sp-420-CrowdStrike.git`
 
 ## Running
 First you must download [junit](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar) and [gson](https://repo1.maven.org/maven2/com/google/code/gson/gson/2.12.1/gson-2.12.1.jar) place them in the lib directory.
