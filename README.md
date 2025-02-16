@@ -32,14 +32,14 @@ First you must download [junit](https://repo1.maven.org/maven2/org/junit/platfor
 ```sh
 javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/*.java
 javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar:out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out:lib/*.jar --scan-class-path
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar:out --scan-class-path
 ```
 
 #### Windows
 ```sh
 javac -d out/ -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar src/*.java
 javac -d out/ -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar;out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out;lib/*.jar --scan-class-path
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar;out --scan-class-path
 ```
 
 ### Project
