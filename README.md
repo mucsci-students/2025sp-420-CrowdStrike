@@ -17,7 +17,7 @@ Created for MU's CSCI420 in the Spring semester of 2025.
 
 
 ## Installing
-Clone the project from GitHub: git clone https://github.com/mucsci-students/2025sp-420-CrowdStrike.git
+Clone the project from GitHub: `git clone https://github.com/mucsci-students/2025sp-420-CrowdStrike.git`
 
 ## Running
 ### Tests
