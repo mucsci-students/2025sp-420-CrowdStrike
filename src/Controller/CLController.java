@@ -284,7 +284,30 @@ public class CLController {
 		}
 		return false;
 	}
-	
+
+	private boolean save(){
+	    view.show("Where would you like to save:");
+	    String path = sc.nextLine();
+	    try{
+		FileManager file = new FileManager();
+		file.save(path,model);
+		return true;
+	    } catch (Exception e){
+		return false;
+	    }
+	}
+	private boolean load(){
+	    view.show("Where would you like to load from:");
+	    String path = sc.nextLine();
+	    try{
+		FileManager file = new FileManager();
+		model = file.load(path);
+		return true;
+	    } catch (Exception e){
+		return false;
+	    }
+	}
+
 	/**
 	 * Initializes the controller that allows user to interact
 	 * with UML software
@@ -304,10 +327,10 @@ public class CLController {
         		//TODO
         		break;
         	case "save":
-        		//TODO
+		    	save();
         		break;
         	case "load":
-        		//TODO
+        		load();
         		break;
         	case "exit":
         		loop = false;

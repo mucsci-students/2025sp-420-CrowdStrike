@@ -22,34 +22,37 @@ Clone the project from GitHub: `git clone https://github.com/mucsci-students/202
 Cd into the directory: `cd 2025sp-420-CrowdStrike`
 
 ## Running
-### Tests
-First you must download [junit](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar) and place it in the lib directory.
+First you must download [junit](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar) and [gson](https://repo1.maven.org/maven2/com/google/code/gson/gson/2.12.1/gson-2.12.1.jar) place them in the lib directory.
+
 [junit download](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar)
+
+[gson download](https://repo1.maven.org/maven2/com/google/code/gson/gson/2.12.1/gson-2.12.1.jar)
+### Tests
 #### Linux/Macos
 ```sh
-javac -d out/ -cp lib/*.jar src/*.java
-javac -d out/ -cp lib/*.jar:out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out:lib/*.jar --scan-class-path
+javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
+javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar:out test/*.java
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar:out --scan-class-path
 ```
 
 #### Windows
 ```sh
-javac -d out/ -cp lib/*.jar src/*.java
-javac -d out/ -cp lib/*.jar;out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out;lib/*.jar --scan-class-path
+javac -d out/ -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
+javac -d out/ -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar;out test/*.java
+java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar;out --scan-class-path
 ```
 
 ### Project
 #### Linux/Macos
 ```sh
-javac -d out/ -cp lib/*.jar src/*.java
+javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
 jar cfe uml.jar UMLClassEditorApp -C out/ .
 java -jar uml.jar
 ```
 
 #### Windows
 ```sh
-javac -d out/ -cp lib/*.jar src/*.java
+javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
 jar cfe uml.jar UMLClassEditorApp -C out/ .
 java -jar uml.jar
 ```
