@@ -16,20 +16,24 @@ public String getInstructions() {
                 type-> add class
                 Enter the new class' name: 
                 [NAME]
+
             DELETE CLASS - Deletes an existing class by name.
                 type-> delete class
                 Which class would you like to delete?
                 [NAME]
+
             RENAME CLASS - Renames an existing class.
                 type-> rename class
                 Which class would you like to rename?
                 [OLD NAME]
                 What would you like the new name to be?
                 [NEW NAME]
+
             LIST CLASS - Returns given class
                 type-> list class
                 What class would you like printed?
                 [CLASS]
+
             LIST CLASSES - Returns all classes
                 type-> list classes
 
@@ -42,9 +46,10 @@ public String getInstructions() {
                 [SOURCE CLASS]
                 Enter the destination class name:
                 [DESTINATION CLASS]
+
             DELETE RELATIONSHIP - Removes an existing relationship between two classes.
                 type-> delete relationship
-                Enter the source class name of the relationship:
+                Enter the source class name of the relationship
                 [SOURCE CLASS]
                 Enter the destination class name of the relationship:
                 [DESTINATION CLASS]
@@ -66,6 +71,7 @@ public String getInstructions() {
                 [CLASS]
                 What is the name of the attribute you want to delete?
                 [ATTRIBUTE]
+
             RENAME ATTRIBUTE - Renames an existing attribute in a class.
                 type-> rename attribute
                 Which class has the attribute you want to rename?
@@ -74,9 +80,11 @@ public String getInstructions() {
                 [OLD ATTRIBUTE]
                 What would you like to rename the attribute to?
                 [NEW ATTRIBUTE]
+
             ==========   SAVE/LOAD   ==========
             SAVE - Saves the current state of the project.
             type-> save
+            
             LOAD - Loads a previously saved project.
             type-> load
 
