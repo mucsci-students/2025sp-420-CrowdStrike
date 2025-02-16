@@ -26,6 +26,7 @@ public class attributeTest {
 		testEditor.addAttribute("class1", "testAttr");
 		testEditor.renameAttribute("class1", "testAttr", "betterTestAttr");
 		
+		
 		assertEquals(class1.fetchAttribute("betterTestAttr").getName(),"betterTestAttr" ,"The name should be changed to 'betterTestAttr'");
 	}
 	

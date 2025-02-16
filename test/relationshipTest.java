@@ -22,7 +22,8 @@ public class relationshipTest {
     	populateClasses();
     	testEditor.addRelationship("test","class1", "class2");
     	Relationship rel = testModel.relationshipExist("class1", "class2");
-		
+	
+    	
     	assertEquals(rel.getDestination(), testModel.fetchClass("class2"), "destination should be equal to 'class2' ");
     	
     }

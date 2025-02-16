@@ -94,7 +94,6 @@ public class classTest {
 	
 	public void fetchAttributeDoesntExist(String attrName) {
 		assertEquals(class1.fetchAttribute("one"), null , "should return null");
-
 	}
 
 	
