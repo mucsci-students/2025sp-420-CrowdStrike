@@ -2,44 +2,65 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 public class relationshipTest {
-	ClassObject class1 = new ClassObject("class1");
-	ClassObject class2 = new ClassObject("class2");
-
+	UMLModel testModel = new UMLModel();
+	UMLEditor testEditor = new UMLEditor(testModel);
+	
+	public void populateClasses() {
+		testEditor.addClass("class1");
+    	testEditor.addClass("class2");
+	}
+	
     public void getSource(){
-    	Relationship relTest = new Relationship("testSource", class1, class2);
-		ClassObject testSource = relTest.getSource();
+    	populateClasses();
+    	testEditor.addRelationship("test","class1", "class2");
+    	Relationship rel = testModel.relationshipExist("class1", "class2");
 		
-		assertEquals(testSource, relTest.getSource(), "relTest's source should equal testSource");
+		assertEquals(rel.getSource(), testModel.fetchClass("class1"), "source should equal to 'class1' ");
     }
     
     public void getDestination(){
-    	Relationship relTest = new Relationship("testDest", class1, class2);
-    	ClassObject testDestination = relTest.getDestination();
+    	populateClasses();
+    	testEditor.addRelationship("test","class1", "class2");
+    	Relationship rel = testModel.relationshipExist("class1", "class2");
 		
-    	assertEquals(testDestination, relTest.getDestination(), "relTest's destination should be testDestination");
+    	assertEquals(rel.getDestination(), testModel.fetchClass("class2"), "destination should be equal to 'class2' ");
     	
     }
     
     public void getName(){
-    	Relationship relTest = new Relationship("testName", class1, class2);
-    	String testName = relTest.getName();
+    	populateClasses();
+    	testEditor.addRelationship("test","class1", "class2");
+    	Relationship rel = testModel.relationshipExist("class1", "class2");
     	
-    	assertEquals(testName, relTest.getName(), "relTest.getName()should return 'testName' ");
+    	assertEquals(rel.getName(), "test" , "should be equal to 'test' ");
     	
+    }
+    public void getNameBlank(){
+    	populateClasses();
+    	testEditor.addRelationship("", "class1", "class2");
+    	Relationship rel = testModel.relationshipExist("class1", "class2");
+    	
+    	assertEquals(rel.getName(),"" , "should return ' ' as there is no name");
+
     }
     
     public void getID(){
-    	Relationship relTest = new Relationship("test", class1, class2);
-    	int testID = relTest.getID();
+    	populateClasses();
+    	testEditor.addRelationship("test","class1", "class2");
+    	Relationship rel = testModel.relationshipExist("class1", "class2");
+    	int class1Hash = testModel.fetchClass("class1").hashCode();
+    	int class2Hash = testModel.fetchClass("class2").hashCode();
     	
-    	assertEquals(testID, relTest.getID(), "relTest.getID(), should match testID");
+    	assertEquals(rel.getID(),class1Hash + class2Hash ,"Should return the same value");
     }
     
     public void setName(String newName) {
-    	Relationship relTest = new Relationship("test", class1, class2);
-    	relTest.setName("newTestName");
+    	populateClasses();
+    	testEditor.addRelationship("test","class1", "class2");
+    	Relationship rel = testModel.relationshipExist("class1", "class2");
+    	rel.setName("newName");
     	
-    	assertEquals("newTestName", relTest.getName(), "relTest's name shoult be changed from 'test' to 'newTestName' ");
+    	assertEquals(rel.getName(),"newName" , "rels name should be changed from 'test' to 'newName' ");
     	
     }
 
