@@ -80,4 +80,3 @@ public String listClassNames();
      * @return A String of all attributes in the class
      */
 public String listAttributes(String className);
-}

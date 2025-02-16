@@ -307,7 +307,7 @@ public class CLController {
 		return false;
 	    }
 	}
-	
+
 	/**
 	 * Initializes the controller that allows user to interact
 	 * with UML software
