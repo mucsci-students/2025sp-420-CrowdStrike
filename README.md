@@ -43,14 +43,14 @@ java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp out;lib/*
 #### Linux/Macos
 ```sh
 javac -d out/ -cp lib/*.jar src/*.java
-jar cfe uml.jar CommandLineUMLClassEditorApp -C out/ .
+jar cfe uml.jar UMLClassEditorApp -C out/ .
 java -jar uml.jar
 ```
 
 #### Windows
 ```sh
 javac -d out/ -cp lib/*.jar src/*.java
-jar cfe uml.jar CommandLineUMLClassEditorApp -C out/ .
+jar cfe uml.jar UMLClassEditorApp -C out/ .
 java -jar uml.jar
 ```
 
@@ -68,9 +68,14 @@ The view gets data from the model and displays it to the user. We have implement
 The controller gets the input from the user and changes the state in the model/view accordingly. In our setup, we have a controller that edits the data stored in the model called `UMLEditor.java` and a controller for our view called `CLController.java` that accepts text commands from the user and updates the command line interface.
 
 ## Devs
-Brought to you by:
-dpbrooks - Dylan Brooks
-FinicalMedusa - Michael Bennett
-N-ckM - Nick Mills
-donut0711 - Mark Hilton
+Brought to you by:  
+
+dpbrooks - Dylan Brooks  
+
+FinicalMedusa - Michael Bennett  
+
+N-ckM - Nick Mills  
+
+donut0711 - Mark Hilton  
+
 DmurZel - Darlin Piruch
