@@ -1,3 +1,9 @@
+/**
+ * CLView.java
+ * 
+ * Displays the UML diagram to the user via a command line interface
+ */
+
 public class CLView {
     
     //Displays prompt
@@ -7,7 +13,6 @@ public class CLView {
 
     //this method displays showHelp after using show() to print getInstructions()
     public void showHelp() {
-
         show(getInstructions());
     }
 
@@ -98,14 +103,5 @@ public class CLView {
                     type -> load
                         """;
     }
-        
-
     
-    public static void main(String[] args) {
-        UMLModel model = new UMLModel();
-        UMLEditor editor = new UMLEditor(model);
-        CLView view = new CLView();
-        CLController controller = new CLController(model, editor, view);
-        controller.init();
-    }
 }
