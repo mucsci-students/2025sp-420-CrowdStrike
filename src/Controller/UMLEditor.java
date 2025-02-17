@@ -17,6 +17,15 @@ public class UMLEditor {
 	}
 
 	/**
+	* Updates the model to be a new one;
+	*
+	* @param model The new model to be used;
+	*/
+	public void setModel(UMLModel model){
+		this.model = model;
+	}
+
+	/**
 	 * Set the activeClass to null
 	 */
 	private void resetActiveClass() {
