@@ -47,14 +47,14 @@ java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-
 #### Linux/Macos
 ```sh
 javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
-jar cfe uml.jar UMLClassEditorApp -C out/ .
+jar cfm uml.jar manifest.txt -C out/ .
 java -jar uml.jar
 ```
 
 #### Windows
 ```sh
 javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
-jar cfe uml.jar UMLClassEditorApp -C out/ .
+jar cfm uml.jar manifest.txt -C out/ .
 java -jar uml.jar
 ```
 
