@@ -1,7 +1,6 @@
-
 import java.util.ArrayList;
 
-public class UMLModel {
+public class UMLModel implements UMLModelInterface{
 	
 	// List to track all created classes
     private ArrayList<ClassObject> classList;
