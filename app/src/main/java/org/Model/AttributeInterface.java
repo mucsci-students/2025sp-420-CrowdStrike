@@ -1,5 +1,4 @@
-
-
+package org.Model;
 public interface AttributeInterface {
 	
 	/**

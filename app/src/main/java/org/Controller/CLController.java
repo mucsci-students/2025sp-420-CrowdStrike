@@ -1,5 +1,8 @@
-
+package org.Controller;
 import java.util.Scanner;
+import org.Model.UMLModel;
+import org.View.CLView;
+import org.FileManager;
 
 // Checks validity of action then calls function in
 // editor to carry out change
@@ -321,6 +324,8 @@ public class CLController {
         	// Print the basePrompt asking for next command
         	view.show(basePrompt);
         	// Read user input
+		if(!sc.hasNextLine())
+		    continue;
         	input = sc.nextLine();
         	
         	switch(input.toLowerCase()) {

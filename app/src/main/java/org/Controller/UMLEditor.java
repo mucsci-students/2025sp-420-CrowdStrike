@@ -1,4 +1,8 @@
-
+package org.Controller;
+import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Model.Relationship;
+import org.Model.Attribute;
 
 public class UMLEditor {
 	// The model that is being edited

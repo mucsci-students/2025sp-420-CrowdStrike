@@ -1,3 +1,4 @@
+package org.Model;
 import java.util.ArrayList;
 
 public class UMLModel implements UMLModelInterface{
@@ -14,7 +15,7 @@ public class UMLModel implements UMLModelInterface{
      * Creates an empty array to store classes and relationships
      * Sets relationshipLength to 0
      */
-    UMLModel() {
+    public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
     	relationshipLength = 0;
