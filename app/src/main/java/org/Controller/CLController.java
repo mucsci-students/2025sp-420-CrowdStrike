@@ -305,7 +305,6 @@ public class CLController {
 	    try{
 		FileManager file = new FileManager();
 		model = file.load(path);
-		editor.setModel(model);
 		return true;
 	    } catch (Exception e){
 		return false;
