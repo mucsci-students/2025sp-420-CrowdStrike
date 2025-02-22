@@ -22,39 +22,36 @@ Clone the project from GitHub: `git clone https://github.com/mucsci-students/202
 Cd into the directory: `cd 2025sp-420-CrowdStrike`
 
 ## Running
-First you must download [junit](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar) and [gson](https://repo1.maven.org/maven2/com/google/code/gson/gson/2.12.1/gson-2.12.1.jar) place them in the lib directory.
-
-[junit download](https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar)
-
-[gson download](https://repo1.maven.org/maven2/com/google/code/gson/gson/2.12.1/gson-2.12.1.jar)
 ### Tests
 #### Linux/Macos
 ```sh
-javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
-javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar:out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar:out --scan-class-path
+./gradlew test
 ```
 
 #### Windows
 ```sh
-javac -d out/ -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
-javac -d out/ -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar;out test/*.java
-java -jar lib/junit-platform-console-standalone-1.11.4.jar execute -cp lib/gson-2.12.1.jar;lib/junit-platform-console-standalone-1.11.4.jar;out --scan-class-path
+.\gradlew.bat test
 ```
 
 ### Project
 #### Linux/Macos
+#### GUI
 ```sh
-javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
-jar cfm uml.jar manifest.txt -C out/ .
-java -jar uml.jar
+./gradlew run
+```
+#### CLI
+```sh
+./gradlew run-cli
 ```
 
 #### Windows
+#### GUI
 ```sh
-javac -d out/ -cp lib/gson-2.12.1.jar:lib/junit-platform-console-standalone-1.11.4.jar src/**/*.java
-jar cfm uml.jar manifest.txt -C out/ .
-java -jar uml.jar
+.\gradlew.bat run
+```
+#### CLI
+```sh
+.\gradlew.bat run-cli
 ```
 
 ## Codebase
