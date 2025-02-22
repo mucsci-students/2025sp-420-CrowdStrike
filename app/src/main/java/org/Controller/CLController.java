@@ -328,9 +328,10 @@ public class CLController {
 		    continue;
         	input = sc.nextLine();
         	
-        	switch(input.toLowerCase()) {
+        	switch(input.toLowerCase().replaceAll("\\s", "")) {
         	case "help":
         		//TODO
+				view.showHelp();
         		break;
         	case "save":
 		    	save();
@@ -341,44 +342,44 @@ public class CLController {
         	case "exit":
         		loop = false;
         		break;
-        	case "list classes":
+        	case "listclasses":
         		CL_listClasses();
         		break;
-        	case "list class":
+        	case "listclass":
         		CL_listClassInfo();
         		break;
-        	case "list relationships":
+        	case "listrelationships":
         		CL_listRelationships();
         		break;
-        	case "add class":
+        	case "addclass":
         		//TODO
         		CL_addClass();
         		break;
-        	case "delete class":
+        	case "deleteclass":
         		//TODO
         		CL_deleteClass();
         		break;
-        	case "rename class":
+        	case "renameclass":
         		//TODO
         		CL_renameClass();
         		break;
-        	case "add relationship":
+        	case "addrelationship":
         		//TODO
         		CL_addRelationship();
         		break;
-        	case "delete relationship":
+        	case "deleterelationship":
         		//TODO
         		CL_deleteRelationship();
         		break;
-        	case "add attribute":
+        	case "addattribute":
         		//TODO
         		CL_addAttribute();
         		break;
-        	case "delete attribute":
+        	case "deleteattribute":
         		//TODO
         		CL_deleteAttribute();
         		break;
-        	case "rename attribute":
+        	case "renameattribute":
         		//TODO
         		CL_renameAttribute();
         		break;

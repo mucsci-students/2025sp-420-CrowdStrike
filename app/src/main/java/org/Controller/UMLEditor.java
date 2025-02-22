@@ -258,9 +258,8 @@ public class UMLEditor {
 	 * 
 	 * A string is valid as a class name assuming: 
 	 * 	1. It isn't blank or null 
-	 * 	2. It begins with a letter, underscore, or dollar sign
+	 * 	2. It begins with a letter or underscore
 	 * 	3. It contains only letters, numbers, underscores, and/or dollar signs
-	 * 	4. It is not one of the reserved keywords in Java
 	 * 
 	 * @param className | The class name to be validated
 	 * @return 0 on success, 1-3 on fail
@@ -271,35 +270,15 @@ public class UMLEditor {
 			return 1;
 		}
 
-		// Verify that the first character is valid: in Java, this can be a letter,
-		// underscore, or dollar sign(Only have to check char(0))
-		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_' && className.charAt(0) != '$') {
+		// Verify that the first character is valid: this can be a letter or underscore
+		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_') {
 			return 2;
 		}
 
-		// Verify that the characters are valid: in Java, this can be a letter, number,
-		// underscore, or dollar sign
+		// Verify that the characters are alphanumerics, underscores, or dollar signs
 		for (int i = 0; i < className.length(); i++) {
-			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_'
-					&& className.charAt(i) != '$') {
+			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_') {
 				return 3;
-			}
-		}
-
-		// String array of all the keywords in java (can't be used as a class name)
-		// THIS LIST WAS AI-GENERATED AND HAS NOT BEEN PERSONALLY VERIFIED FOR
-		// CORRECTNESS OR COMPLETION
-		String[] reservedWords = { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
-				"const", "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float",
-				"for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new",
-				"package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
-				"synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "null",
-				"true", "false" };
-
-		// Check the name against the list of reserved words
-		for (String keyword : reservedWords) {
-			if (className.equalsIgnoreCase(keyword)) {
-				return 4;
 			}
 		}
 
