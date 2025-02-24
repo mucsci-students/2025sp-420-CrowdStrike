@@ -60,7 +60,6 @@ public class CLController {
 		} else {
 			view.show("No classes currently exist");
 		}
-		
 	}
 	
 	/**
@@ -80,12 +79,25 @@ public class CLController {
 	private void CL_addClass() {
 		view.show("Enter the new class' name: ");
 		input = sc.nextLine();
-		if (editor.addClass(input)) {
-			// editor.addClass succeeded
-			view.show("Class " + input + " successfully added");
-		} else {
-			// editor.addClass failed
-			view.show("Class " + input + " could not be added");
+		int result = model.isValidClassName(input);
+		switch(result) {
+		case 1:
+			view.show("No class name was given");
+			break;
+		case 2:
+			view.show("Name " + input + " is invalid. First character must be a letter or '_'");
+			break;
+		case 3:
+			view.show("Name " + input + " is invalid. Name can only contain alphanumerics, '_', or '$'");
+			break;
+		case 4:
+			view.show("Name " + input + " is already used by another class");
+			break;
+		case 0:
+		default:
+			editor.addClass(input);
+			view.show("Class " + input + " succesfully added");
+			break;
 		}
 	}
 	
@@ -113,21 +125,34 @@ public class CLController {
 		if (listClassNames()) {
 			view.show("What class would you like to rename?");
 			input = sc.nextLine();
-			view.show("What would you like the new name to be?");
-			String newName = sc.nextLine();
-			int result = editor.renameClass(input, newName);
-			if (result == 0) {
-				// Success
-				view.show("Class " + input + " renamed to " + newName);
-			} else if (result == 1){
-				// Failed b/c class does not exist
-				view.show("Class " + input + " does not exist");
-			} else if (result == 2) {
-				// Failed b/c tried to rename to existing name
-				view.show("Tried to rename to existing name");
+			ClassObject activeClass = model.fetchClass(input);
+			if (renameClass != null) {
+				// Class to be renamed exists
+				view.show("What would you like the new name of the class tobe ?");
+				String newName = sc.nextLine();
+				int result = model.isValidClassName(newName);
+				switch(result) {
+				case 1:
+					view.show("No new class name was given");
+					break;
+				case 2:
+					view.show("Name " + newName + " is invalid. First character must be a letter or '_'");
+					break;
+				case 3:
+					view.show("Name " + newName + " is invalid. Name can only contain alphanumerics, '_', or '$'");
+					break;
+				case 4:
+					view.show("Name " + newName + " is alreadyused by another class");
+					break;
+				case 0:
+				default:
+					editor.renameClass(activeClass, newName);
+					view.show("Class " input + " renmaed to " + newName);
+					break;
+				}
 			} else {
-				// Failed b/c newName is invalid
-				view.show("Name " + newName + " is invalid");
+				// Class to be renamed does not exist
+				view.show("Class " + input + " does not exist");
 			}
 		} else {
 			view.show("No classes currently exist");

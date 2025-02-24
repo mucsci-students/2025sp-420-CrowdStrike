@@ -27,21 +27,11 @@ public class UMLEditor {
 	 * Adds a new class to the list of classes
 	 * 
 	 * @param newClass | ClassObject to be added to classList
-	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean addClass(String newClassName) {
-		if (isValidClassName(newClassName) == 0) {
-			if (model.fetchClass(newClassName) != null) {
-				// Class already exists
-				return false;
-			} else {
-				// Class does not exist
-				ClassObject newClass = new ClassObject(newClassName);
-				model.getClassList().add(newClass);
-				return true;
-			}
-		}
-		return false;
+	public void addClass(String newClassName) {
+		ClassObject newClass = new ClassObject(newClassName);
+		model.getClassList().add(newClass);
+
 	}
 
 	/**
@@ -83,29 +73,11 @@ public class UMLEditor {
 	/**
 	 * Renames a class
 	 * 
-	 * @param className | Name of class to be renamed
-	 * @param newName   | New name to give the class
-	 * @return Number indicating status of operation
+	 * @param renameClass | The class being renamed
+	 * @param newName     | New name to give the class
 	 */
-	public int renameClass(String className, String newName) {
-		if (isValidClassName(newName) != 0) {
-			return 3;
-		}
-		activeClass = model.fetchClass(newName);
-		if (activeClass != null) {
-			// Class with newName already exists
-			resetActiveClass();
-			return 2;
-		}
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class being renamed does not exist
-			return 1;
-		}
-		// Class exists and newName is valid
-		activeClass.setName(newName);
-		resetActiveClass();
-		return 0;
+	public int renameClass(ClassObject renameClass, String newName) {
+		renameClass.setName(newName);
 	}
 
 	/**
@@ -238,38 +210,5 @@ public class UMLEditor {
 		}
 		resetActiveClass();
 		return false;
-	}
-
-	/**
-	 * Validates whether the provided string could be a valid Java class name
-	 * 
-	 * A string is valid as a class name assuming: 
-	 * 	1. It isn't blank or null 
-	 * 	2. It begins with a letter or underscore
-	 * 	3. It contains only letters, numbers, underscores, and/or dollar signs
-	 * 
-	 * @param className | The class name to be validated
-	 * @return 0 on success, 1-3 on fail
-	 */
-	public static int isValidClassName(String className) {
-		// Check if the className is null or an empty string.
-		if (className == null || className.isEmpty()) {
-			return 1;
-		}
-
-		// Verify that the first character is valid: this can be a letter or underscore
-		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_') {
-			return 2;
-		}
-
-		// Verify that the characters are alphanumerics, underscores, or dollar signs
-		for (int i = 0; i < className.length(); i++) {
-			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_') {
-				return 3;
-			}
-		}
-
-		// The className passed all checks and will be declared valid
-		return 0;
 	}
 }
