@@ -5,6 +5,7 @@ import java.io.FileWriter;
 
 import java.util.function.Function;
 import java.util.ArrayList;
+import java.lang.StringBuilder;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,21 +21,21 @@ import org.Model.Relationship;
 public class FileManager {
 
 	public void save(String path, UMLModel model) throws Exception {
-		String json = "";
+	    StringBuilder json = new StringBuilder();
 		FileWriter writer = new FileWriter(path);
 
-		json += "{";
-		json += jsonCommas("\"classes\": [", "],", model.getClassList(), this::classToJson);
-		json += jsonCommas("\"relationships\": [", "]", model.getRelationshipList(), this::relationshipToJson);
-		json += "}";
+		json.append("{");
+		json.append(jsonCommas("\"classes\": [", "],", model.getClassList(), this::classToJson));
+		json.append(jsonCommas("\"relationships\": [", "]", model.getRelationshipList(), this::relationshipToJson));
+		json.append("}");
 
 		/* use gson to format */
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		JsonElement jsonElement = JsonParser.parseString(json);
-		json = gson.toJson(jsonElement);
+		JsonElement jsonElement = JsonParser.parseString(json.toString());
+		String jsonstr = gson.toJson(jsonElement);
 		/**/
 
-		writer.write(json);
+		writer.write(jsonstr);
 		writer.close();
 
 	}
@@ -47,27 +48,27 @@ public class FileManager {
 	}
 
 	private <T> String jsonCommas(String begin, String end, ArrayList<T> data, Function<T, String> convert) {
-		String ret = begin;
+	    StringBuilder ret = new StringBuilder(begin);
 		boolean first = true;
 		for (T obj : data) {
 			if (!first)
-				ret += ",";
+			    ret.append(",");
 			first = false;
-			ret += convert.apply(obj);
+			ret.append(convert.apply(obj));
 		}
-		ret += end;
-		return ret;
+		ret.append(end);
+		return ret.toString();
 	}
 
-	private String classToJson(ClassObject c) {
-		String ret = "{\"name\": \"" + c.getName() + "\",";
-		ret += jsonCommas("\"fields\": [", "],", c.getAttrList(), this::attributeToJson);// TODO replace with
-													// fields
-		ret += jsonCommas("\"methods\": [", "]", c.getAttrList(), this::attributeToJson);// TODO replace with
-													// methods
-		ret += "}";
-		return ret;
-	}
+        private String classToJson(ClassObject c) {
+            StringBuilder ret =  new StringBuilder("{\"name\": \"" + c.getName() + "\",");
+            ret.append(jsonCommas("\"fields\": [", "],", c.getAttrList(), this::attributeToJson));// TODO replace with
+                                                                                                        // fields
+            ret.append(jsonCommas("\"methods\": [", "]", c.getAttrList(), this::attributeToJson));// TODO replace with
+                                                                                                        // methods
+            ret.append("}");
+            return ret.toString();
+        }
 
 	private String attributeToJson(Attribute a) { // TODO replace with fieds and methods
 		return String.format("{\"name\": \"%s\"}", a.getName());
