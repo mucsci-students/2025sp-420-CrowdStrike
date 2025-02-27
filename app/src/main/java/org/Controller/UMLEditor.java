@@ -1,4 +1,8 @@
-
+package org.Controller;
+import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Model.Relationship;
+import org.Model.Attribute;
 
 public class UMLEditor {
 	// The model that is being edited
@@ -76,7 +80,7 @@ public class UMLEditor {
 	 * @param renameClass | The class being renamed
 	 * @param newName     | New name to give the class
 	 */
-	public int renameClass(ClassObject renameClass, String newName) {
+	public void renameClass(ClassObject renameClass, String newName) {
 		renameClass.setName(newName);
 	}
 

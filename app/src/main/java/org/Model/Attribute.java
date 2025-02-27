@@ -1,5 +1,4 @@
-
-
+package org.Model;
 public class Attribute implements AttributeInterface {
 
 	// Attribute Name

@@ -1,3 +1,4 @@
+package org.Model;
 //relationship.java
 
 //Class to represent a single relationship object
