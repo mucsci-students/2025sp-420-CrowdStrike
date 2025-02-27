@@ -12,6 +12,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Model.Attribute;
+import org.Model.Relationship;
 
 
 public class FileManager {
