@@ -80,7 +80,7 @@ public class UMLEditor {
 	 * @param renameClass | The class being renamed
 	 * @param newName     | New name to give the class
 	 */
-	public int renameClass(ClassObject renameClass, String newName) {
+	public void renameClass(ClassObject renameClass, String newName) {
 		renameClass.setName(newName);
 	}
 

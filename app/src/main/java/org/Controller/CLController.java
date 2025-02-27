@@ -1,6 +1,7 @@
 package org.Controller;
 import java.util.Scanner;
 import org.Model.UMLModel;
+import org.Model.ClassObject;
 import org.View.CLView;
 import org.FileManager;
 
@@ -129,7 +130,7 @@ public class CLController {
 			view.show("What class would you like to rename?");
 			input = sc.nextLine();
 			ClassObject activeClass = model.fetchClass(input);
-			if (renameClass != null) {
+			if (activeClass != null) {
 				// Class to be renamed exists
 				view.show("What would you like the new name of the class tobe ?");
 				String newName = sc.nextLine();
@@ -150,7 +151,7 @@ public class CLController {
 				case 0:
 				default:
 					editor.renameClass(activeClass, newName);
-					view.show("Class " input + " renmaed to " + newName);
+					view.show("Class " + input + " renmaed to " + newName);
 					break;
 				}
 			} else {
