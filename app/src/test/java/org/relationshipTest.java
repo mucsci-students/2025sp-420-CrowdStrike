@@ -1,5 +1,10 @@
+package org;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.Test;
+
+import org.Model.UMLModel;
+import org.Model.Relationship;
+import org.Controller.UMLEditor;
 
 public class relationshipTest {
 	UMLModel testModel = new UMLModel();

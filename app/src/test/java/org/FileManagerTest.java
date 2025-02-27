@@ -1,14 +1,20 @@
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package org;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-// TODO write tests
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Model.Relationship;
+
 class FileManagerSaveTest {
 	FileManager file;
 	UMLModel mdl;
@@ -102,7 +108,7 @@ class FileManagerLoadTest {
 	@Test
 	public void loadOK() {
 		try {
-			UMLModelInterface a = file.load(PATH);
+			UMLModel a = file.load(PATH);
 			assertEquals(a.listClasses(), mdl.listClasses(), "Miss match classes.");
 			assertEquals(a.listRelationships(), mdl.listRelationships(), "Miss match relationships.");
 		} catch (Exception e) {
@@ -114,7 +120,7 @@ class FileManagerLoadTest {
 	@Test
 	public void loadNoFile() {
 		try {
-			UMLModelInterface a = file.load("");
+			UMLModel a = file.load("");
 			fail("loaded empty path");
 		} catch (Exception e) {
 		}
@@ -123,7 +129,7 @@ class FileManagerLoadTest {
 	@Test
 	public void loadBadFile() {
 		try {
-			UMLModelInterface a = file.load("");
+			UMLModel a = file.load("");
 			fail("loaded bad file");
 		} catch (Exception e) {
 		}

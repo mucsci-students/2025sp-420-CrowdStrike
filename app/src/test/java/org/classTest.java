@@ -1,10 +1,14 @@
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
+package org;
 
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Model.Attribute;
+import org.Controller.UMLEditor;
 
 public class classTest {
 	UMLModel testModel = new UMLModel();

@@ -1,3 +1,4 @@
+package org.Model;
 import java.util.ArrayList;
 
 public class UMLModel implements UMLModelInterface{
@@ -14,7 +15,7 @@ public class UMLModel implements UMLModelInterface{
      * Creates an empty array to store classes and relationships
      * Sets relationshipLength to 0
      */
-    UMLModel() {
+    public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
     	relationshipLength = 0;
@@ -293,4 +294,43 @@ public class UMLModel implements UMLModelInterface{
     	}
     	return finalString;
     }
+
+    /**
+	 * Validates whether the provided string could be a valid Java class name
+	 * 
+	 * A string is valid as a class name assuming: 
+	 * 	1. It isn't blank or null 
+	 * 	2. It begins with a letter or underscore
+	 * 	3. It contains only letters, numbers, underscores, and/or dollar signs
+	 *  4. Class w/ ClassName already exists
+	 * 
+	 * @param className | The class name to be validated
+	 * @return 0 on success, 1-3 on fail
+	 */
+	public int isValidClassName(String className) {
+		// Check if the className is null or an empty string.
+		if (className == null || className.isEmpty()) {
+			return 1;
+		}
+
+		// Verify that the first character is valid: this can be a letter or underscore
+		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_') {
+			return 2;
+		}
+
+		// Verify that the characters are alphanumerics, underscores, or dollar signs
+		for (int i = 0; i < className.length(); i++) {
+			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_') {
+				return 3;
+			}
+		}
+
+		// Check if class w/ className already exists
+		if (fetchClass(className) != null) {
+			return 4;
+		}
+
+		// The className passed all checks and will be declared valid
+		return 0;
+	}
 }

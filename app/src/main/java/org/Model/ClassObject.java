@@ -1,5 +1,4 @@
-
-
+package org.Model;
 import java.util.ArrayList;
 
 //Creates a Class object

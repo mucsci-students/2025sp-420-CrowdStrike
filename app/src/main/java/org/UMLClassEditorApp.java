@@ -1,3 +1,8 @@
+package org;
+import org.View.CLView;
+import org.Controller.CLController;
+import org.Controller.UMLEditor;
+import org.Model.UMLModel;
 /**
  * UMLClassEditorApp.java
  * 
