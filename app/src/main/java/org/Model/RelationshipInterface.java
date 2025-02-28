@@ -73,5 +73,5 @@ public interface RelationshipInterface {
      * @param Object other
      * @return boolean denoting equivalency
      */
-    boolean equals(Object other);
+    //boolean equals(Object other);
 }
