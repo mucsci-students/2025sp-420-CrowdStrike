@@ -11,84 +11,116 @@ import view.ClassBox;
 public class GUIController {
     private GUIView view;
     private List<ClassBox> classBoxes = new ArrayList<>();
-
-    // State Variables
-    private boolean addClassMode = false;
+    private List<Relationship> relationships = new ArrayList<>();
+    private ClassBox selectedClassBox = null;
     private boolean addRelationshipMode = false;
-    private JComponent selectedAnchor1 = null;
-    private JComponent selectedAnchor2 = null;
-    private ClassBox selectedClassBox = null;  // Track the currently selected class box
+    private ClassBox selectedDestination = null;
+    private ClassBox selectedSource = null;
 
+    
+    
+
+    /**
+	 * Constructor for GUI
+	 * @param view | Contains methods that will paint the Panel of the Diagram
+	 */
     public GUIController(GUIView view) {
         this.view = view;
         initController();
     }
 
     // ==================== INITIALIZATION ==================== //
+
+    /**
+	 * Checks if buttons were pressed
+	 */
     private void initController() {
-        initMouseListeners();
         initButtonActions();
     }
 
     // ==================== EVENT HANDLERS ==================== //
-    private void initMouseListeners() {
-        // Handle class creation only when "Add Class" is toggled ON
-        view.getDrawingPanel().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (addClassMode) {
-                    addClass(e.getX(), e.getY());
-                }
-            }
-        });
-    }
 
+    /**
+	 * assigns actions to buttons in the GUI
+	 */
     private void initButtonActions() {
-        // TRy Radio Button
-
-        view.getAddClassButton().addActionListener(e -> {
-            addClassMode = view.getAddClassButton().isSelected();// gets view to show that the button has been selected 
-        });
+        view.getAddClassButton().addActionListener(e -> promptForClassName());
+        view.getDeleteClassButton().addActionListener(e -> deleteSelectedClass());
+        view.getRenameClassButton().addActionListener(e -> renameSelectedClass());
 
         view.getAddRelationshipButton().addActionListener(e -> {
-            addRelationshipMode = view.getAddRelationshipButton().isSelected();
-            if (addRelationshipMode) {
-                JOptionPane.showMessageDialog(view, "Click on two anchors to create a relationship.");
-            }
-        });
-    }
-
-    // ==================== CLASS BOX HANDLING ==================== //
-    private void addClass(int x, int y) {
-        int boxWidth = 150;
-        int boxHeight = 100;
-        int margin = 10;
-        Rectangle newRect = new Rectangle(x, y, boxWidth, boxHeight);
-
-        for (JPanel box : classBoxes) {
-            Rectangle existingRect = box.getBounds();
-            Rectangle expandedRect = new Rectangle(
-                    existingRect.x - margin,
-                    existingRect.y - margin,
-                    existingRect.width + 2 * margin,
-                    existingRect.height + 2 * margin
-            );
-            if (newRect.intersects(expandedRect)) {
-                JOptionPane.showMessageDialog(view.getDrawingPanel(),
-                        "Cannot place box here: too close to an existing box.");
+            if (classBoxes.size() < 2) {
+                JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            addRelationshipMode = view.getAddRelationshipButton().isSelected();
+            if (addRelationshipMode) {
+                JOptionPane.showMessageDialog(view, "Click on a source class, then a destination class.");
+            } else {
+                resetRelationshipSelection();
+            }
+        });
 
-        ClassBox classBox = new ClassBox("ClassName");
-        classBox.setBounds(x, y, boxWidth, boxHeight);
+        view.getDeleteRelationshipButton().addActionListener(e -> deleteRelationship());
+    }
 
-        addAnchorsToClass(classBox);
+    // ==================== ADD CLASS ==================== //
+     /**
+     * Prompts user for a class name and creates a new class if valid.
+     */
+    private void promptForClassName() {
+        String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
+        if (className == null || className.trim().isEmpty()) return;
 
-        // Add Mouse Listener to select the class box
+        className = className.trim();
+
+        for (ClassBox box : classBoxes) {
+            if (box.getClassName().equalsIgnoreCase(className)) {
+                JOptionPane.showMessageDialog(view, "Class name already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        addClass(className);
+    }
+
+
+    /**
+     * Renames the currently selected class.
+     */
+    private void renameSelectedClass(){
+        String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
+        if(className == null || className.trim().isEmpty()) return;
+
+        className = className.trim();
+
+         for (ClassBox box : classBoxes) {
+            if (box.getClassName().equalsIgnoreCase(className)) {
+                JOptionPane.showMessageDialog(view, "Class name already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        //TODO
+
+    }
+
+    /**
+     * Creates and positions a new class box in the diagram.
+     * @param className The name of the new class
+     */
+    private void addClass(String className) {
+        ClassBox classBox = new ClassBox(className);
+        Point position = getNextGridPosition();
+        classBox.setBounds(position.x, position.y, 150, 100);
+
         classBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                selectClassBox(classBox);
+                if (addRelationshipMode) {
+                    handleRelationshipSelection(classBox);
+                } else {
+                    selectClassBox(classBox);
+                }
                 e.consume();
             }
         });
@@ -99,80 +131,148 @@ public class GUIController {
         view.getDrawingPanel().repaint();
     }
 
-    // ==================== CLASS SELECTION HANDLING ==================== //
+    // ==================== DELETE CLASS (ON CLICK + BUTTON) ==================== //
+
+     /**
+     * Deletes the currently selected class box.
+     */
+    private void deleteSelectedClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "No class selected!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(view, "Are you sure you want to delete this class?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Remove from panel
+        view.getDrawingPanel().remove(selectedClassBox);
+        classBoxes.remove(selectedClassBox);
+        removeRelationships(selectedClassBox);
+
+        selectedClassBox = null;
+        view.getDrawingPanel().revalidate();
+        view.getDrawingPanel().repaint();
+    }
+
+     /**
+     * Handles selecting source and destination for a relationship.
+     */
+    // ==================== RELATIONSHIP HANDLING ==================== //
+    private void handleRelationshipSelection(ClassBox classBox) {
+        if (selectedSource == null) {
+            selectedSource = classBox;
+            selectedSource.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
+        } else {
+            selectedDestination = classBox;
+            if (selectedSource == selectedDestination) {
+                JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!", "Error", JOptionPane.ERROR_MESSAGE);
+                resetRelationshipSelection();
+                return;
+            }
+
+            createRelationship(selectedSource, selectedDestination);
+        }
+    }
+
+    /**
+     * Creates a new relationship between two selected classes.
+     */
+    private void createRelationship(ClassBox source, ClassBox destination) {
+        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
+        String type = (String) JOptionPane.showInputDialog(view, "Select Relationship Type:", "Relationship Type",
+                JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
+
+        if (type == null) {
+            resetRelationshipSelection();
+            return;
+        }
+
+        Relationship relationship = new Relationship(source, destination, type);
+        relationships.add(relationship);
+
+        view.getDrawingPanel().addRelationship(source.getCenter(), destination.getCenter(), type);
+        resetRelationshipSelection();
+    }
+
+    /**
+     * Deletes the last relationship added.
+     */
+    private void deleteRelationship() {
+        if (relationships.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No relationships to delete!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Relationship toRemove = relationships.get(relationships.size() - 1);
+        relationships.remove(toRemove);
+        view.getDrawingPanel().removeRelationship(toRemove.getSource().getCenter(), toRemove.getDestination().getCenter());
+
+        view.getDrawingPanel().repaint();
+    }
+
+    private void removeRelationships(ClassBox classBox) {
+        relationships.removeIf(r -> r.getSource() == classBox || r.getDestination() == classBox);
+        view.getDrawingPanel().repaint();
+    }
+
+    /**
+     * Removes all relationships connected to a deleted class.
+     */
+    private void resetRelationshipSelection() {
+        if (selectedSource != null) selectedSource.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        selectedSource = null;
+        selectedDestination = null;
+        addRelationshipMode = false;
+        view.getAddRelationshipButton().setSelected(false);
+    }
+
+    // ==================== GRID POSITIONING ==================== //
+    /**
+     * Determines the next position for a new class box based on a grid layout.
+     */
+    private Point getNextGridPosition() {
+        int numBoxes = classBoxes.size();
+        int maxCols = view.getDrawingPanel().getWidth() / (150 + 20);
+        if (maxCols == 0) maxCols = 1;
+
+        int gridCols = numBoxes % maxCols;
+        int gridRows = numBoxes / maxCols;
+
+        return new Point(gridCols * (150 + 20), gridRows * (100 + 20));
+    }
+
+    // ==================== CLASS SELECTION ==================== //
+
     private void selectClassBox(ClassBox classBox) {
-        // Remove highlight from previous selection
         if (selectedClassBox != null) {
             selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         }
 
-        // Highlight the selected box
         selectedClassBox = classBox;
-        selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
-        view.getDrawingPanel().repaint();
+        selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
     }
 
-    // ==================== RELATIONSHIP HANDLING ==================== //
-    private void addAnchorsToClass(JPanel classPanel) {
-        int anchorSize = 10;
+    // ==================== RELATIONSHIP CLASS ==================== //
+    /**
+     * Defines a relationship between two class boxes.
+     */
+    private static class Relationship {
+        private final ClassBox source;
+        private final ClassBox destination;
+        private final String type;
 
-        JPanel topAnchor = createAnchor();
-        topAnchor.setBounds((classPanel.getWidth() - anchorSize) / 2, 0, anchorSize, anchorSize);
-        classPanel.add(topAnchor);
-
-        JPanel bottomAnchor = createAnchor();
-        bottomAnchor.setBounds((classPanel.getWidth() - anchorSize) / 2, classPanel.getHeight() - anchorSize, anchorSize, anchorSize);
-        classPanel.add(bottomAnchor);
-
-        JPanel leftAnchor = createAnchor();
-        leftAnchor.setBounds(0, (classPanel.getHeight() - anchorSize) / 2, anchorSize, anchorSize);
-        classPanel.add(leftAnchor);
-
-        JPanel rightAnchor = createAnchor();
-        rightAnchor.setBounds(classPanel.getWidth() - anchorSize, (classPanel.getHeight() - anchorSize) / 2, anchorSize, anchorSize);
-        classPanel.add(rightAnchor);
-    }
-
-    private JPanel createAnchor() {
-        JPanel anchor = new JPanel();
-        anchor.setBackground(Color.RED);
-        anchor.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        anchor.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                anchorClicked((JComponent) e.getSource());
-                e.consume();
-            }
-        });
-        return anchor;
-    }
-
-    private void anchorClicked(JComponent anchor) {
-        if (!addRelationshipMode) {
-            return;
+        public Relationship(ClassBox source, ClassBox destination, String type) {
+            this.source = source;
+            this.destination = destination;
+            this.type = type;
         }
-        if (selectedAnchor1 == null) {
-            selectedAnchor1 = anchor;
-        } else {
-            selectedAnchor2 = anchor;
-            createRelationship(selectedAnchor1, selectedAnchor2);
-            selectedAnchor1 = null; // Reset for next relationship
-        }
-    }
 
-    private void createRelationship(JComponent anchor1, JComponent anchor2) {
-        Point p1 = SwingUtilities.convertPoint(anchor1, anchor1.getWidth() / 2, anchor1.getHeight() / 2, view.getDrawingPanel());
-        Point p2 = SwingUtilities.convertPoint(anchor2, anchor2.getWidth() / 2, anchor2.getHeight() / 2, view.getDrawingPanel());
-
-        view.getDrawingPanel().addRelationship(p1, p2, "Association");
-        resetArrowDrawing();
-        view.getAddRelationshipButton().setSelected(false);
-    }
-
-    private void resetArrowDrawing() {
-        selectedAnchor1 = null;
-        selectedAnchor2 = null;
-        addRelationshipMode = false;
+        public ClassBox getSource() { return source; }
+        public ClassBox getDestination() { return destination; }
+        public String getType() { return type; }
     }
 
     public static void main(String[] args) {
