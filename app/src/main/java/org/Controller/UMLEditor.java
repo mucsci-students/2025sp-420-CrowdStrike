@@ -144,6 +144,32 @@ public class UMLEditor {
 		return false;
 	}
 
+	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue){
+		Relationship relExist = model.relationshipExist(source, dest);
+		if (fieldToUpdate.equals("name")){
+			relExist.setName(newValue);
+		}
+		else if (fieldToUpdate.equals("source")){
+			if(model.fetchClass(newValue)!=null)
+				relExist.setSource(model.fetchClass(newValue));
+			//else return 2;
+		}
+		else if (fieldToUpdate.equals("destination")){
+			if(model.fetchClass(newValue)!=null)
+				relExist.setDestination(model.fetchClass(newValue));
+			//else return 2;
+		}
+		else if (fieldToUpdate.equals("type")){
+			
+		}
+		else
+		{
+			//return 1;
+		}
+		//oreturn 0;
+	}
+
+
 	/**
 	 * Adds attribute to the indicated class
 	 * 

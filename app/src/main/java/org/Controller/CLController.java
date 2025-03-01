@@ -212,22 +212,25 @@ public class CLController {
 	private void CL_editRelationship(){
 		// VERY BROKEN RIGHT NOW
 		if (!model.listRelationships().isEmpty()) {
-			view.show("What relationship would you like to edit?");
-			//validate if input is an int between 0 and relationshiplist's length
-			int rel_index = sc.nextInt();
-			Relationship relEdit = model.getRelationshipList().get(rel_index);
+			view.show("What is the source of the relationship are you changing?");
+			String source = sc.nextLine();
+			view.show("What is the destination of the relationship are you changing?");
+			String dest = sc.nextLine();
 
 			view.show("What property of the relationship are you changing?");
-			input = sc.nextLine().toLowerCase();
-			switch(input){
+			String field = sc.nextLine().toLowerCase();
+			String value = null;
+			switch(field){
 				case "name":
 					view.show("What do you want to name the relationship?");
-					String newName = sc.nextLine();
-					view.show("Relationship successfully renamed " + newName);
+					value = sc.nextLine();
+					view.show("Relationship successfully renamed " + value);
 					break;
 
 				case "source":
-					//
+					view.show("What do you want to name the new source?");
+					value = sc.nextLine();
+					view.show("Relationship's source successfully set to " + value);
 					break;
 
 				case "destination":
@@ -240,10 +243,10 @@ public class CLController {
 
 				default:
 					//
-					view.show("Unfortunately, we don't support changing the " + input + " of a relationship right now.");
+					view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now.");
 					break;
 			}
-
+		editor.editRelationship(source, dest, field, value);
 
 		}
 		else{
