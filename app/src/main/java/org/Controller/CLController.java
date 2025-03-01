@@ -4,6 +4,8 @@ import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.View.CLView;
 import org.FileManager;
+import org.Model.Relationship;
+import org.Model.Relationship.Type;
 
 // Checks validity of action then calls function in
 // editor to carry out change
@@ -181,8 +183,20 @@ public class CLController {
 			String source = sc.nextLine();
 			view.show("Enter the destination class");
 			String dest = sc.nextLine();
-			if (editor.addRelationship(input, source, dest)) {
-				view.show("Relationship " + input + " successfully created");
+			String typeint = "0";
+			Type type = null;
+			while(!(typeint.equals("1")||typeint.equals("2")||typeint.equals("3")||typeint.equals("4"))){
+				view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
+				typeint = sc.nextLine(); 
+				if (typeint.equals("1")){ type = Type.AGGREGATION;}
+				else if (typeint.equals("2")){ type = Type.COMPOSITION;}
+				else if (typeint.equals("3")){ type = Type.INHERITANCE;}
+				else if (typeint.equals("4")){ type = Type.REALIZATION;}
+			
+			}
+
+			if (type!=null && editor.addRelationship(input, source, dest, type)) {
+				view.show(type + " Relationship " + input + " successfully created from " + source + " to " + dest);
 			} else {
 				view.show("Relationship " + input + " could not be created");
 			}
@@ -190,6 +204,51 @@ public class CLController {
 			view.show("No classes currently exist");
 		}
 		
+	}
+
+	/**
+	 * Enables the editing of existing relationships from the CLI editor
+	 */
+	private void CL_editRelationship(){
+		// VERY BROKEN RIGHT NOW
+		if (!model.listRelationships().isEmpty()) {
+			view.show("What relationship would you like to edit?");
+			//validate if input is an int between 0 and relationshiplist's length
+			int rel_index = sc.nextInt();
+			Relationship relEdit = model.getRelationshipList().get(rel_index);
+
+			view.show("What property of the relationship are you changing?");
+			input = sc.nextLine().toLowerCase();
+			switch(input){
+				case "name":
+					view.show("What do you want to name the relationship?");
+					String newName = sc.nextLine();
+					view.show("Relationship successfully renamed " + newName);
+					break;
+
+				case "source":
+					//
+					break;
+
+				case "destination":
+					//
+					break;
+
+				case "type":
+					//
+					break;
+
+				default:
+					//
+					view.show("Unfortunately, we don't support changing the " + input + " of a relationship right now.");
+					break;
+			}
+
+
+		}
+		else{
+			view.show("No relationships exist to edit!");
+		}
 	}
 	
 	/**
@@ -396,6 +455,9 @@ public class CLController {
         		//TODO
         		CL_deleteRelationship();
         		break;
+			case "editrelationship":
+				CL_editRelationship();
+				break;
         	case "addattribute":
         		//TODO
         		CL_addAttribute();

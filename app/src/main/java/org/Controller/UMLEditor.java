@@ -3,6 +3,7 @@ import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Relationship;
 import org.Model.Attribute;
+import org.Model.Relationship.Type;
 
 public class UMLEditor {
 	// The model that is being edited
@@ -91,7 +92,7 @@ public class UMLEditor {
 	 * @param newRel | Relationship to be added to relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean addRelationship(String name, String source, String dest) {
+	public boolean addRelationship(String name, String source, String dest, Type type) {
 		ClassObject sourceClass = model.fetchClass(source);
 		if (source != null) {
 			// Source class does exist
@@ -99,10 +100,10 @@ public class UMLEditor {
 			if (destClass != null) {
 				// Destination class does exist
 				// Check if relationship already exists
-				if (model.relationshipExist(source, dest) == null) {
+				if (model.relationshipExist(source, dest, type) == null) {
 					// Relationship does not already exist
 					// Create new Relationship
-					Relationship newRel = new Relationship(name, sourceClass, destClass);
+					Relationship newRel = new Relationship(name, sourceClass, destClass, type);
 					// Update longest relationship name if needed
 					if (newRel.getName().length() > model.getRelationshipLength()) {
 						model.setRelationshipLength(newRel.getName().length());

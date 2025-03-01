@@ -102,10 +102,10 @@ public class Relationship{
      */
     public String getTypeString(){
         switch (this.type) {
-            case AGGREGATION: return "Aggregation"; break;
-            case COMPOSITION: return "Composition"; break;
-            case INHERITANCE: return "Inheritance"; break;
-            case REALIZATION: return "Realization"; break;
+            case AGGREGATION: return "Aggregation"; 
+            case COMPOSITION: return "Composition"; 
+            case INHERITANCE: return "Inheritance"; 
+            default: return "Realization"; 
         }
     }
 

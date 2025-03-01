@@ -1,3 +1,5 @@
+package org.Model;
+
 // RelationshipInterface.java
 // 
 
