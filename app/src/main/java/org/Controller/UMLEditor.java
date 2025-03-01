@@ -2,7 +2,11 @@ package org.Controller;
 import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Relationship;
-import org.Model.Attribute;
+import org.Model.AttributeInterface;
+import org.Model.Field;
+import org.Model.Method;
+import org.Model.Parameter;
+import java.util.ArrayList;
 
 public class UMLEditor {
 	// The model that is being edited
@@ -144,75 +148,45 @@ public class UMLEditor {
 	}
 
 	/**
-	 * Adds attribute to the indicated class
+	 * Adds a field to the designated ClassObject
 	 * 
-	 * @param className | Name of class to add attribute to
-	 * @param newAttr   | Attribute to be added
-	 * @return True if operation succeeded, false otherwise
+	 * @param cls			| The class the method is being added to
+	 * @param fieldName		| The name of the field
 	 */
-	public boolean addAttribute(String className, String attrName) {
-		// Use the class name to fetch the ClassObject from classList
-		activeClass = model.fetchClass(className);
-		if (activeClass != null) {
-			// Class exists
-			if (activeClass.fetchAttribute(attrName) == null) {
-				// Attribute does not exist
-				Attribute newAttr = new Attribute(attrName);
-				activeClass.addAttribute(newAttr);
-				resetActiveClass();
-				return true;
-			}
-		}
-		resetActiveClass();
-		return false;
+	public void addField(ClassObject cls, String fieldName) {
+		Field fld = new Field(fieldName);
+		cls.addAttribute(fld);
+	}
+	
+	/**
+	 * Adds a method to the designated ClassObject
+	 * 
+	 * @param cls			| The class the method is being added to
+	 * @param methodName	| The name of the method
+	 * @param paramList		| The parameter list the method will have
+	 */
+	public void addMethod(ClassObject cls, String methodName, ArrayList<Parameter> paramList) {
+		Method method = new Method(methodName, paramList);
+		cls.addAttribute(method);
 	}
 
 	/**
-	 * Deletes attribute from the indicated class
+	 * Deletes fields or methods from the designated ClassObject
 	 * 
-	 * @param className | Name of class to delete attribute from
-	 * @param delAttr   | Attribute to be removed
-	 * @return True if operation succeeded, false otherwise
+	 * @param cls 		| The class from which the field/method is to be deleted from
+	 * @param delAttr   | The field/method to be removed
 	 */
-	public boolean deleteAttribute(String className, String attrName) {
-		// Use the class name to fetch the ClassObject from classList
-		activeClass = model.fetchClass(className);
-		if (activeClass != null) {
-			// Class exists
-			Attribute attr = activeClass.fetchAttribute(attrName);
-			if (attr != null) {
-				// Attribute exists in class
-				activeClass.removeAttribute(attr);
-				resetActiveClass();
-				return true;
-			}
-		}
-		resetActiveClass();
-		return false;
+	public void deleteAttribute(ClassObject cls, AttributeInterface delAttr) {
+		cls.removeAttribute(delAttr);
 	}
-
+	
 	/**
-	 * Renames the indicated attribute in the indicated class
+	 * Renames fields or methods from the designated ClassObject
 	 * 
-	 * @param className | Name of class attribute is in
-	 * @param curName   | Current name of the attribute to be renamed
-	 * @param newName   | New name to give attribute
-	 * @return True if operation succeeded, false otherwise
+	 * @param renameAttr	| The filed/method being renamed
+	 * @param newName		| The new name for the field/method
 	 */
-	public boolean renameAttribute(String className, String curName, String newName) {
-		// Use the class name to fetch the ClassObject from classList
-		activeClass = model.fetchClass(className);
-		if (activeClass != null) {
-			// Class exists
-			Attribute attr = activeClass.fetchAttribute(curName);
-			if (attr != null) {
-				// Attribute exists
-				attr.renameAttribute(newName);
-				resetActiveClass();
-				return true;
-			}
-		}
-		resetActiveClass();
-		return false;
+	public void renameAttribute(AttributeInterface renameAttr, String newName) {
+		renameAttr.renameAttribute(newName);
 	}
 }
