@@ -216,38 +216,44 @@ public class CLController {
 			String source = sc.nextLine();
 			view.show("What is the destination of the relationship are you changing?");
 			String dest = sc.nextLine();
+			if(model.relationshipExist(source, dest)!=null){
+				view.show("What property of the relationship are you changing?");
+				String field = sc.nextLine().toLowerCase();
+				String value = null;
+					switch(field){
+						case "name":
+							view.show("What do you want to name the relationship?");
+							value = sc.nextLine();
+							view.show("Relationship successfully renamed " + value);
+							break;
 
-			view.show("What property of the relationship are you changing?");
-			String field = sc.nextLine().toLowerCase();
-			String value = null;
-			switch(field){
-				case "name":
-					view.show("What do you want to name the relationship?");
-					value = sc.nextLine();
-					view.show("Relationship successfully renamed " + value);
-					break;
+						case "source":
+							view.show("What do you want to name the new source?");
+							value = sc.nextLine();
+							if(model.isValidClassName(value)==0)
+								view.show("Relationship's source successfully set to " + value);
+							break;
 
-				case "source":
-					view.show("What do you want to name the new source?");
-					value = sc.nextLine();
-					view.show("Relationship's source successfully set to " + value);
-					break;
+						case "destination":
+							view.show("What do you want to name the new destination?");
+							value = sc.nextLine();
+							if(model.isValidClassName(value)==0)
+								view.show("Relationship's destination successfully set to " + value);
+							break;
 
-				case "destination":
-					//
-					break;
+						case "type":
+							//
+							break;
 
-				case "type":
-					//
-					break;
-
-				default:
-					//
-					view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now.");
-					break;
+						default:
+							//
+							view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now.");
+							break;
+					}
+				editor.editRelationship(source, dest, field, value);
 			}
-		editor.editRelationship(source, dest, field, value);
-
+			else
+			{view.show("Relationship between " + source + " and " + dest + " does not exist!");}
 		}
 		else{
 			view.show("No relationships exist to edit!");
