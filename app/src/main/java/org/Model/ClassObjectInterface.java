@@ -10,17 +10,24 @@ public interface ClassObjectInterface {
 	 * Adds an attribute to the attribute list that is assigned to this class object
 	 * @param attr		| The new attribute that will be added to the attribute list
 	 */
-	public void addAttribute(Attribute attr);
+	public void addAttribute(AttributeInterface attr);
 
 	/**
 	 * Removes a specific attribute from the list of attributes
 	 * @param attr		| The attribute that will be removed from the attribute list 
 	 */
-	public void removeAttribute(Attribute attr);
+	public void removeAttribute(AttributeInterface attr);
 
 	/**
-	 * Fetches the specific attribute from the list of attribute
+	 * Fetches the specific field from the list of fields
 	 * @param attrName		| The given name that will be searched for
 	 */
-	public Attribute fetchAttribute(String attrName);
+	public Field fetchField(String fieldName);
+
+	/**
+	 * Fetches the specific method from the list of methods
+	 * @param attrName		| The given name that will be searched for
+	 * @param paramArity	| The number of params the method should have
+	 */
+	public Method fetchMethod(String methodName, int paramArity);
 }
