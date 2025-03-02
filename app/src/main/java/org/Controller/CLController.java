@@ -170,19 +170,33 @@ public class CLController {
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
 	private void CL_addRelationship() {
-		view.show("Would you like to give the relationship a name?(Y for yes)");
-		input = sc.nextLine();
-		if (input.equalsIgnoreCase("Y")) {
-			view.show("Enter the relationship's name");
-			input = sc.nextLine();
-		} else {
-			input = "";
+		if(!listClassNames()){
+			view.show("Error: No classes currently exist! Aborting.");
+			return;
 		}
-		if (listClassNames()) {
+
+		view.show("Optionally, input a name for the relationship: (Enter to skip)");
+		input = sc.nextLine();
+		
 			view.show("Enter the source class");
+			listClassNames();
 			String source = sc.nextLine();
+			if (model.fetchClass(source) == null) {
+       			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
+        		return;
+    		}
 			view.show("Enter the destination class");
+			listClassNames();
 			String dest = sc.nextLine();
+			if (model.fetchClass(dest) == null) {
+       			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
+        		return;
+    		}
+			if (model.relationshipExist(source, dest) != null) {
+				view.show("Error: A relationship already exists between " + source + " and " + dest + "! Aborting.");
+				return;
+			}
+
 			String typeint = "0";
 			Type type = null;
 			while(!(typeint.equals("1")||typeint.equals("2")||typeint.equals("3")||typeint.equals("4"))){
@@ -192,7 +206,8 @@ public class CLController {
 				else if (typeint.equals("2")){ type = Type.COMPOSITION;}
 				else if (typeint.equals("3")){ type = Type.INHERITANCE;}
 				else if (typeint.equals("4")){ type = Type.REALIZATION;}
-			
+				else if (typeint.equalsIgnoreCase("cancel")){return;}
+				else {view.show("Invalid input! Try again (or 'cancel' the update).");}
 			}
 
 			if (type!=null && editor.addRelationship(input, source, dest, type)) {
@@ -200,9 +215,7 @@ public class CLController {
 			} else {
 				view.show("Relationship " + input + " could not be created");
 			}
-		} else {
-			view.show("No classes currently exist");
-		}
+		
 		
 	}
 
@@ -211,11 +224,24 @@ public class CLController {
 	 */
 	private void CL_editRelationship(){
 		// VERY BROKEN RIGHT NOW
-		if (!model.listRelationships().isEmpty()) {
+		if (model.listRelationships().isEmpty()) {
+			view.show("Error: No relationships exist to edit! Aborting");
+			return;
+		}
 			view.show("What is the source of the relationship are you changing?");
+			listClassNames();
 			String source = sc.nextLine();
+			if (model.fetchClass(source) == null) {
+       			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
+        		return;
+    		}
 			view.show("What is the destination of the relationship are you changing?");
+			listClassNames();
 			String dest = sc.nextLine();
+			if (model.fetchClass(dest) == null) {
+       			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
+        		return;
+    		}
 			if(model.relationshipExist(source, dest)!=null){
 				view.show("What property of the relationship are you changing?");
 				String field = sc.nextLine().toLowerCase();
@@ -228,21 +254,36 @@ public class CLController {
 							break;
 
 						case "source":
-							view.show("What do you want to name the new source?");
+							view.show("Which class do you want to name as the new source?");
+							listClassNames();
 							value = sc.nextLine();
-							if(model.isValidClassName(value)==0)
-								view.show("Relationship's source successfully set to " + value);
+							if (model.fetchClass(value)!=null) 
+								{view.show("Relationship's source successfully set to " + value);}
+							else {view.show("Error: No class named " + value + "! Aborting."); return;}
 							break;
 
 						case "destination":
-							view.show("What do you want to name the new destination?");
+							view.show("What class do you want to name as the new destination?");
+							listClassNames();
 							value = sc.nextLine();
-							if(model.isValidClassName(value)==0)
-								view.show("Relationship's destination successfully set to " + value);
+							if(model.fetchClass(value)!=null)
+								{view.show("Relationship's destination successfully set to " + value);}
+							else {view.show("Error: No class named " + value + "! Aborting."); return;}
 							break;
 
 						case "type":
-							//
+							String typeint = "0";
+							while(!(typeint.equals("1")||typeint.equals("2")||typeint.equals("3")||typeint.equals("4"))){
+								view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
+								typeint = sc.nextLine(); 
+								if (typeint.equals("1")){ value = "AGGREGATION";}
+								else if (typeint.equals("2")){ value = "COMPOSITION";}
+								else if (typeint.equals("3")){ value = "INHERITANCE";}
+								else if (typeint.equals("4")){ value = "REALIZATION";}
+								else if (typeint.equalsIgnoreCase("cancel")){return;}
+								else {view.show("Invalid input! Try again (or 'cancel' the update).");}
+							}
+							view.show("Relationship's type successfully set to " + value);
 							break;
 
 						default:
@@ -250,15 +291,13 @@ public class CLController {
 							view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now.");
 							break;
 					}
-				editor.editRelationship(source, dest, field, value);
+				if(value!=null)
+					editor.editRelationship(source, dest, field, value);
 			}
 			else
 			{view.show("Relationship between " + source + " and " + dest + " does not exist!");}
 		}
-		else{
-			view.show("No relationships exist to edit!");
-		}
-	}
+	
 	
 	/**
 	 * Gets relationship info from user and returns if it was deleted
@@ -423,7 +462,7 @@ public class CLController {
         	
         	switch(input.toLowerCase().replaceAll("\\s", "")) {
         	case "help":
-        		//TODO
+        	case "h":
 				view.showHelp();
         		break;
         	case "save":
@@ -433,50 +472,55 @@ public class CLController {
         		load();
         		break;
         	case "exit":
+			case "q":
         		loop = false;
         		break;
         	case "listclasses":
+			case "lcs":
         		CL_listClasses();
         		break;
         	case "listclass":
+			case "lc":
         		CL_listClassInfo();
         		break;
         	case "listrelationships":
+			case "lr":
         		CL_listRelationships();
         		break;
         	case "addclass":
-        		//TODO
+        	case "ac":
         		CL_addClass();
         		break;
         	case "deleteclass":
-        		//TODO
+        	case "dc":
         		CL_deleteClass();
         		break;
         	case "renameclass":
-        		//TODO
+        	case "rc":
         		CL_renameClass();
         		break;
         	case "addrelationship":
-        		//TODO
+        	case "ar":
         		CL_addRelationship();
         		break;
         	case "deleterelationship":
-        		//TODO
+        	case "dr":
         		CL_deleteRelationship();
         		break;
 			case "editrelationship":
+			case "er":
 				CL_editRelationship();
 				break;
         	case "addattribute":
-        		//TODO
+        	case "aa":
         		CL_addAttribute();
         		break;
         	case "deleteattribute":
-        		//TODO
+        	case "da":
         		CL_deleteAttribute();
         		break;
         	case "renameattribute":
-        		//TODO
+        	case "ra":
         		CL_renameAttribute();
         		break;
         	default:
