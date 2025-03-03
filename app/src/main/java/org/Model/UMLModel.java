@@ -9,18 +9,13 @@ public class UMLModel implements UMLModelInterface{
     private ArrayList<ClassObject> classList;
     // List to track all created relationships
     private ArrayList<Relationship> relationshipList;
-    // Int to track the longest relationship name in relationshipList
-    // Used to format when listing relationships to ensure they line up
-    private int relationshipLength;
     
     /**
      * Creates an empty array to store classes and relationships
-     * Sets relationshipLength to 0
      */
     public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
-    	relationshipLength = 0;
     }
     
     /**
@@ -39,22 +34,8 @@ public class UMLModel implements UMLModelInterface{
     	return relationshipList;
     }
     
-    /**
-     * Returns the length of the longest relationship name
-     * @return relationshipLength
-     */
-    public int getRelationshipLength() {
-    	return relationshipLength;
-    }
     
-    /**
-     * Updates relationshipLength
-     * @param newLen	| Length of new longest relationship name
-     */
-    public void setRelationshipLength(int newLen) {
-    	relationshipLength = newLen;
-    }
-    
+
     /**
      * Gets a ClassObject by the given name
      * @param className		| The name of the class to return
@@ -125,21 +106,7 @@ public class UMLModel implements UMLModelInterface{
     	// Relationship between source and dest does not exist
     	return null;
     }
-    
-    /**
-     * Iterates through relationships to find the longest name
-     * Used when deleting relationships
-     */
-    public void updateLongest() {
-    	int len = 0;
-    	for (int i = 0; i < relationshipList.size(); i++) {
-    		int curLen = relationshipList.get(i).getName().length();
-    		if (curLen > len) {
-    			len = curLen;
-    		}
-    	}
-    	setRelationshipLength(len);
-    }
+
        
     /**
      * Creates a String listing classes and returns it
@@ -173,13 +140,13 @@ public class UMLModel implements UMLModelInterface{
                 if (curRelationship.getSource().getName().equals(curClass.getName())) {
                     // Current class is current relationship's source
                     // Create a String of the curRelationship and format using relationshipLength
-                	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+                	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
                 	// Add formatted String to sourceRelatiosnhips
                 	sourceRelationships = sourceRelationships + "\n    " + newSource;
                 } else if (curRelationship.getDestination().getName().equals(curClass.getName())) {
                     // Current class is current relationhip's destination
                     // Create a String of the curRelationship and format using relationshipLength
-                	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+                	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
                 	// Add formatted String to destRelatiosnhips
                 	destRelationships = destRelationships + "\n    " + newDest;
                 } else {
@@ -231,13 +198,13 @@ public class UMLModel implements UMLModelInterface{
             if (curRelationship.getSource().getName().equals(printClass.getName())) {
             	// Current class is current relationship's source
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to sourceRelatiosnhips
             	sourceRelationships = sourceRelationships + "\n    " + newSource;
             } else if (curRelationship.getDestination().getName().equals(printClass.getName())) {
             	// Current class is current relationhip's destination
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to destRelatiosnhips
             	destRelationships = destRelationships + "\n    " + newDest;
             } else {
@@ -262,7 +229,7 @@ public class UMLModel implements UMLModelInterface{
         Relationship curRelationship;
         while (index < relationshipList.size()) {
             curRelationship = relationshipList.get(index);
-            relString = relString + "\n  " + curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            relString = relString + "\n  " + curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             index++;
         }
         return relString;

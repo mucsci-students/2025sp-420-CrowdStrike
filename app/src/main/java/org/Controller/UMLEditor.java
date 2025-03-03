@@ -104,10 +104,6 @@ public class UMLEditor {
 					// Relationship does not already exist
 					// Create new Relationship
 					Relationship newRel = new Relationship(name, sourceClass, destClass, type);
-					// Update longest relationship name if needed
-					if (newRel.getName().length() > model.getRelationshipLength()) {
-						model.setRelationshipLength(newRel.getName().length());
-					}
 					model.getRelationshipList().add(newRel);
 					return true;
 				}
@@ -128,17 +124,8 @@ public class UMLEditor {
 		Relationship relExist = model.relationshipExist(source, dest);
 		if (relExist != null) {
 			// Relationship does exist
-			// Check if relationship being deleted has the longest name
-			if (relExist.getName().length() == model.getRelationshipLength()) {
-				// Relationship has the longest name
-				// Remove it from the list and update relationshipLength
 				model.getRelationshipList().remove(relExist);
-				model.updateLongest();
-			} else {
-				// Relationship does not have the longest name
-				// Remove relationship from the list
-				model.getRelationshipList().remove(relExist);
-			}
+			
 			return true;
 		}
 		return false;
@@ -160,7 +147,18 @@ public class UMLEditor {
 			//else return 2;
 		}
 		else if (fieldToUpdate.equals("type")){
-			
+			if(newValue.equals("AGGREGATION")){
+				relExist.setType(Type.AGGREGATION);
+			}
+			else if(newValue.equals("COMPOSITION")){
+				relExist.setType(Type.COMPOSITION);
+			}
+			else if(newValue.equals("INHERITANCE")){
+				relExist.setType(Type.INHERITANCE);
+			}
+			else if(newValue.equals("REALIZATION")){
+				relExist.setType(Type.REALIZATION);
+			}
 		}
 		else
 		{

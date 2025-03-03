@@ -15,17 +15,7 @@ public ArrayList<ClassObject> getClassList();
      */
 public ArrayList<Relationship> getRelationshipList();
 
-/**
-     * Returns the length of the longest relationship name
-     * @return relationshipLength
-     */
-public int getRelationshipLength();
 
-/**
-     * Updates relationshipLength
-     * @param newLen Length of new longest relationship name
-     */
-public void setRelationshipLength(int newLen);
 
 /**
      * Gets a ClassObject by the given name
@@ -43,11 +33,6 @@ public ClassObject fetchClass(String className);
      */
 public Relationship relationshipExist(String source, String dest);
 
-/**
-     * Iterates through relationships to find the longest name
-     * Used when deleting relationships
-     */
-public void updateLongest();
 
 /**
      * Creates a String listing classes and returns it

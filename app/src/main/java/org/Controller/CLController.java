@@ -207,7 +207,7 @@ public class CLController {
 				else if (typeint.equals("3")){ type = Type.INHERITANCE;}
 				else if (typeint.equals("4")){ type = Type.REALIZATION;}
 				else if (typeint.equalsIgnoreCase("cancel")){return;}
-				else {view.show("Invalid input! Try again (or 'cancel' the update).");}
+				else {view.show("Invalid input! Try again (or 'cancel' the creation).");}
 			}
 
 			if (type!=null && editor.addRelationship(input, source, dest, type)) {
@@ -243,10 +243,12 @@ public class CLController {
         		return;
     		}
 			if(model.relationshipExist(source, dest)!=null){
-				view.show("What property of the relationship are you changing?");
+				view.show("What property of the relationship are you changing?\n");
+				view.show("You can edit the 'name', 'source', 'destination', or 'type' of this relationship.");
 				String field = sc.nextLine().toLowerCase();
 				String value = null;
 					switch(field){
+						
 						case "name":
 							view.show("What do you want to name the relationship?");
 							value = sc.nextLine();
@@ -280,15 +282,16 @@ public class CLController {
 								else if (typeint.equals("2")){ value = "COMPOSITION";}
 								else if (typeint.equals("3")){ value = "INHERITANCE";}
 								else if (typeint.equals("4")){ value = "REALIZATION";}
-								else if (typeint.equalsIgnoreCase("cancel")){return;}
+								else if (typeint.equalsIgnoreCase("cancel")){view.show("Operation canceled by user. Aborting.");return;}
 								else {view.show("Invalid input! Try again (or 'cancel' the update).");}
 							}
 							view.show("Relationship's type successfully set to " + value);
 							break;
 
+
 						default:
 							//
-							view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now.");
+							view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now. Aborting.");
 							break;
 					}
 				if(value!=null)
