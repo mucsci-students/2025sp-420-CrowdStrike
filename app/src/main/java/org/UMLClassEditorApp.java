@@ -16,8 +16,12 @@ class UMLClassEditorApp {
     public static void main(String[] args) {
         UMLModel model = new UMLModel();
         UMLEditor editor = new UMLEditor(model);
-        CLView view = new CLView();
-        CLController controller = new CLController(model, editor, view);
-        controller.init();
+	if(args.length != 0 && args[0].equals("--cli")){
+	    CLView view = new CLView();
+	    CLController controller = new CLController(model, editor, view);
+	    controller.init();
+	} else {
+	    //TODO put gui init here
+	}
     }
 }
