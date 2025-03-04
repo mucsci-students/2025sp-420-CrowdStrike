@@ -7,8 +7,23 @@ public class GUIView extends JFrame {
     private JButton addClassButton;
     private JButton renameClassButton;
     private JButton deleteClassButton;
+
+    
+
     private JToggleButton addRelationshipButton;
     private JButton deleteRelationshipButton;
+    
+
+    // Field Management Buttons
+    private JButton addFieldButton;
+    private JButton deleteFieldButton;
+    private JButton renameFieldButton;
+
+    // Method Management Buttons
+    private JButton addMethodButton;
+    private JButton deleteMethodButton;
+    private JButton renameMethodButton;
+
     private CustomDrawingPanel drawingPanel;
 
     public GUIView() {
@@ -22,6 +37,8 @@ public class GUIView extends JFrame {
     }
 
     private void initToolPanel() {
+
+        //TOOL PANEL
         JPanel toolPanel = new JPanel();
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
 
@@ -31,11 +48,32 @@ public class GUIView extends JFrame {
         addRelationshipButton = new JToggleButton("Add Relationship");
         deleteRelationshipButton = new JButton("Delete Relationship");
 
+        // Field Controls
+        addFieldButton = new JButton("Add Field");
+        deleteFieldButton = new JButton("Delete Field");
+        renameFieldButton = new JButton("Rename Field");
+
+        // Method Controls
+        addMethodButton = new JButton("Add Method");
+        deleteMethodButton = new JButton("Delete Method");
+        renameMethodButton = new JButton("Rename Method");
+
+        
+
+
         toolPanel.add(addClassButton);
         toolPanel.add(renameClassButton);
         toolPanel.add(deleteClassButton);
         toolPanel.add(addRelationshipButton);
         toolPanel.add(deleteRelationshipButton);
+        toolPanel.add(new JSeparator()); // UI Divider
+        toolPanel.add(addFieldButton);
+        toolPanel.add(deleteFieldButton);
+        toolPanel.add(renameFieldButton);
+        toolPanel.add(new JSeparator());
+        toolPanel.add(addMethodButton);
+        toolPanel.add(deleteMethodButton);
+        toolPanel.add(renameMethodButton);
 
         add(toolPanel, BorderLayout.WEST);
     }
@@ -67,9 +105,18 @@ public class GUIView extends JFrame {
         return deleteRelationshipButton;
     }
 
+    public JButton getAddFieldButton() { return addFieldButton; }
+    public JButton getDeleteFieldButton() { return deleteFieldButton; }
+    public JButton getRenameFieldButton() { return renameFieldButton; }
+    public JButton getAddMethodButton() { return addMethodButton; }
+    public JButton getDeleteMethodButton() { return deleteMethodButton; }
+    public JButton getRenameMethodButton() { return renameMethodButton; }
+
     public CustomDrawingPanel getDrawingPanel() {
         return drawingPanel;
     }
+
+
 
     public void showGUI() {
         setVisible(true);

@@ -9,6 +9,8 @@ import view.GUIView;
 import view.ClassBox;
 
 public class GUIController {
+
+    
     private GUIView view;
     private List<ClassBox> classBoxes = new ArrayList<>();
     private List<Relationship> relationships = new ArrayList<>();
@@ -62,6 +64,15 @@ public class GUIController {
         });
 
         view.getDeleteRelationshipButton().addActionListener(e -> deleteRelationship());
+
+        view.getAddFieldButton().addActionListener(e -> addFieldToClass());
+        view.getDeleteFieldButton().addActionListener(e -> deleteFieldFromClass());
+        view.getRenameFieldButton().addActionListener(e -> renameFieldInClass());
+
+        view.getAddMethodButton().addActionListener(e -> addMethodToClass());
+        view.getDeleteMethodButton().addActionListener(e -> deleteMethodFromClass());
+        view.getRenameMethodButton().addActionListener(e -> renameMethodInClass());
+        
     }
 
     // ==================== ADD CLASS ==================== //
@@ -89,17 +100,29 @@ public class GUIController {
      * Renames the currently selected class.
      */
     private void renameSelectedClass(){
+
+        //if no class is selected 
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "No class selected!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+
         String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
         if(className == null || className.trim().isEmpty()) return;
 
+
         className = className.trim();
 
-         for (ClassBox box : classBoxes) {
+
+        for (ClassBox box : classBoxes) {
             if (box.getClassName().equalsIgnoreCase(className)) {
                 JOptionPane.showMessageDialog(view, "Class name already exists!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
+
+
         //TODO
 
     }
@@ -156,11 +179,12 @@ public class GUIController {
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
     }
-
+    
+    // ==================== RELATIONSHIP HANDLING ==================== //
      /**
      * Handles selecting source and destination for a relationship.
      */
-    // ==================== RELATIONSHIP HANDLING ==================== //
+    
     private void handleRelationshipSelection(ClassBox classBox) {
         if (selectedSource == null) {
             selectedSource = classBox;
@@ -195,6 +219,7 @@ public class GUIController {
 
         view.getDrawingPanel().addRelationship(source.getCenter(), destination.getCenter(), type);
         resetRelationshipSelection();
+
     }
 
     /**
@@ -229,19 +254,237 @@ public class GUIController {
         view.getAddRelationshipButton().setSelected(false);
     }
 
+
+    //================= FIELD ==============================
+
+        private void addFieldToClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        List<JTextField> fieldInputs = new ArrayList<>();
+        JButton addFieldButton = new JButton("+");
+
+        // Initial Field Input
+        JTextField fieldInput = new JTextField();
+        fieldInputs.add(fieldInput);
+        panel.add(new JLabel("Enter Field Name:"));
+        panel.add(fieldInput);
+        panel.add(addFieldButton);
+
+        // Add more fields dynamically when clicking "+"
+        addFieldButton.addActionListener(e -> {
+            JTextField newFieldInput = new JTextField();
+            fieldInputs.add(newFieldInput);
+            panel.add(new JLabel("Enter Field Name:"));
+            panel.add(newFieldInput);
+            panel.revalidate();
+            panel.repaint();
+        });
+
+        int result = JOptionPane.showConfirmDialog(view, panel, "Add Fields", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            for (JTextField input : fieldInputs) {
+                String fieldName = input.getText().trim();
+                if (!fieldName.isEmpty() && !selectedClassBox.getFields().contains(fieldName)) {
+                    selectedClassBox.addField(fieldName);
+                }
+            }
+        }
+    }
+
+    private void deleteFieldFromClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        List<String> fields = selectedClassBox.getFields();
+        if (fields.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No fields to delete!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JComboBox<String> fieldDropdown = new JComboBox<>(fields.toArray(new String[0]));
+        int result = JOptionPane.showConfirmDialog(view, fieldDropdown, "Select Field to Delete", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String selectedField = (String) fieldDropdown.getSelectedItem();
+            if (selectedField != null) {
+                selectedClassBox.removeField(selectedField);
+            }
+        }
+    }
+
+    private void renameFieldInClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        List<String> fields = selectedClassBox.getFields();
+        if (fields.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No fields to rename!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JComboBox<String> fieldDropdown = new JComboBox<>(fields.toArray(new String[0]));
+        JTextField newFieldNameInput = new JTextField();
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Select Field to Rename:"));
+        panel.add(fieldDropdown);
+        panel.add(new JLabel("Enter New Name:"));
+        panel.add(newFieldNameInput);
+
+        int result = JOptionPane.showConfirmDialog(view, panel, "Rename Field", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String oldName = (String) fieldDropdown.getSelectedItem();
+            String newName = newFieldNameInput.getText().trim();
+
+            if (!newName.isEmpty()) {
+                selectedClassBox.renameField(oldName, newName);
+            }
+        }
+    }
+
+    private void addMethodToClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        List<JTextField> methodInputs = new ArrayList<>();
+        JButton addMethodButton = new JButton("+");
+
+        // Initial Method Input
+        JTextField methodInput = new JTextField();
+        methodInputs.add(methodInput);
+        panel.add(new JLabel("Enter Method Name:"));
+        panel.add(methodInput);
+        panel.add(addMethodButton);
+
+        // Add more methods dynamically when clicking "+"
+        addMethodButton.addActionListener(e -> {
+            JTextField newMethodInput = new JTextField();
+            methodInputs.add(newMethodInput);
+            panel.add(new JLabel("Enter Method Name:"));
+            panel.add(newMethodInput);
+            panel.revalidate();
+            panel.repaint();
+        });
+
+        int result = JOptionPane.showConfirmDialog(view, panel, "Add Methods", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            for (JTextField input : methodInputs) {
+                String methodName = input.getText().trim();
+                if (!methodName.isEmpty() && !selectedClassBox.getMethods().contains(methodName)) {
+                    selectedClassBox.addMethod(methodName);
+                }
+            }
+        }
+    }
+
+    private void deleteMethodFromClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        List<String> methods = selectedClassBox.getMethods();
+        if (methods.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No methods to delete!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JComboBox<String> methodDropdown = new JComboBox<>(methods.toArray(new String[0]));
+        int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method to Delete", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String selectedMethod = (String) methodDropdown.getSelectedItem();
+            if (selectedMethod != null) {
+                selectedClassBox.removeMethod(selectedMethod);
+            }
+        }
+    }
+
+    private void renameMethodInClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        List<String> methods = selectedClassBox.getMethods();
+        if (methods.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No methods to rename!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JComboBox<String> methodDropdown = new JComboBox<>(methods.toArray(new String[0]));
+        JTextField newMethodNameInput = new JTextField();
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Select Method to Rename:"));
+        panel.add(methodDropdown);
+        panel.add(new JLabel("Enter New Name:"));
+        panel.add(newMethodNameInput);
+
+        int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String oldName = (String) methodDropdown.getSelectedItem();
+            String newName = newMethodNameInput.getText().trim();
+
+            if (!newName.isEmpty()) {
+                selectedClassBox.renameMethod(oldName, newName);
+            }
+        }
+    }
+
+
+
+
+
+    //
+
     // ==================== GRID POSITIONING ==================== //
     /**
      * Determines the next position for a new class box based on a grid layout.
+     * NOTE:
      */
     private Point getNextGridPosition() {
+
+
         int numBoxes = classBoxes.size();
-        int maxCols = view.getDrawingPanel().getWidth() / (150 + 20);
-        if (maxCols == 0) maxCols = 1;
+        int boxWidth = 150;
+        int boxHeight = 150;
+        int padding = 20;
+        int panelWidth = view.getDrawingPanel().getWidth();
+        int panelHeight = view.getDrawingPanel().getHeight();
 
-        int gridCols = numBoxes % maxCols;
-        int gridRows = numBoxes / maxCols;
+        int maxCols = (panelWidth - padding) / (boxWidth + padding);
+        if (maxCols == 0){maxCols = 1;}
 
-        return new Point(gridCols * (150 + 20), gridRows * (100 + 20));
+        int gridCol = numBoxes % maxCols;
+        int gridRow = numBoxes/ maxCols;
+
+        //get x and y to center the grid
+
+        int totalGridWidth = (maxCols *(boxWidth + padding)) - padding; // 
+
+        int startX = (panelWidth - totalGridWidth) / 2; //so its placed in the center
+
+        int totalGridHeight = ((numBoxes / maxCols + 1) * (boxHeight - padding)) - padding;
+        
+        int startY = (panelHeight - totalGridHeight) / 2;
+
+        int x = startX + gridCol * (boxWidth + padding);
+        int y = startY + gridRow * (boxHeight + padding);
+
+        return new Point(x, y);
+
     }
 
     // ==================== CLASS SELECTION ==================== //
@@ -254,6 +497,12 @@ public class GUIController {
         selectedClassBox = classBox;
         selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
     }
+
+    
+
+
+
+
 
     // ==================== RELATIONSHIP CLASS ==================== //
     /**
@@ -274,6 +523,8 @@ public class GUIController {
         public ClassBox getDestination() { return destination; }
         public String getType() { return type; }
     }
+
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
