@@ -1,10 +1,11 @@
+package org;
 import com.google.gson.Gson;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.io.IOException;
+import org.Model.UMLModel;
 
-public class FileManager implements FileManagerInterface {
+public class FileManager {
 
 	public void save(String path, UMLModel model) throws Exception {
 		String json;

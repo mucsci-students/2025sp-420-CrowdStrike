@@ -1,5 +1,4 @@
-
-
+package org.Model;
 public interface AttributeInterface {
 	
 	/**
@@ -7,6 +6,12 @@ public interface AttributeInterface {
 	 * @return String name
 	 */
 	public String getName();
+
+	/**
+	 * Returns the attribute's type
+	 * @return "Field" if the attribute is a field "Method" if it's a method
+	 */
+	public String getType();
 	
 	/**
 	 * Changes an attribute's name

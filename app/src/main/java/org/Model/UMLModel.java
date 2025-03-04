@@ -1,3 +1,4 @@
+package org.Model;
 import java.util.ArrayList;
 
 public class UMLModel implements UMLModelInterface{
@@ -14,7 +15,7 @@ public class UMLModel implements UMLModelInterface{
      * Creates an empty array to store classes and relationships
      * Sets relationshipLength to 0
      */
-    UMLModel() {
+    public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
     	relationshipLength = 0;
@@ -116,67 +117,23 @@ public class UMLModel implements UMLModelInterface{
      * @return String listing all classes and their info
      */
 	public String listClasses() {
-        ClassObject curClass;
-        Relationship curRelationship;
-        int index1 = 0;
-        int index2 = 0;
-        // Strings to keep relationships where curClass is source or dest together
-        String sourceRelationships = "";
-        String destRelationships = "";
-        // String to be returned that contains list of classes and info
-        String finalString = "";
-        while (index1 < classList.size()) {
-            // Save current class in curClass
-            curClass = classList.get(index1);
-            // Add Class name to finalString
-            finalString = finalString + "Class Name: " + curClass.getName() + "\n  Attributes:\n";
-            // Iterate through the attribute list stored in each class
-            while (index2 < curClass.getAttrList().size()) {
-                // Add all attributes in attrList for curClass to finalString
-                finalString = finalString + "   " + curClass.getAttrList().get(index2).getName() + "\n";
-                index2++;
-            }
-            index2 = 0;
-            // Iterate through relationship list to find all relationships involving the current class
-            while (index2 < relationshipList.size()) {
-                curRelationship = relationshipList.get(index2);
-                if (curRelationship.getSource().getName().equals(curClass.getName())) {
-                    // Current class is current relationship's source
-                    // Create a String of the curRelationship and format using relationshipLength
-                	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
-                	// Add formatted String to sourceRelatiosnhips
-                	sourceRelationships = sourceRelationships + "\n    " + newSource;
-                } else if (curRelationship.getDestination().getName().equals(curClass.getName())) {
-                    // Current class is current relationhip's destination
-                    // Create a String of the curRelationship and format using relationshipLength
-                	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
-                	// Add formatted String to destRelatiosnhips
-                	destRelationships = destRelationships + "\n    " + newDest;
-                } else {
-                    // Current relationship does not involve the class
-                }
-                index2++;
-            }
-            // Add Relationships to finalString
-            finalString = finalString + "  Relationships:" + sourceRelationships + destRelationships + "\n";
-            // Reset values and increment index1
-            sourceRelationships = "";
-            destRelationships = "";
-            index2 = 0;
-            index1++;
-        }
-        return finalString;
-    }
+		String finalString = "";
+		// Iterate through the classList to call printClassInfo on each class to make its String
+		for (int i = 0; i < classList.size(); i++) {
+			finalString = finalString + listClassInfo(classList.get(i));
+		}
+		return finalString;
+	}
 
 	/**
 	 * List the info of a specified class
-	 * @param className		| The name of the class to be printed
+	 * @param cls		| The class to be printed
 	 * @return A String containing the list of specified class' info or 
 	 * 		   empty string if class does not exist
 	 */
-	public String listClassInfo(String className) {
-        ClassObject printClass = fetchClass(className);
-        if (printClass == null) {
+	public String listClassInfo(ClassObject cls) {
+		//ClassObject printClass = fetchClass(className);
+        if (cls == null) {
         	// Class does not exist
         	return "";
         }
@@ -184,27 +141,34 @@ public class UMLModel implements UMLModelInterface{
         Relationship curRelationship;
         String sourceRelationships = "";
         String destRelationships = "";
-        String finalString = "";
         // Add class name to finalString
-        finalString = "Class Name: " + printClass.getName() + "\n  Attributes:\n";
-        // Iterate through attribute list and print
-        while (index < printClass.getAttrList().size()) {
-            // Add all attributes in attrList for printClass to finalString
-            finalString = finalString + "   " + printClass.getAttrList().get(index).getName() + "\n";
-            index++;
+        String finalString = "Class Name: " + cls.getName() + "\n  Fields:\n";
+        // Add Fields to finalString
+        for (int i = 0; i < cls.getFieldList().size(); i++) {
+        	finalString = finalString + "   " +  cls.getFieldList().get(i).getName() + "\n";
         }
-        // Reset index
-        index = 0;
+        finalString = finalString + "  Methods:\n";
+        for (int i = 0; i < cls.getMethodList().size(); i++) {
+        	Method method1 = (Method) cls.getMethodList().get(i);
+        	finalString = finalString + "   " + method1.getName() + "\n     Parameters:\n"; 
+        	for (int j = 0; j < method1.getParamList().size(); j++) {
+        		finalString = finalString + "       " + method1.getParamList().get(j).getName() + "\n";
+        	}
+        }
+        /*
+         * Call the listRelationships function passing in the class to get that part
+         * of the string
+         */
         while(index < relationshipList.size()) {
             // Set current relationship to curRelationship
             curRelationship = relationshipList.get(index);
-            if (curRelationship.getSource().getName().equals(printClass.getName())) {
+            if (curRelationship.getSource().getName().equals(cls.getName())) {
             	// Current class is current relationship's source
                 // Create a String of the curRelationship and format using relationshipLength
             	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to sourceRelatiosnhips
             	sourceRelationships = sourceRelationships + "\n    " + newSource;
-            } else if (curRelationship.getDestination().getName().equals(printClass.getName())) {
+            } else if (curRelationship.getDestination().getName().equals(cls.getName())) {
             	// Current class is current relationhip's destination
                 // Create a String of the curRelationship and format using relationshipLength
             	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
@@ -264,23 +228,24 @@ public class UMLModel implements UMLModelInterface{
     	}
     	return finalString;
     }
-    
-    /**
-     * Creates a list of all created attributes in a given class
-     * @param className		| Class whose attributes are being listed
-     * @return A String of all attributes in the class
+
+     /**
+     * Creates a list of all created fields in the given class
+     * 
+     * @param cls	| Class whose fields are being listed
+     * @return A string of all fields in the class
      */
-    public String listAttributes(String className) {
-    	ArrayList<Attribute> attrList = fetchClass(className).getAttrList();
-    	if (attrList.size() == 0) {
+    public String listFields(ClassObject cls) {
+    	ArrayList<AttributeInterface> fieldList = cls.getFieldList();
+    	if (fieldList.size() == 0) {
     		return "";
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "- " + attrList.get(0).getName();
-    	Attribute attr;
-    	while (index < attrList.size()) {
-    		attr = attrList.get(index);
+    	String finalString = "- " + fieldList.get(0).getName();
+    	AttributeInterface attr;
+    	while (index < fieldList.size()) {
+    		attr = fieldList.get(index);
     		if (countNewLine >= 5) {
     			// Create a new line after every six names
     			finalString = finalString + "\n- " + attr.getName();
@@ -293,4 +258,73 @@ public class UMLModel implements UMLModelInterface{
     	}
     	return finalString;
     }
+    
+    /**
+     * Creates a list of all created methods in the given class
+     * 
+     * @param cls	| Class whose methods are being listed
+     * @return A string containing all methods in the class
+     */
+    public String listMethods(ClassObject cls) {
+    	ArrayList<AttributeInterface> methodList = cls.getMethodList();
+    	if (methodList.size() == 0) {
+    		return "";
+    	}
+    	int countNewLine = 0;
+    	int index = 1;
+    	String finalString = "- " + methodList.get(0).getName();
+    	AttributeInterface attr;
+    	while (index < methodList.size()) {
+    		attr = methodList.get(index);
+    		if (countNewLine >= 5) {
+    			// Create a new line after every six names
+    			finalString = finalString + "\n- " + attr.getName();
+    			countNewLine = 0;
+    		} else {
+    			finalString = finalString + "   - " + attr.getName();
+    			countNewLine++;
+    		}
+    		index++;
+    	}
+    	return finalString;
+    }
+
+    /**
+	 * Validates whether the provided string could be a valid Java class name
+	 * 
+	 * A string is valid as a class name assuming: 
+	 * 	1. It isn't blank or null 
+	 * 	2. It begins with a letter or underscore
+	 * 	3. It contains only letters, numbers, underscores, and/or dollar signs
+	 *  4. Class w/ ClassName already exists
+	 * 
+	 * @param className | The class name to be validated
+	 * @return 0 on success, 1-3 on fail
+	 */
+	public int isValidClassName(String className) {
+		// Check if the className is null or an empty string.
+		if (className == null || className.isEmpty()) {
+			return 1;
+		}
+
+		// Verify that the first character is valid: this can be a letter or underscore
+		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_') {
+			return 2;
+		}
+
+		// Verify that the characters are alphanumerics, underscores, or dollar signs
+		for (int i = 0; i < className.length(); i++) {
+			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_') {
+				return 3;
+			}
+		}
+
+		// Check if class w/ className already exists
+		if (fetchClass(className) != null) {
+			return 4;
+		}
+
+		// The className passed all checks and will be declared valid
+		return 0;
+	}
 }

@@ -1,5 +1,12 @@
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package org;
+
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Controller.UMLEditor;
 
 public class attributeTest {
 	UMLModel testModel = new UMLModel();
