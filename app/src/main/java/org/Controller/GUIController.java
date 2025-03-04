@@ -1,12 +1,12 @@
-package controller;
+package org.Controller;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
-import view.GUIView;
-import view.ClassBox;
+import org.View.GUIView;
+import org.View.ClassBox;
 
 public class GUIController {
 

@@ -1,7 +1,8 @@
-package view;
+package org.View;
 
 import javax.swing.*;
 import java.awt.*;
+import org.View.CustomDrawingPanel;
 
 public class GUIView extends JFrame {
     private JButton addClassButton;
