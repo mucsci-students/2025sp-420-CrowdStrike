@@ -21,7 +21,8 @@ class UMLClassEditorApp {
         CLView view = new CLView();
         CLController controller = new CLController(model, editor, view);
         controller.init();
-        }
+        } else {
         GUIController controller = new GUIController();
+        }
     }
 }
