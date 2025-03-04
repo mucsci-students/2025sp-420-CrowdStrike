@@ -526,7 +526,7 @@ public class GUIController {
 
     
 
-    public static void main(String[] args) {
+    public GUIController() {
         SwingUtilities.invokeLater(() -> {
             GUIView view = new GUIView();
             new GUIController(view);
