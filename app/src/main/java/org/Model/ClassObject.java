@@ -1,14 +1,15 @@
 package org.Model;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 //Creates a Class object
 public class ClassObject implements ClassObjectInterface {
 
-	//Name of a class
+	// Name of a class
 	private String name;
 
-	//Stores all attributes belonging to a class
-	private ArrayList<Attribute> attrList;
+	// Stores all attributes belonging to a class
+	private LinkedHashMap<String, ArrayList<AttributeInterface>> attrMap;
 	
 	/**
 	 * Constructs a class object
@@ -16,7 +17,14 @@ public class ClassObject implements ClassObjectInterface {
 	 */
 	public ClassObject(String name) {
 		this.name = name;
-		attrList = new ArrayList<>();
+		attrMap = new LinkedHashMap<>();
+		// Need to create the Maps to be paired with each key
+		ArrayList<AttributeInterface> fieldList = new ArrayList<>();
+		ArrayList<AttributeInterface> methodList = new ArrayList<>();
+		// Add Maps to the map paired with keys based on the type
+		// Should probably add functions in ClassObject to get these lists
+		attrMap.put("Field", fieldList);
+		attrMap.put("Method", methodList);
 	}
 	
 	/**
@@ -30,32 +38,70 @@ public class ClassObject implements ClassObjectInterface {
 	public void setName(String newName) {
 		this.name = newName;
 	}
+
+	/**
+	 * Gets the HashMap containing lists of fields and methods
+	 * @return HashMap containing ArrayLists of fields and methods
+	 */
+	public LinkedHashMap<String, ArrayList<AttributeInterface>> getAttrMap() {
+		return attrMap;
+	}
 	
 	/**
-	 * Gets the attribute list that correlates to this class object
+	 * Gets the ArrayList containing fields
+	 * @return ArrayList containing fields
 	 */
-	public ArrayList<Attribute> getAttrList() {
-		return attrList;
+	public ArrayList<AttributeInterface> getFieldList() {
+		return attrMap.get("Field");
+	}
+	
+	/**
+	 * Gets the ArrayList containing methods
+	 * @return ArrayList containing methods
+	 */
+	public ArrayList<AttributeInterface> getMethodList() {
+		return attrMap.get("Method");
 	}
 	
 	@Override
-	public void addAttribute(Attribute attr) {
-		attrList.add(attr);
-	}
-	@Override
-	public void removeAttribute(Attribute attr) {
-		attrList.remove(attr);
+	public void addAttribute(AttributeInterface attr) {
+		attrMap.get(attr.getType()).add(attr);
 	}
 	
 	@Override
-	public Attribute fetchAttribute(String attrName) {
+	public void removeAttribute(AttributeInterface attr) {
+		attrMap.get(attr.getType()).remove(attr);
+	}
+	
+	@Override
+	public Field fetchField(String fieldName) {
 		int index = 0;
-        	// Iterate through the array of classes
-        while (index < attrList.size()) {
+        // Iterate through the array of classes
+        while (index < attrMap.get("Field").size()) {
             // Check if the current class' name equals the given className
-            if (attrName.equals(attrList.get(index).getName())) {
+            if (fieldName.equals(attrMap.get("Field").get(index).getName())) {
                 // If yes, then it exists and return true
-                return attrList.get(index);
+                return (Field) attrMap.get("Field").get(index);
+            }
+            index++;
+        }
+        // Class with className did not exist, return false
+        return null;
+	}
+	
+	@Override
+	public Method fetchMethod(String methodName, int paramArity) {
+		int index = 0;
+        // Iterate through the array of classes
+        while (index < attrMap.get("Method").size()) {
+            // Check if the current method's name equals the given methodName
+            if (methodName.equals(attrMap.get("Method").get(index).getName())) {
+            	// If yes, check if paramArity == # of param's current method has
+            	// Need to cast as a method to access paramList
+                Method activeMethod = (Method) attrMap.get("Method").get(index);
+                if (activeMethod.getParamList().size() == paramArity) {
+                	return activeMethod;
+                }
             }
             index++;
         }

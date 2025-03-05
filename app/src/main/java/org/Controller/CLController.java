@@ -6,6 +6,11 @@ import org.View.CLView;
 import org.FileManager;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
+import org.Model.AttributeInterface;
+import org.Model.Field;
+import org.Model.Method;
+import org.Model.Parameter;
+import java.util.ArrayList;
 
 // Checks validity of action then calls function in
 // editor to carry out change
@@ -21,6 +26,8 @@ public class CLController {
     private Scanner sc;
     // Create a string to read user input
     private String input = "";
+	// Create a global class that can be used and passed into editor
+	ClassObject activeClass = null;
 	// Prompt to be displayed at beginning of every loop
 	private final String basePrompt = "Please type your command(Help for list of commands): ";
 	
@@ -53,18 +60,24 @@ public class CLController {
 	 * Gets the class to be listed and tells user if action failed
 	 */
 	private void CL_listClassInfo() {
-		if (listClassNames()) {
-			view.show("What class would you like printed?");
-			input = sc.nextLine();
-			String classInfo = model.listClassInfo(input);
-			if (classInfo.equals("")) {
-				// Class does not exist
-				view.show("Requested class does not exist");
-			} else {
-				view.show(classInfo);
-			}
-		} else {
+		if (!listClassNames()) {
 			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class would you like printed?");
+		input = sc.nextLine();
+		activeClass = model.fetchClass(input);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + input + " does not exist");
+			return;
+		}
+		String classInfo = model.listClassInfo(activeClass);
+		if (classInfo.equals("")) {
+			// Class does not exist
+			view.show("Requested class does not exist");
+		} else {
+			view.show(classInfo);
 		}
 	}
 	
@@ -111,16 +124,16 @@ public class CLController {
 	 * Gets class info from user and displays if class was deleted
 	 */
 	private void CL_deleteClass() {
-		if (listClassNames()) {
-			view.show("What class would you like to delete?");
-			input = sc.nextLine();
-			if (editor.deleteClass(input)) {
-				view.show("Class " + input + " successfully deleted");
-			} else {
-				view.show("Class " + input + " could not be deleted");
-			}
-		} else {
+		if (!listClassNames()) {
 			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class would you like to delete?");
+		input = sc.nextLine();
+		if (editor.deleteClass(input)) {
+			view.show("Class " + input + " successfully deleted");
+		} else {
+			view.show("Class " + input + " could not be deleted");
 		}
 	}
 	
@@ -128,42 +141,41 @@ public class CLController {
 	 * Gets class info from user and displays if class was renamed
 	 */
 	private void CL_renameClass() {
-		if (listClassNames()) {
-			view.show("What class would you like to rename?");
-			input = sc.nextLine();
-			ClassObject activeClass = model.fetchClass(input);
-			if (activeClass != null) {
-				// Class to be renamed exists
-				view.show("What would you like the new name of the class tobe ?");
-				String newName = sc.nextLine();
-				int result = model.isValidClassName(newName);
-				switch(result) {
-				case 1:
-					view.show("No new class name was given");
-					break;
-				case 2:
-					view.show("Name " + newName + " is invalid. First character must be a letter or '_'");
-					break;
-				case 3:
-					view.show("Name " + newName + " is invalid. Name can only contain alphanumerics, '_', or '$'");
-					break;
-				case 4:
-					view.show("Name " + newName + " is alreadyused by another class");
-					break;
-				case 0:
-				default:
-					editor.renameClass(activeClass, newName);
-					view.show("Class " + input + " renmaed to " + newName);
-					break;
-				}
-			} else {
-				// Class to be renamed does not exist
-				view.show("Class " + input + " does not exist");
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class would you like to rename?");
+		input = sc.nextLine();
+		activeClass = model.fetchClass(input);
+		if (activeClass != null) {
+			// Class to be renamed exists
+			view.show("What would you like the new name to be?");
+			String newName = sc.nextLine();
+			int result = model.isValidClassName(newName);
+			switch (result) {
+			case 1:
+				view.show("No new class name was given");
+				break;
+			case 2:
+				view.show("Name " + newName + " is invalid. First character must be a letter or '_'");
+				break;
+			case 3:
+				view.show("Name " + newName + " is invalid. Name can only contain alphanumerics, '_', or '$'");
+				break;
+			case 4:
+				view.show("Name " + newName + " is already used by another class");
+				break;
+			case 0:
+			default:
+				editor.renameClass(activeClass, newName);
+				view.show("Class " + input + " renamed to " + newName);
+				break;
 			}
 		} else {
-			view.show("No classes currently exist");
+			// Class to be renamed does not exist
+			view.show("Class " + input + " does not exist");
 		}
-		
 	}
 	
 	/**
@@ -215,8 +227,6 @@ public class CLController {
 			} else {
 				view.show("Relationship " + input + " could not be created");
 			}
-		
-		
 	}
 
 	/**
@@ -306,93 +316,290 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	private void CL_deleteRelationship() {
-		if (listClassNames()) {
-			view.show("What is the source of the relationship?");
-			input = sc.nextLine();
-			view.show("What is the destination of the relationship?");
-			String dest = sc.nextLine();
-			if (editor.deleteRelationship(input, dest)) {
-				view.show("Relaionship between " + input + " and " + dest + " deleted");
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What is the source of the relationship?");
+		input = sc.nextLine();
+		view.show("What is the destination of the relationship?");
+		String dest = sc.nextLine();
+		if (editor.deleteRelationship(input, dest)) {
+			view.show("Relaionship between " + input + " and " + dest + " deleted");
+		} else {
+			view.show("Relaionship between " + input + " and " + dest + " could not be deleted");
+		}
+	}
+
+	/**
+	 * Gets class and field info from user and returns if action succeeded or not
+	 */
+	private void CL_addField() {
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class would you like to add a field to?");
+		String className = sc.nextLine();
+		activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + className + " does not exist");
+			return;
+		}
+		view.show("What do you want to name the field?");
+		input = sc.nextLine();
+		if (activeClass.fetchField(input) == null) {
+			// Field does not already exist in class
+			editor.addField(activeClass, input);
+			view.show("Field " + input + " successfully added to class " + className);
+		} else {
+			view.show("Field with name " + input + " already exists in class " + className);
+		}
+	}
+
+	/**
+	 * Gets class and field info from user and returns if deletion succeeded
+	 */
+	private void CL_deleteField() {
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class would you like to delete a field from?");
+		String className = sc.nextLine();
+		activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + className + " does not exist");
+			return;
+		}
+		if (!listFieldNames(activeClass)) {
+			view.show("Class has no fields");
+			return;
+		}
+		view.show("What is the name of the field you want to delete?");
+		input = sc.nextLine();
+		AttributeInterface delField = activeClass.fetchField(input);
+		if (delField != null) {
+			// The field specified exists
+			editor.deleteAttribute(activeClass, delField);
+			view.show("Field " + input + " successfully deleted from class " + className);
+		} else {
+			// The field does not exist
+			view.show("Class " + className + " does not have a field named " + input);
+		}
+	}
+
+	/**
+	 * Gets class and field info from user as well as what they want to rename it to
+	 * Returns whether or not the operation succeeds
+	 */
+	private void CL_renameField() {
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class do you want to rename a field from?");
+		String className = sc.nextLine();
+		activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + className + " does not exist");
+			return;
+		}
+		if (!listFieldNames(activeClass)) {
+			view.show("Class has no fields");
+			return;
+		}
+		view.show("What is the name of the field you want to rename?");
+		input = sc.nextLine();
+		AttributeInterface renameField = activeClass.fetchField(input);
+		if (renameField != null) {
+			// The method does exist
+			view.show("What do you want to rename the field to?");
+			String newName = sc.nextLine();
+			if (activeClass.fetchField(newName) == null) {
+				// The newName is not in use
+				editor.renameAttribute(renameField, newName);
+				view.show("Field " + input + " renamed to " + newName);
 			} else {
-				view.show("Relaionship between " + input + " and " + dest + " could not be deleted");
+				view.show(newName + " is currently used by another field in " + className);
 			}
 		} else {
-			view.show("No classes currently exist");
+			// The method does not exist
+			view.show("Class " + className + " does not have a field named " + input);
 		}
-		
 	}
-	
+
 	/**
-	 * Gets class and attribute info from user and returns if action succeeded or not
+	 * Gets class, method, and parameters from user and returns if action succeeded
+	 * or not
 	 */
-	private void CL_addAttribute() {
-		if (listClassNames()) {
-			view.show("What class would you like to add an attribute to?");
-			String className = sc.nextLine();
-			view.show("What do you want to name the attribute?");
-			input = sc.nextLine();
-			if (editor.addAttribute(className, input)) {
-				// editor.addAttribute succeeded
-				view.show("Attribute " + input + " was successfully added to class " + className);
-			} else {
-				view.show("Attribute " + input + " could not be created");
-			}
-		} else {
+	private void CL_addMethod() {
+		if (!listClassNames()) {
 			view.show("No classes currently exist");
+			return;
 		}
-		
-	}
-	
-	/**
-	 * Gets class and attribute info from user and returns if deletion succeeded
-	 */
-	private void CL_deleteAttribute() {
-		if (listClassNames()) {
-			view.show("What class would you like to delete an attribute from?");
-			input = sc.nextLine();
-			if (listAttrNames(input)) {
-				view.show("What is the name of the attribute you want to delete?");
-				String attrName = sc.nextLine();
-				if (editor.deleteAttribute(input, attrName)) {
-					view.show("Attribute " + attrName + " deleted from " + input);
+		view.show("What class would you like to add a method to?");
+		String className = sc.nextLine();
+		activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + className + " does not exist");
+			return;
+		}
+		// Class exists, get Method name and params
+		view.show("What do you want to name the method?");
+		input = sc.nextLine();
+		ArrayList<Parameter> paramList = new ArrayList<>();
+		view.show("Would you like to add parameters to this method? (Y for yes)");
+		if (sc.nextLine().replaceAll("\\s", "").equalsIgnoreCase("Y")) {
+			boolean loop = true;
+			String paramName = "";
+			Parameter param;
+			view.show("What would you like to name the parameter? Type 'stop' to stop adding parameters");
+			while (loop) {
+				view.show("What would you like to name the next parameter?");
+				paramName = sc.nextLine().replaceAll("\\s", "");
+				if (paramName.equalsIgnoreCase("stop")) {
+					loop = false;
 				} else {
-					view.show("Attribute could not be deleted");
+					boolean exist = false;
+					for (int i = 0; i < paramList.size(); i++) {
+						if (paramName.equals(paramList.get(i).getName())) {
+							// Parameter name has already been added
+							exist = true;
+							break;
+						} else {
+							// Do nothing
+						}
+					}
+					if (exist) {
+						view.show("Parameter " + paramName + " has already been added");
+					} else {
+						param = new Parameter(paramName);
+						paramList.add(param);
+						view.show("Parameter " + paramName + " added to method " + input);
+					}
 				}
-			} else {
-				view.show("Class has no attributes");
 			}
-			
-		} else {
-			view.show("No classes currently exist");
 		}
-		
+		if (activeClass.fetchMethod(input, paramList.size()) != null) {
+			// Method with same name and # of parameters already exists
+			view.show("Method with name " + input + " and parameter arity " + paramList.size() + " already exists");
+		} else {
+			// Method with same name and # of parameters does not exist
+			editor.addMethod(activeClass, input, paramList);
+			view.show("Method " + input + " successfully added to class " + className);
+		}
 	}
-	
+
 	/**
-	 * Gets class and attribute info and new name from user and returns if
-	 * operation succeeded
+	 * Gets class and method info from user and returns if deletion succeeded
 	 */
-	private void CL_renameAttribute() {
-		if (listClassNames()) {
-			view.show("What class do you want to rename an attribute from?");
-			input = sc.nextLine();
-			if (listAttrNames(input)) {
-				view.show("What attribute do you want to rename?");
-				String attrName = sc.nextLine();
-				view.show("What do you want to rename the attribute to?");
-				String newName = sc.nextLine();
-				if (editor.renameAttribute(input, attrName, newName)) {
-					view.show("Attribute " + attrName + " renamed to " + newName);
-				} else {
-					view.show("Attribute " + attrName + " could not be renamed");
-				}
+	private void CL_deleteMethod() {
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class would you like to delete a method from?");
+		String className = sc.nextLine();
+		activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + className + " does not exist");
+			return;
+		}
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
+		view.show("What is the name of the method you want to delete?");
+		input = sc.nextLine();
+		int paramArity = -1;
+		view.show("How many parameters does " + input + " have?");
+		if (sc.hasNextInt()) {
+			paramArity = sc.nextInt();
+			if (paramArity < 0) {
+				view.show("Parameter arity must be non-negative");
+				return;
+			}
+			// Consume newLine char left by nextInt
+			sc.nextLine();
+		} else {
+			view.show("Invalud input. Please enter a number");
+			// Clear invalid input from buffer
+			sc.nextLine();
+			return;
+		}
+		Method delMethod = activeClass.fetchMethod(input, paramArity);
+		if (delMethod != null) {
+			// The method specified exists
+			editor.deleteAttribute(activeClass, delMethod);
+			view.show("Method " + input + " successfully deleted from class " + className);
+		} else {
+			// The method does not exist
+			view.show("Class " + className + " does not have a method named " + input);
+		}
+	}
+
+	/**
+	 * Gets class and method info from user as well as what they want to rename it
+	 * to Returns whether or not the operation succeeds
+	 */
+	private void CL_renameMethod() {
+		if (!listClassNames()) {
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class do you want to rename a method from?");
+		String className = sc.nextLine();
+		activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// Class does not exist
+			view.show("Class " + className + " does not exist");
+			return;
+		}
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
+		view.show("What is the name of the method you want to rename?");
+		input = sc.nextLine();
+		int paramArity = -1;
+		view.show("How many parameters does " + input + " have?");
+		if (sc.hasNextInt()) {
+			paramArity = sc.nextInt();
+			if (paramArity < 0) {
+				view.show("Parameter arity must be non-negative");
+				return;
+			}
+			// Consume newLine char left by nextInt
+			sc.nextLine();
+		} else {
+			view.show("Invalud input. Please enter a number");
+			// Clear invalid input from buffer
+			sc.nextLine();
+			return;
+		}
+		Method renameMethod = activeClass.fetchMethod(input, paramArity);
+		if (renameMethod != null) {
+			// The method does exist
+			view.show("What do you want to rename the method to?");
+			String newName = sc.nextLine();
+			if (activeClass.fetchMethod(newName, paramArity) == null) {
+				// The newName is not in use
+				editor.renameAttribute(renameMethod, newName);
+				view.show("Method " + input + " renamed to " + newName);
 			} else {
-				view.show("Class has no attributes");
+				view.show(newName + " is currently used by another method in " + className);
 			}
 		} else {
-			view.show("No classes currently exist");
+			// The method does not exist
+			view.show("Class " + className + " does not have a method named " + input + " with " + paramArity
+					+ " parameters");
 		}
-		
 	}
 	
 	/**
@@ -410,15 +617,30 @@ public class CLController {
 	}
 	
 	/**
-	 * Helper class to return if any attributes have been listed
-	 * Used for error catching and avoiding redundant code
-	 * @param className		| Name of the class being checked
-	 * @return True if attributes have been listed, false otherwise
+	 * Helper function to return if any fields have been listed
+	 * 
+	 * @param cls | The class whose fields are being listed
+	 * @return True if fields have been listed, false otherwise
 	 */
-	private boolean listAttrNames(String className) {
-		String attrNames = model.listAttributes(className);
-		if (!attrNames.equals("")) {
-			view.show("Available Attributes:\n" + attrNames);
+	private boolean listFieldNames(ClassObject cls) {
+		String fieldNames = model.listFields(cls);
+		if (!fieldNames.equals("")) {
+			view.show("Available Fields:\n" + fieldNames);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Helper function to return if any methods have been listed
+	 * 
+	 * @param cls | The class whose methods are being listed
+	 * @return True if methods have been listed, false otherwise
+	 */
+	private boolean listMethodNames(ClassObject cls) {
+		String methodNames = model.listMethods(cls);
+		if (!methodNames.equals("")) {
+			view.show("Available Methods:\n" + methodNames);
 			return true;
 		}
 		return false;
@@ -459,8 +681,8 @@ public class CLController {
         	// Print the basePrompt asking for next command
         	view.show(basePrompt);
         	// Read user input
-		if(!sc.hasNextLine())
-		    continue;
+			if(!sc.hasNextLine())
+		    	continue;
         	input = sc.nextLine();
         	
         	switch(input.toLowerCase().replaceAll("\\s", "")) {
@@ -526,12 +748,22 @@ public class CLController {
         	case "ra":
         		CL_renameAttribute();
         		break;
+			case "addmethod":
+				CL_addMethod();
+				break;
+			case "deletemethod":
+				CL_deleteMethod();
+				break;
+			case "renamemethod":
+				CL_renameMethod();
+				break;
         	default:
         		view.show("Command not recognized, please try something else");
         		break;
         	}
         	// Reset Variables
         	input = "";
+			activeClass = null;
         	// Skip a line to break up user actions in the command line
         	view.show("");
         }
