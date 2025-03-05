@@ -52,6 +52,21 @@ public class Relationship{
         this.type = newType;
     }
 
+        /**
+     * Constructor for an unnamed, untyped relationship to not break tests
+     * Creates a relationship between a source class and destination class
+     * @param ClassObject source    |   the source of the relationship
+     * @param ClassObject dest      |   the destination of this relationship
+     * @param Type newType          |   the type of this new relationship
+     */
+    public Relationship(ClassObject source, ClassObject dest){
+        this.source = source;
+        this.destination = dest;
+        this.name = "";
+        this.ID = source.hashCode() + dest.hashCode();
+        this.type = Type.REALIZATION;
+    }
+
 
     // Accssor methods
 
