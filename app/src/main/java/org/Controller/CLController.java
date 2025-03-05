@@ -223,7 +223,12 @@ public class CLController {
 			}
 
 			if (type!=null && editor.addRelationship(input, source, dest, type)) {
-				view.show(type + " Relationship " + input + " successfully created from " + source + " to " + dest);
+				if(input.equals("")){
+					view.show("Unnamed " + type + " Relationship successfully created from " + source + " to " + dest);
+				}
+				else{
+					view.show(type + " Relationship " + input + " successfully created from " + source + " to " + dest);
+				}
 			} else {
 				view.show("Relationship " + input + " could not be created");
 			}
@@ -308,7 +313,7 @@ public class CLController {
 					editor.editRelationship(source, dest, field, value);
 			}
 			else
-			{view.show("Relationship between " + source + " and " + dest + " does not exist!");}
+			{view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");}
 		}
 	
 	
@@ -324,10 +329,14 @@ public class CLController {
 		input = sc.nextLine();
 		view.show("What is the destination of the relationship?");
 		String dest = sc.nextLine();
+		if(model.relationshipExist(input, dest)!=null){
+			view.show("Error: Relationship between " + input + " and " + dest + " does not exist! Aborting.");
+			return;
+		}
 		if (editor.deleteRelationship(input, dest)) {
-			view.show("Relaionship between " + input + " and " + dest + " deleted");
+			view.show("Relationship between " + input + " and " + dest + " deleted.");
 		} else {
-			view.show("Relaionship between " + input + " and " + dest + " could not be deleted");
+			view.show("Relationship between " + input + " and " + dest + " could not be deleted.");
 		}
 	}
 
