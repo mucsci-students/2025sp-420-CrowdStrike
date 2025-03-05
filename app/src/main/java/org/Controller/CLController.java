@@ -231,10 +231,10 @@ public class CLController {
 
 	/**
 	 * Enables the editing of existing relationships from the CLI editor
+	 * Loops until the 
 	 */
 	private void CL_editRelationship(){
-		// VERY BROKEN RIGHT NOW
-		if (model.listRelationships().isEmpty()) {
+		if (!listRelationshipNames()) {
 			view.show("Error: No relationships exist to edit! Aborting");
 			return;
 		}
@@ -316,8 +316,8 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	private void CL_deleteRelationship() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		if (!listRelationshipNames()) {
+			view.show("Error: No relationships exist to delete! Aborting");
 			return;
 		}
 		view.show("What is the source of the relationship?");
@@ -611,6 +611,20 @@ public class CLController {
 		String classNames = model.listClassNames();
 		if (!classNames.equals("")) {
 			view.show("Available Classes:\n" + classNames);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Helper class to return if any relationships have been created
+	 * Used for error catching and avoiding redundant code
+	 * @return True if relationships have been listed, false otherwise
+	 */
+	private boolean listRelationshipNames() {
+		String relNames = model.listRelationships();
+		if (!relNames.equals("Relationships:")) {
+			view.show("Existing Relationships:\n" + relNames);
 			return true;
 		}
 		return false;
