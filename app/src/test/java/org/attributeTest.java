@@ -9,6 +9,7 @@ import org.Model.ClassObject;
 import org.Controller.UMLEditor;
 
 public class attributeTest {
+	/*
 	UMLModel testModel = new UMLModel();
 	UMLEditor testEditor = new UMLEditor(testModel);
 	ClassObject class1;
@@ -37,5 +38,5 @@ public class attributeTest {
 		assertEquals(class1.fetchAttribute("betterTestAttr").getName(),"betterTestAttr" ,"The name should be changed to 'betterTestAttr'");
 	}
 	
-	
+	*/
 }

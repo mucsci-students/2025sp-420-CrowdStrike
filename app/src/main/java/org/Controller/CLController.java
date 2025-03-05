@@ -736,25 +736,28 @@ public class CLController {
 			case "er":
 				CL_editRelationship();
 				break;
-        	case "addattribute":
-        	case "aa":
-        		CL_addAttribute();
+        	case "addfield":
+        	case "af":
+        		CL_addField();
         		break;
-        	case "deleteattribute":
-        	case "da":
-        		CL_deleteAttribute();
+        	case "deletefield":
+        	case "df":
+        		CL_deleteField();
         		break;
-        	case "renameattribute":
-        	case "ra":
-        		CL_renameAttribute();
+        	case "renamefield":
+        	case "rf":
+        		CL_renameField();
         		break;
 			case "addmethod":
+			case "am":
 				CL_addMethod();
 				break;
 			case "deletemethod":
+			case "dm":
 				CL_deleteMethod();
 				break;
 			case "renamemethod":
+			case "rm":
 				CL_renameMethod();
 				break;
         	default:
