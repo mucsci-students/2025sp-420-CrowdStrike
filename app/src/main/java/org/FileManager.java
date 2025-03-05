@@ -15,8 +15,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.Model.UMLModel;
+import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Relationship;
+import org.Model.Field;
+import org.Model.Method;
+import org.Model.Parameter;
+
+import org.Controller.UMLEditor;
 
 public class FileManager {
 
@@ -37,7 +43,6 @@ public class FileManager {
 
 		String content = Files.readString(Paths.get(path));
 		JsonElement mdl = JsonParser.parseString(content);
-		JsonElement tmp;
 		JsonObject mdlObj;
 
 		if (!mdl.isJsonObject())
@@ -53,7 +58,25 @@ public class FileManager {
 			clist.add(buildClass(e.getAsJsonObject()));
 		}
 
+		for (JsonElement e : mdlObj.get("relationships").getAsJsonArray()) {
+
+		}
+
 		return model;
+	}
+
+	private void addRelationships(JsonArray json, UMLModel m) throws Exception {
+		UMLEditor e = new UMLEditor(m);
+		for (JsonElement r : json) {
+			JsonObject obj;
+			if (!r.isJsonObject())
+				throw new InvalidObjectException("Relationship is not an object");
+			obj = r.getAsJsonObject();
+			if (!(obj.has("source") && obj.has("destination") && obj.has("type")))
+				throw new InvalidObjectException("Relationship is missing a paramiter");
+			e.addRelationship(obj.get("name").getAsString(), obj.get("source").getAsString(),
+					obj.get("destination").getAsString());
+		}
 	}
 
 	private ClassObject buildClass(JsonObject c) throws Exception {
@@ -69,28 +92,31 @@ public class FileManager {
 
 		obj = new ClassObject(c.get("name").getAsString());
 		tmp = c.get("fields").getAsJsonArray();
-		// TODO call addFields with tmp and field arraylist
+		addFields(tmp, obj.getFieldList());
 
 		tmp = c.get("methods").getAsJsonArray();
-		// TODO call addMethods with tmp and methods arraylist
+		addMethods(tmp, obj.getMethodList());
 
 		return obj;
 	}
 
-	private void addFields(JsonArray json, ArrayList<Object/* replace with feild obj */> flds) throws Exception {
+	private void addFields(JsonArray json, ArrayList<AttributeInterface> flds) throws Exception {
 		for (JsonElement field : json) {
 			if (!field.isJsonObject())
 				throw new InvalidObjectException("Field is not an object");
 			if (!field.getAsJsonObject().has("name"))
 				throw new InvalidObjectException("Field is missing name");
 
-			flds.add(1); // TODO init field instend of #1
+			flds.add(new Field(field.getAsJsonObject().get("name").getAsString()));
 		}
 	}
 
-	private void addMethods(JsonArray json, ArrayList<Object/* replace with method obj */> mths) throws Exception {
+	private void addMethods(JsonArray json, ArrayList<AttributeInterface> mths) throws Exception {
 		for (JsonElement method : json) {
 			JsonObject m;
+			Method mobj;
+			ArrayList<Parameter> plst = new ArrayList<Parameter>();
+
 			if (!method.isJsonObject())
 				throw new InvalidObjectException("method is not an object");
 
@@ -102,7 +128,17 @@ public class FileManager {
 			if (!m.has("params") && m.get("params").isJsonArray())
 				throw new InvalidObjectException("method params are malformed");
 
-			// TODO build Method
+			addParams(m.get("params").getAsJsonArray(), plst);
+			mobj = new Method(m.get("name").getAsString(), plst);
+			mths.add(mobj);
+		}
+	}
+
+	private void addParams(JsonArray json, ArrayList<Parameter> plst) throws Exception {
+		for (JsonElement p : json) {
+			if (!p.isJsonObject() && p.getAsJsonObject().has("name"))
+				throw new InvalidObjectException("Parameter is malformed");
+			plst.add(new Parameter(p.getAsJsonObject().get("name").getAsString()));
 		}
 	}
 
