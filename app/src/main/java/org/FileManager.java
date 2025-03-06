@@ -10,6 +10,7 @@ import com.google.gson.JsonParser;
 import java.io.FileWriter;
 import java.io.InvalidObjectException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import org.Model.UMLModel;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
-import org.Model.Relationship;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
@@ -38,8 +38,10 @@ public class FileManager {
 
 	public UMLModel load(String path) throws Exception {
 		UMLModel model = new UMLModel();
-		ArrayList<ClassObject> clist = model.getClassList();
-		ArrayList<Relationship> rlist = model.getRelationshipList();
+		ArrayList<ClassObject> clist = model.getClassList();/**/
+
+		if (!Files.isReadable(Paths.get(path)))
+			throw new InvalidPathException(path, "given path is not valid");
 
 		String content = Files.readString(Paths.get(path));
 		JsonElement mdl = JsonParser.parseString(content);
@@ -59,24 +61,23 @@ public class FileManager {
 		}
 
 		for (JsonElement e : mdlObj.get("relationships").getAsJsonArray()) {
-
+			addRelationships(e, model);
 		}
 
 		return model;
 	}
 
-	private void addRelationships(JsonArray json, UMLModel m) throws Exception {
+	private void addRelationships(JsonElement json, UMLModel m) throws Exception {
 		UMLEditor e = new UMLEditor(m);
-		for (JsonElement r : json) {
-			JsonObject obj;
-			if (!r.isJsonObject())
-				throw new InvalidObjectException("Relationship is not an object");
-			obj = r.getAsJsonObject();
-			if (!(obj.has("source") && obj.has("destination") && obj.has("type")))
-				throw new InvalidObjectException("Relationship is missing a paramiter");
-			e.addRelationship(obj.get("name").getAsString(), obj.get("source").getAsString(),
-					obj.get("destination").getAsString());
-		}
+		JsonObject robj;
+		if (!json.isJsonObject())
+			throw new InvalidObjectException("relationship is not an object");
+
+		robj = json.getAsJsonObject();
+		if (!(robj.has("source") && robj.has("destination") && robj.has("type")))
+			throw new InvalidObjectException("relationship is missing a field");
+		e.addRelationship(robj.get("type").getAsString(), robj.get("source").getAsString(),
+				robj.get("destination").getAsString());
 	}
 
 	private ClassObject buildClass(JsonObject c) throws Exception {
@@ -141,5 +142,4 @@ public class FileManager {
 			plst.add(new Parameter(p.getAsJsonObject().get("name").getAsString()));
 		}
 	}
-
 }
