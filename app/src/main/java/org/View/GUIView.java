@@ -32,7 +32,7 @@ public class GUIView extends JFrame {
     private CustomDrawingPanel drawingPanel;
 
     public GUIView() {
-        setTitle("UML Editor");
+        setTitle("UML CLASS DIAGRAM");
         setExtendedState(JFrame.MAXIMIZED_BOTH);//Open in full-screen mode
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());

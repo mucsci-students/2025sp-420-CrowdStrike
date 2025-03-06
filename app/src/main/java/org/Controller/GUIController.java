@@ -296,21 +296,39 @@ public class GUIController {
         }
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setPreferredSize(new Dimension(400,300));//Increase dialog size
+
         List<JTextField> fieldInputs = new ArrayList<>();
         JButton addFieldButton = new JButton("+");
+        
+        
 
         // Initial Field Input
+        //JTextField fieldInput = new JTextField();
+        //fieldInputs.add(fieldInput);
+
+        JLabel label = new JLabel("Enter Field Name:");
         JTextField fieldInput = new JTextField();
+        fieldInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldInput.getPreferredSize().height));//limits height
         fieldInputs.add(fieldInput);
-        panel.add(new JLabel("Enter Field Name:"));
+
+
+        //panel.add(new JLabel("Enter Field Name:"));
+        panel.add(label);
         panel.add(fieldInput);
         panel.add(addFieldButton);
 
         // Add more fields dynamically when clicking "+"
         addFieldButton.addActionListener(e -> {
+            //JTextField newFieldInput = new JTextField();
+            //fieldInputs.add(newFieldInput);
+
+            JLabel newLabel = new JLabel("Enter Field Name:");
             JTextField newFieldInput = new JTextField();
+            newFieldInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, newFieldInput.getPreferredSize().height));
             fieldInputs.add(newFieldInput);
-            panel.add(new JLabel("Enter Field Name:"));
+            panel.add(newLabel);
             panel.add(newFieldInput);
             panel.revalidate();
             panel.repaint();
@@ -381,44 +399,122 @@ public class GUIController {
             }
         }
     }
+//================= METHODS ==============================
+   
+   //Helper method for addMethods()
+   private JPanel createMethodEntryPanel() {
+    JPanel entryPanel = new JPanel();
+    entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
+    entryPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.GRAY),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+    ));
+    
+    // Method name input
+    JLabel label = new JLabel("Enter Method Name:");
+    JTextField methodInput = new JTextField();
+    methodInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, methodInput.getPreferredSize().height));
+    entryPanel.add(label);
+    entryPanel.add(methodInput);
+    
+    // Parameter inputs section
+    JLabel paramLabel = new JLabel("Parameters:");
+    entryPanel.add(paramLabel);
+    JPanel paramPanel = new JPanel();
+    paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
+    entryPanel.add(paramPanel);
+    
+    // Button to add parameter fields
+    JButton addParamButton = new JButton("Add Parameter");
+    addParamButton.addActionListener(e -> {
+        JLabel newParamLabel = new JLabel("Parameter:");
+        JTextField paramField = new JTextField();
+        paramField.setMaximumSize(new Dimension(Integer.MAX_VALUE, paramField.getPreferredSize().height));
+        paramPanel.add(newParamLabel);
+        paramPanel.add(paramField);
+        paramPanel.revalidate();
+        paramPanel.repaint();
+    });
+    entryPanel.add(addParamButton);
+    
+    // Store the method input field and parameter panel for later retrieval using client properties.
+    //this is swing method
+    entryPanel.putClientProperty("methodInput", methodInput);
+    entryPanel.putClientProperty("paramPanel", paramPanel);
+    
+    return entryPanel;
+}
 
-    private void addMethodToClass() {
-        if (selectedClassBox == null) {
-            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        List<JTextField> methodInputs = new ArrayList<>();
-        JButton addMethodButton = new JButton("+");
-
-        // Initial Method Input
-        JTextField methodInput = new JTextField();
-        methodInputs.add(methodInput);
-        panel.add(new JLabel("Enter Method Name:"));
-        panel.add(methodInput);
-        panel.add(addMethodButton);
-
-        // Add more methods dynamically when clicking "+"
-        addMethodButton.addActionListener(e -> {
-            JTextField newMethodInput = new JTextField();
-            methodInputs.add(newMethodInput);
-            panel.add(new JLabel("Enter Method Name:"));
-            panel.add(newMethodInput);
-            panel.revalidate();
-            panel.repaint();
-        });
-
-        int result = JOptionPane.showConfirmDialog(view, panel, "Add Methods", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            for (JTextField input : methodInputs) {
-                String methodName = input.getText().trim();
-                if (!methodName.isEmpty() && !selectedClassBox.getMethods().contains(methodName)) {
-                    selectedClassBox.addMethod(methodName);
+private void addMethodToClass() {
+    if (selectedClassBox == null) {
+        JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // Create the container panel for method entries.
+    JPanel methodpanel = new JPanel();
+    methodpanel.setLayout(new BoxLayout(methodpanel, BoxLayout.Y_AXIS));
+    methodpanel.setPreferredSize(new Dimension(400, 300));
+    
+    // List to hold each method entry panel.
+    List<JPanel> methodEntryPanels = new ArrayList<>();
+    
+    // Add an initial method entry panel.
+    JPanel entry = createMethodEntryPanel();
+    methodEntryPanels.add(entry);
+    methodpanel.add(entry);
+    
+    // Button to add additional method entry panels.
+    JButton addMethodButton = new JButton("Add another method");
+    addMethodButton.addActionListener(e -> {
+        JPanel newEntry = createMethodEntryPanel();
+        methodEntryPanels.add(newEntry);
+        methodpanel.add(newEntry);
+        methodpanel.revalidate();
+        methodpanel.repaint();
+    });
+    methodpanel.add(addMethodButton);
+    
+    int result = JOptionPane.showConfirmDialog(view, methodpanel, "Add Methods", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+    if (result == JOptionPane.OK_OPTION) {
+        // Process each method entry panel.
+        for (JPanel entryPanel : methodEntryPanels) {
+            // Retrieve the method name from the client property.
+            JTextField methodInput = (JTextField) entryPanel.getClientProperty("methodInput");
+            if (methodInput == null) continue;
+            String methodName = methodInput.getText().trim();
+            if (methodName.isEmpty()) continue;
+            
+            // Retrieve the parameter panel and extract all parameter names.
+            JPanel paramPanel = (JPanel) entryPanel.getClientProperty("paramPanel");
+            List<String> params = new ArrayList<>();
+            if (paramPanel != null) {
+                for (Component comp : paramPanel.getComponents()) {
+                    if (comp instanceof JTextField) {
+                        String param = ((JTextField) comp).getText().trim();
+                        if (!param.isEmpty()) {
+                            params.add(param);
+                        }
+                    }
                 }
             }
+            
+            // Format the method signature as "methodName(param1, param2, ...)".
+            StringBuilder signature = new StringBuilder(methodName);
+            signature.append("(");
+            if (!params.isEmpty()) {
+                signature.append(String.join(", ", params));
+            }
+            signature.append(")");
+            
+            // Only add the method if it doesn't already exist.
+            if (!selectedClassBox.getMethods().contains(signature.toString())) {
+                selectedClassBox.addMethod(signature.toString());
+            }
         }
+        view.getDrawingPanel().repaint();
     }
+}
 
     private void deleteMethodFromClass() {
         if (selectedClassBox == null) {
