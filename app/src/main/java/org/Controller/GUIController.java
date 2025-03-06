@@ -7,10 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import org.View.GUIView;
 import org.View.ClassBox;
+import org.FileManager;
+import org.Model.UMLModel;
+
 
 public class GUIController {
 
-    
+    private UMLModel model;
+    private UMLEditor editor;
+    //ClassObject activeClass = null;
+
     private GUIView view;
     private List<ClassBox> classBoxes = new ArrayList<>();
     private List<Relationship> relationships = new ArrayList<>();
@@ -28,6 +34,8 @@ public class GUIController {
 	 */
     public GUIController(GUIView view) {
         this.view = view;
+        //this.model = model;
+		//this.editor = editor;
         initController();
     }
 
@@ -72,6 +80,11 @@ public class GUIController {
         view.getAddMethodButton().addActionListener(e -> addMethodToClass());
         view.getDeleteMethodButton().addActionListener(e -> deleteMethodFromClass());
         view.getRenameMethodButton().addActionListener(e -> renameMethodInClass());
+
+        view.getSaveButton().addActionListener(e -> saveDiagram());
+        view.getLoadButton().addActionListener(e -> loadDiagram());
+        
+
         
     }
 
@@ -91,7 +104,7 @@ public class GUIController {
                 return;
             }
         }
-
+        //editor.addClass(className);
         addClass(className);
     }
 
@@ -100,31 +113,37 @@ public class GUIController {
      * Renames the currently selected class.
      */
     private void renameSelectedClass(){
-
-        //if no class is selected 
-        if (selectedClassBox == null) {
-            JOptionPane.showMessageDialog(view, "No class selected!", "Error", JOptionPane.ERROR_MESSAGE);
+        if(selectedClassBox == null){
+            JOptionPane.showMessageDialog(view, "No class selected","Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        String newClassName = JOptionPane.showInputDialog(view, "Enter New ClassName:", selectedClassBox.getClassName());
 
-        String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
-        if(className == null || className.trim().isEmpty()) return;
+        if(newClassName == null || newClassName.trim().isEmpty()){
+            return;
+        }
 
+        newClassName = newClassName.trim();
 
-        className = className.trim();
-
-
-        for (ClassBox box : classBoxes) {
-            if (box.getClassName().equalsIgnoreCase(className)) {
-                JOptionPane.showMessageDialog(view, "Class name already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+        for (ClassBox box: classBoxes){
+            if(box != selectedClassBox && box.getClassName().equalsIgnoreCase(newClassName)){
+                JOptionPane.showMessageDialog(view, "Class name already exist!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
 
+        //Update the ClassBox
+        selectedClassBox.setClassName(newClassName);
 
+        //ClassObject classObject = model.fetchClass(selectedClassBox.getClassObject().getName());
+        //if(classObject != null){
+        //  classObject.setName(newClassName);
+        //}
         //TODO
 
+        view.getDrawingPanel().revalidate();
+        view.getDrawingPanel().repaint();
     }
 
     /**
@@ -134,7 +153,7 @@ public class GUIController {
     private void addClass(String className) {
         ClassBox classBox = new ClassBox(className);
         Point position = getNextGridPosition();
-        classBox.setBounds(position.x, position.y, 150, 100);
+        classBox.setBounds(position.x, position.y, 150, 200);
 
         classBox.addMouseListener(new MouseAdapter() {
             @Override
@@ -205,7 +224,7 @@ public class GUIController {
      * Creates a new relationship between two selected classes.
      */
     private void createRelationship(ClassBox source, ClassBox destination) {
-        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
+        String[] types = {"Aggregation", "Composition", "Inheritance"};
         String type = (String) JOptionPane.showInputDialog(view, "Select Relationship Type:", "Relationship Type",
                 JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
 
@@ -498,6 +517,39 @@ public class GUIController {
         selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
     }
 
+
+    // ==================== SAVE/LOAD MANAGEMENT ==================== //
+    private void saveDiagram() {
+        String path = JOptionPane.showInputDialog(view, "Where would you like to save:");
+    
+        if (path != null && !path.trim().isEmpty()) { // Ensure path is not null or empty
+            try {
+                FileManager fileManager = new FileManager();
+                fileManager.save(path.trim(), model);
+                JOptionPane.showMessageDialog(view, "Diagram saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(view, "Failed to save diagram!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(view, "Invalid file path!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadDiagram() {
+        String path = JOptionPane.showInputDialog(view, "Where would you like to load from:");
+
+        if (path != null && !path.trim().isEmpty()) { // Ensure path is not null or empty
+            try {
+                FileManager fileManager = new FileManager();
+                model = fileManager.load(path.trim());
+                JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(view, "Failed to load diagram!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(view, "Invalid file path!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     
 
 
@@ -528,6 +580,7 @@ public class GUIController {
 
     public GUIController() {
         SwingUtilities.invokeLater(() -> {
+
             GUIView view = new GUIView();
             new GUIController(view);
             view.showGUI();

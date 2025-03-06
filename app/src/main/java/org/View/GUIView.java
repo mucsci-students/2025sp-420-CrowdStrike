@@ -25,6 +25,10 @@ public class GUIView extends JFrame {
     private JButton deleteMethodButton;
     private JButton renameMethodButton;
 
+    //Save/Load buttons
+    private JButton saveButton;
+    private JButton loadButton;
+
     private CustomDrawingPanel drawingPanel;
 
     public GUIView() {
@@ -59,12 +63,19 @@ public class GUIView extends JFrame {
         deleteMethodButton = new JButton("Delete Method");
         renameMethodButton = new JButton("Rename Method");
 
+        //Save/Load Controls 
+        saveButton = new JButton("Save");
+        loadButton = new JButton("Load");
+
+
+
         
 
 
         toolPanel.add(addClassButton);
         toolPanel.add(renameClassButton);
         toolPanel.add(deleteClassButton);
+        toolPanel.add(new JSeparator());
         toolPanel.add(addRelationshipButton);
         toolPanel.add(deleteRelationshipButton);
         toolPanel.add(new JSeparator()); // UI Divider
@@ -75,6 +86,9 @@ public class GUIView extends JFrame {
         toolPanel.add(addMethodButton);
         toolPanel.add(deleteMethodButton);
         toolPanel.add(renameMethodButton);
+        toolPanel.add(new JSeparator());
+        toolPanel.add(saveButton);
+        toolPanel.add(loadButton);
 
         add(toolPanel, BorderLayout.WEST);
     }
@@ -112,6 +126,8 @@ public class GUIView extends JFrame {
     public JButton getAddMethodButton() { return addMethodButton; }
     public JButton getDeleteMethodButton() { return deleteMethodButton; }
     public JButton getRenameMethodButton() { return renameMethodButton; }
+    public JButton getSaveButton(){return saveButton;}
+    public JButton getLoadButton(){return loadButton;}
 
     public CustomDrawingPanel getDrawingPanel() {
         return drawingPanel;

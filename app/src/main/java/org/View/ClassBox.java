@@ -6,6 +6,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
+//import org.Model.ClassObject;
 
 
 public class ClassBox extends JPanel {
@@ -14,6 +15,7 @@ public class ClassBox extends JPanel {
     private DefaultListModel<String> methodsListModel;
     private JList<String> fieldsList;
     private JList<String> methodsList;
+    //private ClassObject class
 
     public ClassBox(String className) {
         setLayout(new BorderLayout());
