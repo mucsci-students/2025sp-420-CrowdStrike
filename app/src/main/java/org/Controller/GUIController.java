@@ -237,7 +237,7 @@ public class GUIController {
      * Creates a new relationship between two selected classes.
      */
     private void createRelationship(ClassBox source, ClassBox destination) {
-        String[] types = {"Aggregation", "Composition", "Inheritance"};
+        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
         String type = (String) JOptionPane.showInputDialog(view, "Select Relationship Type:", "Relationship Type",
                 JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
 
@@ -249,7 +249,7 @@ public class GUIController {
         Relationship relationship = new Relationship(source, destination, type);
         relationships.add(relationship);
 
-        view.getDrawingPanel().addRelationship(source.getCenter(), destination.getCenter(), type);
+        view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
 
     }
@@ -265,7 +265,7 @@ public class GUIController {
 
         Relationship toRemove = relationships.get(relationships.size() - 1);
         relationships.remove(toRemove);
-        view.getDrawingPanel().removeRelationship(toRemove.getSource().getCenter(), toRemove.getDestination().getCenter());
+        view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
 
         view.getDrawingPanel().repaint();
     }

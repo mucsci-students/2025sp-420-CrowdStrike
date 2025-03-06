@@ -6,14 +6,12 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import org.Controller.GUIController;
-
-//import org.Model.ClassObject;
+import org.Model.ClassObject;
 
 
 public class ClassBox extends JPanel {
@@ -23,7 +21,11 @@ public class ClassBox extends JPanel {
     private JList<String> fieldsList;
     private JList<String> methodsList;
     private GUIController controller;
-    //private ClassObject class
+    private ClassObject classObject;
+    private volatile int screenX = 0;
+    private volatile int screenY = 0;
+    private volatile int myX = 0;
+    private volatile int myY = 0;
 
     //Borders
     private static final Border UNSELECTED_BORDER = BorderFactory.createCompoundBorder(
@@ -37,6 +39,42 @@ public class ClassBox extends JPanel {
     );
 
     public ClassBox(String className, GUIController controller) {
+
+        addMouseListener(
+            new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) { }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                screenX = e.getXOnScreen();
+                screenY = e.getYOnScreen();
+                myX = getX();
+                myY = getY();
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) { }
+            @Override
+            public void mouseEntered(MouseEvent e) { }
+            @Override
+            public void mouseExited(MouseEvent e) {}
+            }
+        );
+
+        addMouseMotionListener(
+            new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int deltaX = e.getXOnScreen() - screenX;
+                int deltaY = e.getYOnScreen() - screenY;
+                setLocation(myX + deltaX, myY + deltaY);
+                // Request the parent container (the drawing panel) to repaint
+                getParent().repaint();
+            }
+            @Override
+            public void mouseMoved(MouseEvent e) { }
+            }
+        );
+  
         this.controller = controller;
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
