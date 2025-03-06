@@ -1,11 +1,18 @@
 package org.View;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import org.Controller.GUIController;
+
 //import org.Model.ClassObject;
 
 
@@ -15,39 +22,100 @@ public class ClassBox extends JPanel {
     private DefaultListModel<String> methodsListModel;
     private JList<String> fieldsList;
     private JList<String> methodsList;
+    private GUIController controller;
     //private ClassObject class
 
-    public ClassBox(String className) {
+    //Borders
+    private static final Border UNSELECTED_BORDER = BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(Color.BLACK, 2),
+        BorderFactory.createEmptyBorder(5, 5, 5, 5)
+    );
+
+    private static final Border SELECTED_BORDER = BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(Color.RED, 3),
+        BorderFactory.createEmptyBorder(5, 5, 5, 5)
+    );
+
+    public ClassBox(String className, GUIController controller) {
+        this.controller = controller;
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
-        setBorder(new LineBorder(Color.BLACK, 2));
+        setBorder(UNSELECTED_BORDER);
+        setOpaque(true);
+
+        //Selection button(will be on the top left corner)
+        JButton selectButton = new JButton("CLICK");
+        selectButton.setPreferredSize(new Dimension(20,20));
+        selectButton.setFocusable(false);
+        selectButton.setBorder(null);
+        selectButton.setOpaque(false);
+        selectButton.setContentAreaFilled(false);
+        selectButton.setToolTipText("Select this class");
+
+        selectButton.addActionListener(e -> {
+            controller.selectClassBox(this);
+        });
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
+        topPanel.setOpaque(false);
+        topPanel.add(selectButton);
+
         //Class Name Field
         classNameField = new JTextField(className);
         classNameField.setHorizontalAlignment(JTextField.CENTER);
         classNameField.setEditable(false);
+        
+        //Prevents text field from capturing mouse clicks
+        classNameField.setFocusable(false);
+        classNameField.setBorder(null);
+
+        topPanel.add(classNameField);
+        add(topPanel, BorderLayout.NORTH);
+
         //name of the class will appear in the top part of the box
-        add(classNameField, BorderLayout.NORTH);
+        //add(classNameField, BorderLayout.NORTH);
 
         //Field & Methods Panel
         // fields
         JPanel contentPanel = new JPanel(new GridLayout(2, 1));
+        contentPanel.setOpaque(false);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        //Fields
         fieldsListModel = new DefaultListModel<>();
         fieldsList = new JList<>(fieldsListModel);
-        JScrollPane fieldsScroll = new JScrollPane(fieldsList);
-        fieldsScroll.setBorder(BorderFactory.createTitledBorder("fields"));
-        contentPanel.add(fieldsScroll);
+        fieldsList.setFocusable(false);
+        fieldsList.setBorder(BorderFactory.createTitledBorder("Fields"));
+        contentPanel.add(new JScrollPane(fieldsList));
+        //JScrollPane fieldsScroll = new JScrollPane(fieldsList);
+        //fieldsScroll.setBorder(BorderFactory.createTitledBorder("fields"));
+        //contentPanel.add(fieldsScroll);
+        
 
 
         // Methods
         methodsListModel = new DefaultListModel<>();
         methodsList = new JList<>(methodsListModel);
-        JScrollPane methodsScroll = new JScrollPane(methodsList);
-        methodsScroll.setBorder(BorderFactory.createTitledBorder("Methods"));
-        contentPanel.add(methodsScroll);
+        methodsList.setFocusable(false);
+        methodsList.setBorder(BorderFactory.createTitledBorder("Methods"));
+        contentPanel.add(new JScrollPane(methodsList));
+        //JScrollPane methodsScroll = new JScrollPane(methodsList);
+        //methodsScroll.setBorder(BorderFactory.createTitledBorder("Methods"));
+        //contentPanel.add(methodsScroll);
 
         add(contentPanel, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(250, 500));
+        setPreferredSize(new Dimension(250, 150));
+
     }
+
+    public void setSelected(boolean selected){
+        if(selected){
+            setBorder(SELECTED_BORDER);
+        }else{
+            setBorder(UNSELECTED_BORDER);
+        }
+    }
+    
 
     public String getClassName() {
         return classNameField.getText();

@@ -9,6 +9,8 @@ import org.View.GUIView;
 import org.View.ClassBox;
 import org.FileManager;
 import org.Model.UMLModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 
 public class GUIController {
@@ -151,26 +153,37 @@ public class GUIController {
      * @param className The name of the new class
      */
     private void addClass(String className) {
-        ClassBox classBox = new ClassBox(className);
+        ClassBox classBox = new ClassBox(className, this);
         Point position = getNextGridPosition();
         classBox.setBounds(position.x, position.y, 150, 200);
 
-        classBox.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (addRelationshipMode) {
-                    handleRelationshipSelection(classBox);
-                } else {
-                    selectClassBox(classBox);
-                }
-                e.consume();
-            }
-        });
+        classBox.setOpaque(true);
+        classBox.setBackground(Color.WHITE);
+
+        //Add MouseListener to detect clicks anywhere inside the box
+        configureClassBoxMouseListener(classBox);
 
         view.getDrawingPanel().add(classBox);
         classBoxes.add(classBox);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
+    }
+
+    private void configureClassBoxMouseListener(ClassBox classBox){
+        classBox.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                //selectClassBox(classBox);
+                
+                if (addRelationshipMode) {
+                    handleRelationshipSelection(classBox);
+                } else {
+                    selectClassBox(classBox);
+                }
+
+                e.consume();
+            }
+        });
     }
 
     // ==================== DELETE CLASS (ON CLICK + BUTTON) ==================== //
@@ -508,7 +521,7 @@ public class GUIController {
 
     // ==================== CLASS SELECTION ==================== //
 
-    private void selectClassBox(ClassBox classBox) {
+    public void selectClassBox(ClassBox classBox) {
         if (selectedClassBox != null) {
             selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         }

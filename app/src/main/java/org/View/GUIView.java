@@ -33,7 +33,7 @@ public class GUIView extends JFrame {
 
     public GUIView() {
         setTitle("UML Editor");
-        setSize(1000, 600);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);//Open in full-screen mode
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
