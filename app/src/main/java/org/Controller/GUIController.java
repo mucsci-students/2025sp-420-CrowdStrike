@@ -38,7 +38,6 @@ public class GUIController {
         this.view = view;
         this.model = model;
 		this.editor = editor;
-        initController();
     }
 
     // ==================== INITIALIZATION ==================== //
