@@ -335,7 +335,7 @@ public class GUIController {
             for (JTextField input : fieldInputs) {
                 String fieldName = input.getText().trim();
                 AttributeInterface field = activeClass.fetchField(fieldName);
-                if (!fieldName.isEmpty() && activeClass.getFieldList().contains(field)) {
+                if (!fieldName.isEmpty()) {
                     selectedClassBox.addField(fieldName);
                 }
             }
@@ -512,7 +512,7 @@ private void addMethodToClass() {
             
             // Only add the method if it doesn't already exist.
             AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
-                if (!methodName.isEmpty() && activeClass.getMethodList().contains(method)) {
+                if (!methodName.isEmpty() && !activeClass.getMethodList().contains(method)) {
                     selectedClassBox.addMethod(methodName, params);
                 }
         }
@@ -534,9 +534,9 @@ private void addMethodToClass() {
 
         JComboBox<Method> methodDropdown = new JComboBox<>();
         Method method;
-        for(int i = 0; i < activeClass.getMethodList().size(); i++){
+        for(int i = 0; i < methods.size(); i++){
             //method = activeClass.getMethodList().get(i).getName() + "(" + activeClass.getMethodList().get(i).getParamList().size() + ")";
-            method = (Method) activeClass.getMethodList().get(i);
+            method = (Method)methods.get(i);
             methodDropdown.addItem(method);
         }
 
@@ -544,7 +544,7 @@ private void addMethodToClass() {
         int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method to Delete", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
-            Method selectedMethod = (Method) methodDropdown.getSelectedItem();
+            Method selectedMethod = (Method)methodDropdown.getSelectedItem();
             if (selectedMethod != null) {
                 selectedClassBox.removeMethod(selectedMethod);
             }
@@ -563,9 +563,10 @@ private void addMethodToClass() {
             return;
         }
 
-        JComboBox<String> methodDropdown = new JComboBox<>();
+        JComboBox<Method> methodDropdown = new JComboBox<>();
         for(int index = 0; index<activeClass.getMethodList().size(); index++){
-            methodDropdown.addItem(activeClass.getMethodList().get(index).getName());
+            Method mthd = (Method)activeClass.getMethodList().get(index);
+            methodDropdown.addItem(mthd);
         }
         JTextField newMethodNameInput = new JTextField();
 
@@ -577,7 +578,7 @@ private void addMethodToClass() {
 
         int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            Method oldName = (Method) methodDropdown.getSelectedItem();
+            Method oldName = (Method)methodDropdown.getSelectedItem();
             String newName = newMethodNameInput.getText().trim();
 
             if (!newName.isEmpty()) {

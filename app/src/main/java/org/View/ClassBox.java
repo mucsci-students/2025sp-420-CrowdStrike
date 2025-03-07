@@ -16,8 +16,10 @@ import org.Model.*;
 
 public class ClassBox extends JPanel {
     private JTextField classNameField;
-    private JList<AttributeInterface> fieldsList;
-    private JList<AttributeInterface> methodsList;
+    private DefaultListModel<String> fieldModel;
+    private JList<String> fieldsList;
+    private DefaultListModel<String> methodModel;
+    private JList<String> methodsList;
     private GUIController controller;
     private ClassObject classObject;
     private volatile int screenX = 0;
@@ -119,26 +121,20 @@ public class ClassBox extends JPanel {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         //Fields
-        Field[] fieldArr = new Field[classObject.getFieldList().size()];
-        fieldsList = new JList<>(classObject.getFieldList().toArray(fieldArr));
+        fieldModel = new DefaultListModel<>();
+        fieldsList = new JList<>(fieldModel);
         fieldsList.setFocusable(false);
         fieldsList.setBorder(BorderFactory.createTitledBorder("Fields"));
         contentPanel.add(new JScrollPane(fieldsList));
-        //JScrollPane fieldsScroll = new JScrollPane(fieldsList);
-        //fieldsScroll.setBorder(BorderFactory.createTitledBorder("fields"));
-        //contentPanel.add(fieldsScroll);
         
 
 
         // Methods
-        Method[] mArr = new Method[classObject.getMethodList().size()];
-        methodsList = new JList<>(classObject.getMethodList().toArray(mArr));
+        methodModel = new DefaultListModel<>();
+        methodsList = new JList<>(methodModel);
         methodsList.setFocusable(false);
         methodsList.setBorder(BorderFactory.createTitledBorder("Methods"));
         contentPanel.add(new JScrollPane(methodsList));
-        //JScrollPane methodsScroll = new JScrollPane(methodsList);
-        //methodsScroll.setBorder(BorderFactory.createTitledBorder("Methods"));
-        //contentPanel.add(methodsScroll);
 
         add(contentPanel, BorderLayout.CENTER);
         setPreferredSize(new Dimension(250, 150));
@@ -164,27 +160,44 @@ public class ClassBox extends JPanel {
 
     public void addField(String field) {
         controller.getEditor().addField(classObject, field);
+        fieldModel.addElement(field);
     }
 
     public void removeField(AttributeInterface field) {
         controller.getEditor().deleteAttribute(classObject, field);
+        fieldModel.removeElement(field.getName());
     }
 
     public void renameField(String fs, String newName) {
         AttributeInterface field = classObject.fetchField(fs);
         controller.getEditor().renameAttribute(field, newName);
+        int index = fieldModel.indexOf(fs);
+        if(index != -1){
+            fieldModel.set(index, newName);
+        }
     }
 
     public void addMethod(String method, ArrayList<String> params) {
         controller.getEditor().addMethod(classObject, method, params);
+        // Optionally format the method signature
+        Method mthd = classObject.fetchMethod(method, params.size());
+        
+        //String methodSignature = method + "(" + String.join(", ", params) + ")";
+        methodModel.addElement(displayMethod(mthd));
     }
 
-    public void removeMethod(AttributeInterface method) {
+    public void removeMethod(Method method) {
         controller.getEditor().deleteAttribute(classObject, method);
+        methodModel.removeElement(displayMethod(method));
+
     }
 
     public void renameMethod(Method method, String newName) {
         controller.getEditor().renameAttribute(method, newName);
+        int index = methodModel.indexOf(displayMethod(method));
+        if(index != -1){
+            methodModel.set(index, newName);
+        }
     }
 
     public ClassObject getObjectFromBox(){
@@ -193,5 +206,22 @@ public class ClassBox extends JPanel {
 
     public Point getCenter() {
         return new Point(getX() + getWidth() / 2, getY() + getHeight() / 2);
+    }
+
+    public String displayMethod(Method m){
+        /*
+        StringBuilder signature = new StringBuilder(methodName);
+            signature.append("(");
+            if (!params.isEmpty()) {
+                signature.append(String.join(", ", params));
+            }
+            signature.append(")");
+        return signature;
+        */
+        String sig = m.getName() + "(";
+        for (int i = 0; i < m.getParamList().size(); i++) {
+            sig += m.getParamList().get(i).getName() + ", ";
+        }
+        return sig + ")";
     }
 }
