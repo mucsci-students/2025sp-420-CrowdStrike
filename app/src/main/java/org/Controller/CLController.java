@@ -321,24 +321,34 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	private void CL_deleteRelationship() {
-		if (!listRelationshipNames()) {
-			view.show("Error: No relationships exist to delete! Aborting");
-			return;
-		}
-		view.show("What is the source of the relationship?");
-		input = sc.nextLine();
-		view.show("What is the destination of the relationship?");
-		String dest = sc.nextLine();
-		if(model.relationshipExist(input, dest)!=null){
-			view.show("Error: Relationship between " + input + " and " + dest + " does not exist! Aborting.");
-			return;
-		}
-		if (editor.deleteRelationship(input, dest)) {
-			view.show("Relationship between " + input + " and " + dest + " deleted.");
-		} else {
-			view.show("Relationship between " + input + " and " + dest + " could not be deleted.");
-		}
-	}
+        if (!listRelationshipNames()) {
+            view.show("Error: No relationships exist to delete! Aborting");
+            return;
+        }
+        view.show("What is the source of the relationship are you changing?");
+        listClassNames();
+        String source = sc.nextLine();
+        if (model.fetchClass(source) == null) {
+            view.show("Error: Inputted class " + source + " does not exist! Aborting.");
+            return;
+        }
+        view.show("What is the destination of the relationship are you changing?");
+        listClassNames();
+        String dest = sc.nextLine();
+        if (model.fetchClass(dest) == null) {
+            view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
+            return;
+        }
+        if(model.relationshipExist(source, dest)==null){
+            view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
+            return;
+        }
+        if (editor.deleteRelationship(source, dest)) {
+            view.show("Relationship between " + source + " and " + dest + " deleted.");
+        } else {
+            view.show("Relationship between " + source + " and " + dest + " could not be deleted.");
+        }
+    }
 
 	/**
 	 * Gets class and field info from user and returns if action succeeded or not
