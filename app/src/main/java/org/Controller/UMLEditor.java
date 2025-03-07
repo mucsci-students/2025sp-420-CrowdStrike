@@ -165,10 +165,16 @@ public class UMLEditor {
 	 * @param methodName	| The name of the method
 	 * @param paramList		| The parameter list the method will have
 	 */
-	public void addMethod(ClassObject cls, String methodName, ArrayList<Parameter> paramList) {
-		Method method = new Method(methodName, paramList);
-		cls.addAttribute(method);
-	}
+	public void addMethod(ClassObject cls, String methodName, ArrayList<String> paramNameList) {
+        ArrayList<Parameter> paramList= new ArrayList<>();
+        Parameter param;
+        for (int i = 0; i < paramNameList.size(); i++) {
+            param = new Parameter(paramNameList.get(i));
+            paramList.add(param);
+        }
+        Method method = new Method(methodName, paramList);
+        cls.addAttribute(method);
+    }
 
 	/**
 	 * Deletes fields or methods from the designated ClassObject

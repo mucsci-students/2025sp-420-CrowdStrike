@@ -8,7 +8,7 @@ import java.util.List;
 import org.View.GUIView;
 import org.View.ClassBox;
 import org.FileManager;
-import org.Model.UMLModel;
+import org.Model.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -17,7 +17,7 @@ public class GUIController {
 
     private UMLModel model;
     private UMLEditor editor;
-    //ClassObject activeClass = null;
+    ClassObject activeClass = null;
 
     private GUIView view;
     private List<ClassBox> classBoxes = new ArrayList<>();
@@ -34,10 +34,10 @@ public class GUIController {
 	 * Constructor for GUI
 	 * @param view | Contains methods that will paint the Panel of the Diagram
 	 */
-    public GUIController(GUIView view) {
+    public GUIController(UMLModel model, UMLEditor editor, GUIView view) {
         this.view = view;
-        //this.model = model;
-		//this.editor = editor;
+        this.model = model;
+		this.editor = editor;
         initController();
     }
 
@@ -46,8 +46,9 @@ public class GUIController {
     /**
 	 * Checks if buttons were pressed
 	 */
-    private void initController() {
+    public void initController() {
         initButtonActions();
+        view.showGUI();
     }
 
     // ==================== EVENT HANDLERS ==================== //
@@ -96,18 +97,14 @@ public class GUIController {
      */
     private void promptForClassName() {
         String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
-        if (className == null || className.trim().isEmpty()) return;
+
+        if (model.isValidClassName(className)!=0) return; //replace with switch for more specific error messages
 
         className = className.trim();
-
-        for (ClassBox box : classBoxes) {
-            if (box.getClassName().equalsIgnoreCase(className)) {
-                JOptionPane.showMessageDialog(view, "Class name already exists!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-        //editor.addClass(className);
-        addClass(className);
+        
+        editor.addClass(className);
+        activeClass = model.fetchClass(className);
+        addClass(activeClass);
     }
 
 
@@ -152,8 +149,8 @@ public class GUIController {
      * Creates and positions a new class box in the diagram.
      * @param className The name of the new class
      */
-    private void addClass(String className) {
-        ClassBox classBox = new ClassBox(className, this);
+    private void addClass(ClassObject newClass) {
+        ClassBox classBox = new ClassBox(newClass, this);
         Point position = getNextGridPosition();
         classBox.setBounds(position.x, position.y, 150, 200);
 
@@ -289,7 +286,7 @@ public class GUIController {
 
     //================= FIELD ==============================
 
-        private void addFieldToClass() {
+    private void addFieldToClass() {
         if (selectedClassBox == null) {
             JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -338,7 +335,8 @@ public class GUIController {
         if (result == JOptionPane.OK_OPTION) {
             for (JTextField input : fieldInputs) {
                 String fieldName = input.getText().trim();
-                if (!fieldName.isEmpty() && !selectedClassBox.getFields().contains(fieldName)) {
+                AttributeInterface field = activeClass.fetchField(fieldName);
+                if (!fieldName.isEmpty() && activeClass.getFieldList().contains(field)) {
                     selectedClassBox.addField(fieldName);
                 }
             }
@@ -351,19 +349,20 @@ public class GUIController {
             return;
         }
 
-        List<String> fields = selectedClassBox.getFields();
-        if (fields.isEmpty()) {
+        if (activeClass.getFieldList().isEmpty()) {
             JOptionPane.showMessageDialog(view, "No fields to delete!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        JComboBox<String> fieldDropdown = new JComboBox<>(fields.toArray(new String[0]));
+        JComboBox<String> fieldDropdown = new JComboBox<>();
+        for(int index = 0; index<activeClass.getFieldList().size(); index++){
+            fieldDropdown.addItem(activeClass.getFieldList().get(index).getName());
+        }
         int result = JOptionPane.showConfirmDialog(view, fieldDropdown, "Select Field to Delete", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
             String selectedField = (String) fieldDropdown.getSelectedItem();
             if (selectedField != null) {
-                selectedClassBox.removeField(selectedField);
+                selectedClassBox.removeField(activeClass.fetchField(selectedField));
             }
         }
     }
@@ -374,13 +373,16 @@ public class GUIController {
             return;
         }
 
-        List<String> fields = selectedClassBox.getFields();
-        if (fields.isEmpty()) {
+
+        if (activeClass.getFieldList().isEmpty()) {
             JOptionPane.showMessageDialog(view, "No fields to rename!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JComboBox<String> fieldDropdown = new JComboBox<>(fields.toArray(new String[0]));
+        JComboBox<String> fieldDropdown = new JComboBox<>();
+        for(int index = 0; index<activeClass.getFieldList().size(); index++){
+            fieldDropdown.addItem(activeClass.getFieldList().get(index).getName());
+        }
         JTextField newFieldNameInput = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -487,7 +489,7 @@ private void addMethodToClass() {
             
             // Retrieve the parameter panel and extract all parameter names.
             JPanel paramPanel = (JPanel) entryPanel.getClientProperty("paramPanel");
-            List<String> params = new ArrayList<>();
+            ArrayList<String> params = new ArrayList<>();
             if (paramPanel != null) {
                 for (Component comp : paramPanel.getComponents()) {
                     if (comp instanceof JTextField) {
@@ -499,6 +501,7 @@ private void addMethodToClass() {
                 }
             }
             
+            /*
             // Format the method signature as "methodName(param1, param2, ...)".
             StringBuilder signature = new StringBuilder(methodName);
             signature.append("(");
@@ -506,11 +509,13 @@ private void addMethodToClass() {
                 signature.append(String.join(", ", params));
             }
             signature.append(")");
+            */
             
             // Only add the method if it doesn't already exist.
-            if (!selectedClassBox.getMethods().contains(signature.toString())) {
-                selectedClassBox.addMethod(signature.toString());
-            }
+            AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
+                if (!methodName.isEmpty() && activeClass.getMethodList().contains(method)) {
+                    selectedClassBox.addMethod(methodName, params);
+                }
         }
         view.getDrawingPanel().repaint();
     }
@@ -522,17 +527,25 @@ private void addMethodToClass() {
             return;
         }
 
-        List<String> methods = selectedClassBox.getMethods();
+        ArrayList<AttributeInterface> methods = activeClass.getMethodList();
         if (methods.isEmpty()) {
             JOptionPane.showMessageDialog(view, "No methods to delete!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JComboBox<String> methodDropdown = new JComboBox<>(methods.toArray(new String[0]));
+        JComboBox<Method> methodDropdown = new JComboBox<>();
+        Method method;
+        for(int i = 0; i < activeClass.getMethodList().size(); i++){
+            //method = activeClass.getMethodList().get(i).getName() + "(" + activeClass.getMethodList().get(i).getParamList().size() + ")";
+            method = (Method) activeClass.getMethodList().get(i);
+            methodDropdown.addItem(method);
+        }
+
+
         int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method to Delete", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
-            String selectedMethod = (String) methodDropdown.getSelectedItem();
+            Method selectedMethod = (Method) methodDropdown.getSelectedItem();
             if (selectedMethod != null) {
                 selectedClassBox.removeMethod(selectedMethod);
             }
@@ -545,13 +558,16 @@ private void addMethodToClass() {
             return;
         }
 
-        List<String> methods = selectedClassBox.getMethods();
+        ArrayList<AttributeInterface> methods = activeClass.getMethodList();
         if (methods.isEmpty()) {
             JOptionPane.showMessageDialog(view, "No methods to rename!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JComboBox<String> methodDropdown = new JComboBox<>(methods.toArray(new String[0]));
+        JComboBox<String> methodDropdown = new JComboBox<>();
+        for(int index = 0; index<activeClass.getMethodList().size(); index++){
+            methodDropdown.addItem(activeClass.getMethodList().get(index).getName());
+        }
         JTextField newMethodNameInput = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -562,7 +578,7 @@ private void addMethodToClass() {
 
         int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            String oldName = (String) methodDropdown.getSelectedItem();
+            Method oldName = (Method) methodDropdown.getSelectedItem();
             String newName = newMethodNameInput.getText().trim();
 
             if (!newName.isEmpty()) {
@@ -624,6 +640,7 @@ private void addMethodToClass() {
 
         selectedClassBox = classBox;
         selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+        activeClass = classBox.getObjectFromBox();
     }
 
 
@@ -661,7 +678,9 @@ private void addMethodToClass() {
     }
     
 
-
+    public UMLEditor getEditor(){
+        return this.editor;
+    }
 
 
 
@@ -687,12 +706,5 @@ private void addMethodToClass() {
 
     
 
-    public GUIController() {
-        SwingUtilities.invokeLater(() -> {
 
-            GUIView view = new GUIView();
-            new GUIController(view);
-            view.showGUI();
-        });
-    }
 }

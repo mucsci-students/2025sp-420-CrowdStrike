@@ -11,15 +11,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import org.Controller.GUIController;
-import org.Model.ClassObject;
+import org.Model.*;
 
 
 public class ClassBox extends JPanel {
     private JTextField classNameField;
-    private DefaultListModel<String> fieldsListModel;
-    private DefaultListModel<String> methodsListModel;
-    private JList<String> fieldsList;
-    private JList<String> methodsList;
+    private JList<AttributeInterface> fieldsList;
+    private JList<AttributeInterface> methodsList;
     private GUIController controller;
     private ClassObject classObject;
     private volatile int screenX = 0;
@@ -38,7 +36,7 @@ public class ClassBox extends JPanel {
         BorderFactory.createEmptyBorder(5, 5, 5, 5)
     );
 
-    public ClassBox(String className, GUIController controller) {
+    public ClassBox(ClassObject classObject, GUIController controller) {
 
         addMouseListener(
             new MouseListener() {
@@ -74,7 +72,8 @@ public class ClassBox extends JPanel {
             public void mouseMoved(MouseEvent e) { }
             }
         );
-  
+
+        this.classObject = classObject;
         this.controller = controller;
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
@@ -99,7 +98,7 @@ public class ClassBox extends JPanel {
         topPanel.add(selectButton);
 
         //Class Name Field
-        classNameField = new JTextField(className);
+        classNameField = new JTextField(classObject.getName());
         classNameField.setHorizontalAlignment(JTextField.CENTER);
         classNameField.setEditable(false);
         
@@ -120,8 +119,8 @@ public class ClassBox extends JPanel {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         //Fields
-        fieldsListModel = new DefaultListModel<>();
-        fieldsList = new JList<>(fieldsListModel);
+        Field[] fieldArr = new Field[classObject.getFieldList().size()];
+        fieldsList = new JList<>(classObject.getFieldList().toArray(fieldArr));
         fieldsList.setFocusable(false);
         fieldsList.setBorder(BorderFactory.createTitledBorder("Fields"));
         contentPanel.add(new JScrollPane(fieldsList));
@@ -132,8 +131,8 @@ public class ClassBox extends JPanel {
 
 
         // Methods
-        methodsListModel = new DefaultListModel<>();
-        methodsList = new JList<>(methodsListModel);
+        Method[] mArr = new Method[classObject.getMethodList().size()];
+        methodsList = new JList<>(classObject.getMethodList().toArray(mArr));
         methodsList.setFocusable(false);
         methodsList.setBorder(BorderFactory.createTitledBorder("Methods"));
         contentPanel.add(new JScrollPane(methodsList));
@@ -156,63 +155,41 @@ public class ClassBox extends JPanel {
     
 
     public String getClassName() {
-        return classNameField.getText();
+        return classObject.getName();
     }
 
     public void setClassName(String newName) {
-        classNameField.setText(newName);
+        controller.getEditor().renameClass(classObject, newName);
     }
 
     public void addField(String field) {
-        fieldsListModel.addElement(field);
+        controller.getEditor().addField(classObject, field);
     }
 
-    public void removeField(String field) {
-        fieldsListModel.removeElement(field);
+    public void removeField(AttributeInterface field) {
+        controller.getEditor().deleteAttribute(classObject, field);
     }
 
-    public void renameField(String oldName, String newName) {
-        int index = fieldsListModel.indexOf(oldName);
-        if (index != -1) {
-            fieldsListModel.set(index, newName);
-        }
+    public void renameField(String fs, String newName) {
+        AttributeInterface field = classObject.fetchField(fs);
+        controller.getEditor().renameAttribute(field, newName);
     }
 
-    public void addMethod(String method) {
-        methodsListModel.addElement(method);
+    public void addMethod(String method, ArrayList<String> params) {
+        controller.getEditor().addMethod(classObject, method, params);
     }
 
-    public void removeMethod(String method) {
-        methodsListModel.removeElement(method);
+    public void removeMethod(AttributeInterface method) {
+        controller.getEditor().deleteAttribute(classObject, method);
     }
 
-    public void renameMethod(String oldName, String newName) {
-        int index = methodsListModel.indexOf(oldName);
-        if (index != -1) {
-            methodsListModel.set(index, newName);
-        }
+    public void renameMethod(Method method, String newName) {
+        controller.getEditor().renameAttribute(method, newName);
     }
 
-    // tel
-    public List<String> getFields() {
-        List<String> fields = new ArrayList<>();
-        Enumeration<String> elements = fieldsListModel.elements();
-        while (elements.hasMoreElements()) {//
-            fields.add(elements.nextElement());
-        }
-        return fields;
+    public ClassObject getObjectFromBox(){
+        return this.classObject;
     }
-
-    //Correct way to return methods from DefaultListModel
-    public List<String> getMethods() {
-        List<String> methods = new ArrayList<>();
-        Enumeration<String> elements = methodsListModel.elements();
-        while (elements.hasMoreElements()) {
-            methods.add(elements.nextElement());
-        }
-        return methods;
-    }
-
 
     public Point getCenter() {
         return new Point(getX() + getWidth() / 2, getY() + getHeight() / 2);
