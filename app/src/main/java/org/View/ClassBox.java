@@ -186,17 +186,28 @@ public class ClassBox extends JPanel {
         methodModel.addElement(displayMethod(mthd));
     }
 
-    public void removeMethod(Method method) {
-        controller.getEditor().deleteAttribute(classObject, method);
-        methodModel.removeElement(displayMethod(method));
-
+    public void removeMethod(String method) {
+        String [] parts = method.split(":"); //parts={String name, String arity}
+        Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+        controller.getEditor().deleteAttribute(classObject, mthd);
+        
+        methodModel.removeElement(displayMethod(mthd));
+        //int index = methodModel.indexOf(displayMethod(mthd));
+        //methodModel.set(index, "Removed");
     }
 
-    public void renameMethod(Method method, String newName) {
-        controller.getEditor().renameAttribute(method, newName);
-        int index = methodModel.indexOf(displayMethod(method));
+    public void renameMethod(String method, String newName) {
+        
+        String [] parts = method.split(":"); //parts={String name, String arity}
+        Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+        int index = methodModel.indexOf(displayMethod(mthd));
+        controller.getEditor().renameAttribute(mthd, newName);
+        //int index = methodModel.indexOf(displayMethod(classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]))));
+        Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
         if(index != -1){
-            methodModel.set(index, newName);
+            //methodModel.set(index, displayMethod(classObject.fetchMethod(newName, Integer.parseInt(parts[1]))));
+            methodModel.set(index, displayMethod(renamedMethod));
+
         }
     }
 
@@ -218,10 +229,13 @@ public class ClassBox extends JPanel {
             signature.append(")");
         return signature;
         */
+       if (m.getParamList().size() == 0) {
+        return m.getName() + "()";
+       }
         String sig = m.getName() + "(";
-        for (int i = 0; i < m.getParamList().size(); i++) {
+        for (int i = 0; i < m.getParamList().size()-1; i++) {
             sig += m.getParamList().get(i).getName() + ", ";
         }
-        return sig + ")";
+        return sig + m.getParamList().get(m.getParamList().size()-1).getName() + ")";
     }
 }

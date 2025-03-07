@@ -532,20 +532,20 @@ private void addMethodToClass() {
             return;
         }
 
-        JComboBox<Method> methodDropdown = new JComboBox<>();
-        Method method;
-        for(int i = 0; i < methods.size(); i++){
-            //method = activeClass.getMethodList().get(i).getName() + "(" + activeClass.getMethodList().get(i).getParamList().size() + ")";
-            method = (Method)methods.get(i);
-            methodDropdown.addItem(method);
-        }
+        JComboBox<String> methodDropdown = new JComboBox<>();
+            for(int index = 0; index<activeClass.getMethodList().size(); index++){
+                Method m = (Method)activeClass.getMethodList().get(index);
+                String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
+                methodDropdown.addItem(str);
+            }
 
 
         int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method to Delete", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
-            Method selectedMethod = (Method)methodDropdown.getSelectedItem();
+            String selectedMethod = (String)methodDropdown.getSelectedItem();
             if (selectedMethod != null) {
+                //String parts = selectedMethod.getName() + ":" + selectedMethod.getParamList.size();
                 selectedClassBox.removeMethod(selectedMethod);
             }
         }
@@ -563,11 +563,12 @@ private void addMethodToClass() {
             return;
         }
 
-        JComboBox<Method> methodDropdown = new JComboBox<>();
-        for(int index = 0; index<activeClass.getMethodList().size(); index++){
-            Method mthd = (Method)activeClass.getMethodList().get(index);
-            methodDropdown.addItem(mthd);
-        }
+        JComboBox<String> methodDropdown = new JComboBox<>();
+            for(int index = 0; index<activeClass.getMethodList().size(); index++){
+                Method m = (Method)activeClass.getMethodList().get(index);
+                String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
+                methodDropdown.addItem(str);
+            }
         JTextField newMethodNameInput = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -578,7 +579,7 @@ private void addMethodToClass() {
 
         int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            Method oldName = (Method)methodDropdown.getSelectedItem();
+            String oldName = (String)methodDropdown.getSelectedItem();
             String newName = newMethodNameInput.getText().trim();
 
             if (!newName.isEmpty()) {
