@@ -83,8 +83,8 @@ public class ClassBox extends JPanel {
         setOpaque(true);
 
         //Selection button(will be on the top left corner)
-        JButton selectButton = new JButton("CLICK");
-        selectButton.setPreferredSize(new Dimension(20,20));
+        JButton selectButton = new JButton("Class: ");
+        selectButton.setPreferredSize(new Dimension(50,20));
         selectButton.setFocusable(false);
         selectButton.setBorder(null);
         selectButton.setOpaque(false);
