@@ -344,22 +344,21 @@ public class CLController {
 		// Class exists, get Method name and params
 		view.show("What do you want to name the method?");
 		input = sc.nextLine();
-		ArrayList<Parameter> paramList = new ArrayList<>();
+		ArrayList<String> paramList = new ArrayList<>();
 		view.show("Would you like to add parameters to this method? (Y for yes)");
 		if (sc.nextLine().replaceAll("\\s", "").equalsIgnoreCase("Y")) {
 			boolean loop = true;
 			String paramName = "";
-			Parameter param;
 			view.show("What would you like to name the parameter? Type 'stop' to stop adding parameters");
 			while (loop) {
-				view.show("What would you like to name the next parameter?");
 				paramName = sc.nextLine().replaceAll("\\s", "");
 				if (paramName.equalsIgnoreCase("stop")) {
 					loop = false;
+					break;
 				} else {
 					boolean exist = false;
 					for (int i = 0; i < paramList.size(); i++) {
-						if (paramName.equals(paramList.get(i).getName())) {
+						if (paramName.equals(paramList.get(i))) {
 							// Parameter name has already been added
 							exist = true;
 							break;
@@ -370,11 +369,11 @@ public class CLController {
 					if (exist) {
 						view.show("Parameter " + paramName + " has already been added");
 					} else {
-						param = new Parameter(paramName);
-						paramList.add(param);
+						paramList.add(paramName);
 						view.show("Parameter " + paramName + " added to method " + input);
 					}
 				}
+				view.show("What would you like to name the next parameter?");
 			}
 		}
 		if (activeClass.fetchMethod(input, paramList.size()) != null) {
@@ -409,18 +408,24 @@ public class CLController {
 		}
 		view.show("What is the name of the method you want to delete?");
 		input = sc.nextLine();
+		if (activeClass.fetchMethodByName(input).size() == 0) {
+			view.show(activeClass.getName() + " has no methods with name " + input);
+			return;
+		}
 		int paramArity = -1;
 		view.show("How many parameters does " + input + " have?");
 		if (sc.hasNextInt()) {
 			paramArity = sc.nextInt();
 			if (paramArity < 0) {
 				view.show("Parameter arity must be non-negative");
+				// Consume newLine char left by nextInt
+				sc.nextLine();
 				return;
 			}
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalud input. Please enter a number");
+			view.show("Invalid input. You must enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
@@ -459,18 +464,24 @@ public class CLController {
 		}
 		view.show("What is the name of the method you want to rename?");
 		input = sc.nextLine();
+		if (activeClass.fetchMethodByName(input).size() == 0) {
+			view.show(activeClass.getName() + " has no methods with name " + input);
+			return;
+		}
 		int paramArity = -1;
 		view.show("How many parameters does " + input + " have?");
 		if (sc.hasNextInt()) {
 			paramArity = sc.nextInt();
 			if (paramArity < 0) {
 				view.show("Parameter arity must be non-negative");
+				// Consume newLine char left by nextInt
+				sc.nextLine();
 				return;
 			}
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalud input. Please enter a number");
+			view.show("Invalid input. Please enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
