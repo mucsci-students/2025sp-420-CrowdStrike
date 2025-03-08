@@ -15,7 +15,6 @@ import com.google.gson.JsonParser;
 
 import org.Model.UMLModel;
 import org.Model.ClassObject;
-import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.AttributeInterface;
@@ -33,7 +32,7 @@ public class FileManager {
 				this::relationshipToJson));
 		json.append("}");
 
-		/* use gson to format */
+		/* use gson to format and verify */
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		JsonElement jsonElement = JsonParser.parseString(json.toString());
 		String jsonstr = gson.toJson(jsonElement);
@@ -64,34 +63,34 @@ public class FileManager {
 		return ret.toString();
 	}
 
-	private String classToJson(ClassObject c) {
-		StringBuilder ret = new StringBuilder("{\"name\": \"" + c.getName() + "\",");
-		ret.append(jsonCommas("\"fields\": [", "],", c.getFieldList(), this::FieldsToJson));
-		ret.append(jsonCommas("\"methods\": [", "]", c.getMethodList(), this::MethodsToJson));
+	private String classToJson(ClassObject classobj) {
+		StringBuilder ret = new StringBuilder("{\"name\": \"" + classobj.getName() + "\",");
+		ret.append(jsonCommas("\"fields\": [", "],", classobj.getFieldList(), this::FieldsToJson));
+		ret.append(jsonCommas("\"methods\": [", "]", classobj.getMethodList(), this::MethodsToJson));
 		ret.append("}");
 		return ret.toString();
 	}
 
-	private String FieldsToJson(AttributeInterface f) {
-		return String.format("{ \"name\": \"%s\"}", f.getName());
+	private String FieldsToJson(AttributeInterface field) {
+		return String.format("{ \"name\": \"%s\"}", field.getName());
 	}
 
-	private String MethodsToJson(AttributeInterface i) {
-		StringBuilder ret = new StringBuilder("{\"name\": \"" + i.getName() + "\",");
-		Method m = (Method) i;
-		ret.append(jsonCommas("\"params\": [", "]", m.getParamList(), this::ParamToJson));
+	private String MethodsToJson(AttributeInterface methodInterface) {
+		StringBuilder ret = new StringBuilder("{\"name\": \"" + methodInterface.getName() + "\",");
+		Method method = (Method) methodInterface;
+		ret.append(jsonCommas("\"params\": [", "]", method.getParamList(), this::ParamToJson));
 		ret.append("}");
 		return ret.toString();
 	}
 
-	private String ParamToJson(Parameter p) {
-		return p.getName();
+	private String ParamToJson(Parameter param) {
+		return param.getName();
 	}
 
-	private String relationshipToJson(Relationship r) {
+	private String relationshipToJson(Relationship relationship) {
 		return String.format("{\"source\": \"%s\",\"destination\": \"%s\",\"type\":\"%s\"}",
-				r.getSource().getName(),
-				r.getDestination().getName(),
-				r.getTypeString());
+				relationship.getSource().getName(),
+				relationship.getDestination().getName(),
+				relationship.getTypeString());
 	}
 }
