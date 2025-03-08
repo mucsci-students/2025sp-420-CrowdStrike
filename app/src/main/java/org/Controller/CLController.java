@@ -495,7 +495,10 @@ public class CLController {
 					+ " parameters");
 		}
 	}
-	
+
+	/*Gets a class, a method, and the names of parameters that a user would like to add
+	* to the list of parameters attached to the method.
+	*/
 	private void CL_addParam() {
 		if (!listClassNames()) {
 			// no class exists
@@ -567,7 +570,9 @@ public class CLController {
 		view.show("The parameter(s) were added.");
 
 	}
-
+	/*Gets the class, method, and either all of the name of a parameter that the user
+	* would like to remove. If all every parameter is deleted, otherwise its just the named parameter.
+	*/
 	private void CL_removeParam() {
 		if (!listClassNames()) {
 			// no classes
@@ -630,7 +635,11 @@ public class CLController {
 			view.show(input + " was removed.");
 		}
 	}
-
+	/*Gets the class, and method that the parameters belongs to and asks the user if they'd like to change
+	* one or all of the parameters. If its all parameters it replaces everything after index 0 with a new list.
+	* if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
+	* containing all of the new parameters as well as the old parameters at their locations prior to the change. 
+	*/
 	private void CL_changeParam() {
 		if (!listClassNames()) {
 			// no classes

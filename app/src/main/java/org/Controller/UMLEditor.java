@@ -193,24 +193,52 @@ public class UMLEditor {
 		renameAttr.renameAttribute(newName);
 	}
 
+	/**
+	 * Adds a parameter to a list of a methods parameter list
+	 * 
+	 * @param parameterList | The list of parameters being added to the methods parameter list
+	 * @param currMethod    | the current Method of which new parameters are being added
+	 */
 	public void addParam(ArrayList<String> parameterList, Method currMethod) {
 		currMethod.addParameters(parameterList);
 
 	}
 
+	/**
+	 * Removes all the parameters from a given parameter list
+	 * 
+	 * @param activeMethod | The method whos parameter list is going to be deleted.
+	 */
 	public void removeAllParams(Method activeMethod) {
 		activeMethod.removeAllParameters();
 	}
 
+	/**
+	 * removes a singular parameter from a methods list
+	 * 
+	 * @param activeMethod | the current method that the parameter will be removed from
+	 * @param param        | the parameter that will be removed from the parameter list
+	 */
 	public void removeParam(Method activeMethod, Parameter param) {
 		activeMethod.removeParameter(param);
 	}
-
+	/**
+	 * Changes all the parameters of a method by replacing it with a new list
+	 * 
+	 * @param activeMethod  | The method that will have all of its parameters replaced
+	 * @param parameterList | The list of new parameters that will replace the old list
+	 */
 	public void changeAllParams(Method activeMethod, ArrayList<String> parameterList) {
 		activeMethod.removeAllParameters();
 		activeMethod.addParameters(parameterList);
 	}
-
+	/**
+	 * Changes a parameter in a method with a new list of parameters
+	 * 
+	 * @param activeMethod        | The method which will have its parameter list changed
+	 * @param oldParam            | The old parameter where the new list will be inserted
+	 * @param parameterStringList | The new parameter list set as a string to be added as parameter type
+	 */
 	public void changeParameter(Method activeMethod, Parameter oldParam, ArrayList<String> parameterStringList) {
 		int index = activeMethod.getParamList().indexOf(oldParam);
 		ArrayList<Parameter> parameterParamList = new ArrayList<>();
