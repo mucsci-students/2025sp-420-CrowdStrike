@@ -17,6 +17,7 @@ import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
+import org.Model.Parameter;
 import org.Model.AttributeInterface;
 import org.Model.Relationship;
 
@@ -75,8 +76,16 @@ public class FileManager {
 		return String.format("{ \"name\": \"%s\"}", f.getName());
 	}
 
-	private String MethodsToJson(AttributeInterface m) {
-		return "";
+	private String MethodsToJson(AttributeInterface i) {
+		StringBuilder ret = new StringBuilder("{\"name\": \"" + i.getName() + "\",");
+		Method m = (Method) i;
+		ret.append(jsonCommas("\"params\": [", "]", m.getParamList(), this::ParamToJson));
+		ret.append("}");
+		return ret.toString();
+	}
+
+	private String ParamToJson(Parameter p) {
+		return p.getName();
 	}
 
 	private String relationshipToJson(Relationship r) {
