@@ -22,6 +22,12 @@ import org.Model.Relationship;
 
 public class FileManager {
 
+	/**
+	 * Saves a model as json to a given path.
+	 *
+	 * @param path  The path to save the model to. Needs to end in a <filename>.json
+	 * @param model The model to be saved.
+	 */
 	public void save(String path, UMLModel model) throws Exception {
 		StringBuilder json = new StringBuilder();
 		FileWriter writer = new FileWriter(path);
