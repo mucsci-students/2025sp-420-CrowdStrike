@@ -4,6 +4,8 @@ import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.View.CLView;
 import org.FileManager;
+import org.Model.Relationship;
+import org.Model.Relationship.Type;
 import org.Model.AttributeInterface;
 import org.Model.Field;
 import org.Model.Method;
@@ -180,48 +182,173 @@ public class CLController {
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
 	private void CL_addRelationship() {
-		if ((model.listClassNames().equals(""))) {
-			view.show("No classes currently exist");
+		if(!listClassNames()){
+			view.show("Error: No classes currently exist! Aborting.");
 			return;
 		}
-		view.show("Would you like to give the relationship a name?(Y for yes)");
+
+		view.show("Optionally, input a name for the relationship: (Enter to skip)");
 		input = sc.nextLine();
-		if (input.equalsIgnoreCase("Y")) {
-			view.show("Enter the relationship's name");
-			input = sc.nextLine();
-		} else {
-			input = "";
-		}
-		listClassNames();
+		
 			view.show("Enter the source class");
+			listClassNames();
 			String source = sc.nextLine();
+			if (model.fetchClass(source) == null) {
+       			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
+        		return;
+    		}
 			view.show("Enter the destination class");
+			listClassNames();
 			String dest = sc.nextLine();
-			if (editor.addRelationship(input, source, dest)) {
-				view.show("Relationship " + input + " successfully created");
+			if (model.fetchClass(dest) == null) {
+       			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
+        		return;
+    		}
+			if (model.relationshipExist(source, dest) != null) {
+				view.show("Error: A relationship already exists between " + source + " and " + dest + "! Aborting.");
+				return;
+			}
+
+			String typeint = "0";
+			Type type = null;
+			while(!(typeint.equals("1")||typeint.equals("2")||typeint.equals("3")||typeint.equals("4"))){
+				view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
+				typeint = sc.nextLine(); 
+				if (typeint.equals("1")){ type = Type.AGGREGATION;}
+				else if (typeint.equals("2")){ type = Type.COMPOSITION;}
+				else if (typeint.equals("3")){ type = Type.INHERITANCE;}
+				else if (typeint.equals("4")){ type = Type.REALIZATION;}
+				else if (typeint.equalsIgnoreCase("cancel")){return;}
+				else {view.show("Invalid input! Try again (or 'cancel' the creation).");}
+			}
+
+			if (type!=null && editor.addRelationship(input, source, dest, type)) {
+				if(input.equals("")){
+					view.show("Unnamed " + type + " Relationship successfully created from " + source + " to " + dest);
+				}
+				else{
+					view.show(type + " Relationship " + input + " successfully created from " + source + " to " + dest);
+				}
 			} else {
 				view.show("Relationship " + input + " could not be created");
 			}
 	}
+
+	/**
+	 * Enables the editing of existing relationships from the CLI editor
+	 * Loops until the 
+	 */
+	private void CL_editRelationship(){
+		if (!listRelationshipNames()) {
+			view.show("Error: No relationships exist to edit! Aborting");
+			return;
+		}
+			view.show("What is the source of the relationship are you changing?");
+			listClassNames();
+			String source = sc.nextLine();
+			if (model.fetchClass(source) == null) {
+       			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
+        		return;
+    		}
+			view.show("What is the destination of the relationship are you changing?");
+			listClassNames();
+			String dest = sc.nextLine();
+			if (model.fetchClass(dest) == null) {
+       			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
+        		return;
+    		}
+			if(model.relationshipExist(source, dest)!=null){
+				view.show("What property of the relationship are you changing?\n");
+				view.show("You can edit the 'name', 'source', 'destination', or 'type' of this relationship.");
+				String field = sc.nextLine().toLowerCase();
+				String value = null;
+					switch(field){
+						
+						case "name":
+							view.show("What do you want to name the relationship?");
+							value = sc.nextLine();
+							view.show("Relationship successfully renamed " + value);
+							break;
+
+						case "source":
+							view.show("Which class do you want to name as the new source?");
+							listClassNames();
+							value = sc.nextLine();
+							if (model.fetchClass(value)!=null) 
+								{view.show("Relationship's source successfully set to " + value);}
+							else {view.show("Error: No class named " + value + "! Aborting."); return;}
+							break;
+
+						case "destination":
+							view.show("What class do you want to name as the new destination?");
+							listClassNames();
+							value = sc.nextLine();
+							if(model.fetchClass(value)!=null)
+								{view.show("Relationship's destination successfully set to " + value);}
+							else {view.show("Error: No class named " + value + "! Aborting."); return;}
+							break;
+
+						case "type":
+							String typeint = "0";
+							while(!(typeint.equals("1")||typeint.equals("2")||typeint.equals("3")||typeint.equals("4"))){
+								view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
+								typeint = sc.nextLine(); 
+								if (typeint.equals("1")){ value = "AGGREGATION";}
+								else if (typeint.equals("2")){ value = "COMPOSITION";}
+								else if (typeint.equals("3")){ value = "INHERITANCE";}
+								else if (typeint.equals("4")){ value = "REALIZATION";}
+								else if (typeint.equalsIgnoreCase("cancel")){view.show("Operation canceled by user. Aborting.");return;}
+								else {view.show("Invalid input! Try again (or 'cancel' the update).");}
+							}
+							view.show("Relationship's type successfully set to " + value);
+							break;
+
+
+						default:
+							//
+							view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now. Aborting.");
+							break;
+					}
+				if(value!=null)
+					editor.editRelationship(source, dest, field, value);
+			}
+			else
+			{view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");}
+		}
+	
 	
 	/**
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	private void CL_deleteRelationship() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
-			return;
-		}
-		view.show("What is the source of the relationship?");
-		input = sc.nextLine();
-		view.show("What is the destination of the relationship?");
-		String dest = sc.nextLine();
-		if (editor.deleteRelationship(input, dest)) {
-			view.show("Relaionship between " + input + " and " + dest + " deleted");
-		} else {
-			view.show("Relaionship between " + input + " and " + dest + " could not be deleted");
-		}
-	}
+        if (!listRelationshipNames()) {
+            view.show("Error: No relationships exist to delete! Aborting");
+            return;
+        }
+        view.show("What is the source of the relationship are you changing?");
+        listClassNames();
+        String source = sc.nextLine();
+        if (model.fetchClass(source) == null) {
+            view.show("Error: Inputted class " + source + " does not exist! Aborting.");
+            return;
+        }
+        view.show("What is the destination of the relationship are you changing?");
+        listClassNames();
+        String dest = sc.nextLine();
+        if (model.fetchClass(dest) == null) {
+            view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
+            return;
+        }
+        if(model.relationshipExist(source, dest)==null){
+            view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
+            return;
+        }
+        if (editor.deleteRelationship(source, dest)) {
+            view.show("Relationship between " + source + " and " + dest + " deleted.");
+        } else {
+            view.show("Relationship between " + source + " and " + dest + " could not be deleted.");
+        }
+    }
 
 	/**
 	 * Gets class and field info from user and returns if action succeeded or not
@@ -507,6 +634,20 @@ public class CLController {
 		}
 		return false;
 	}
+
+	/**
+	 * Helper class to return if any relationships have been created
+	 * Used for error catching and avoiding redundant code
+	 * @return True if relationships have been listed, false otherwise
+	 */
+	private boolean listRelationshipNames() {
+		String relNames = model.listRelationships();
+		if (!relNames.equals("Relationships:")) {
+			view.show("Existing Relationships:\n" + relNames);
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Helper function to return if any fields have been listed
@@ -579,6 +720,7 @@ public class CLController {
         	
         	switch(input.toLowerCase().replaceAll("\\s", "")) {
         	case "help":
+        	case "h":
 				view.showHelp();
         		break;
         	case "save":
@@ -588,48 +730,67 @@ public class CLController {
         		load();
         		break;
         	case "exit":
+			case "q":
         		loop = false;
         		break;
         	case "listclasses":
+			case "lcs":
         		CL_listClasses();
         		break;
         	case "listclass":
+			case "lc":
         		CL_listClassInfo();
         		break;
         	case "listrelationships":
+			case "lr":
         		CL_listRelationships();
         		break;
         	case "addclass":
+        	case "ac":
         		CL_addClass();
         		break;
         	case "deleteclass":
+        	case "dc":
         		CL_deleteClass();
         		break;
         	case "renameclass":
+        	case "rc":
         		CL_renameClass();
         		break;
         	case "addrelationship":
+        	case "ar":
         		CL_addRelationship();
         		break;
         	case "deleterelationship":
+        	case "dr":
         		CL_deleteRelationship();
         		break;
+			case "editrelationship":
+			case "er":
+				CL_editRelationship();
+				break;
         	case "addfield":
+        	case "af":
         		CL_addField();
         		break;
         	case "deletefield":
+        	case "df":
         		CL_deleteField();
         		break;
         	case "renamefield":
+        	case "rf":
         		CL_renameField();
         		break;
 			case "addmethod":
+			case "am":
 				CL_addMethod();
 				break;
 			case "deletemethod":
+			case "dm":
 				CL_deleteMethod();
 				break;
 			case "renamemethod":
+			case "rm":
 				CL_renameMethod();
 				break;
         	default:

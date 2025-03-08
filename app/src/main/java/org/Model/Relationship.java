@@ -8,8 +8,8 @@ package org.Model;
 
 public class Relationship{
     // The source and destination classes involved in this relationship
-    private final ClassObject SOURCE;
-    private final ClassObject DESTINATION;
+    private ClassObject source;
+    private ClassObject destination;
 
     // Optionally, the user can choose to store the name of the relationship
     private String name;
@@ -17,17 +17,23 @@ public class Relationship{
     // Each relationship should have a unique ID that is assigned in our UMLModel class
     private final int ID;
 
+    // Each relationship must be associated with one of four predetermined types
+    public enum Type {AGGREGATION, COMPOSITION, INHERITANCE, REALIZATION};
+    private Type type;
+
     /**
      * Constructor for an unnamed relationship
      * Creates a relationship between a source class and destination class
      * @param ClassObject source    |   the source of the relationship
      * @param ClassObject dest      |   the destination of this relationship
+     * @param Type newType          |   the type of this new relationship
      */
-    public Relationship(ClassObject source, ClassObject dest){
-        this.SOURCE = source;
-        this.DESTINATION = dest;
+    public Relationship(ClassObject source, ClassObject dest, Type newType){
+        this.source = source;
+        this.destination = dest;
         this.name = "";
         this.ID = source.hashCode() + dest.hashCode();
+        this.type = newType;
     }
 
     /**
@@ -36,13 +42,29 @@ public class Relationship{
      * @param String name           |   the name given to this relationship
      * @param ClassObject source    |   the source of the relationship
      * @param ClassObject dest      |   the destination of this relationship
-
+     * @param Type type             |   the type of this relationship
      */
-    public Relationship(String relationshipName, ClassObject source, ClassObject dest){
-        this.SOURCE = source;
-        this.DESTINATION = dest;
+    public Relationship(String relationshipName, ClassObject source, ClassObject dest, Type newType){
+        this.source = source;
+        this.destination = dest;
         this.name = relationshipName;
         this.ID = source.hashCode() + dest.hashCode();
+        this.type = newType;
+    }
+
+        /**
+     * Constructor for an unnamed, untyped relationship to not break tests
+     * Creates a relationship between a source class and destination class
+     * @param ClassObject source    |   the source of the relationship
+     * @param ClassObject dest      |   the destination of this relationship
+     * @param Type newType          |   the type of this new relationship
+     */
+    public Relationship(ClassObject source, ClassObject dest){
+        this.source = source;
+        this.destination = dest;
+        this.name = "";
+        this.ID = source.hashCode() + dest.hashCode();
+        this.type = Type.REALIZATION;
     }
 
 
@@ -50,19 +72,19 @@ public class Relationship{
 
     /**
      * Relationship.getSource();
-     * Gets the source class of this relationship
-     * @return ClassObject SOURCE
+     * Gets the current source class of this relationship
+     * @return ClassObject source
      */
     public ClassObject getSource()
-        {return this.SOURCE;}
+        {return this.source;}
     
     /**
      * Relationship.getDestination();
-     * Gets the destination class of this relationship
-     * @return ClassObject DESTINATION
+     * Gets the current destination class of this relationship
+     * @return ClassObject destination
      */
     public ClassObject getDestination()
-        {return this.DESTINATION;}
+        {return this.destination;}
     
     /**
      * Relationship.getName();
@@ -80,6 +102,28 @@ public class Relationship{
     public int getID()
         {return this.ID;}
 
+    /**
+     * Relationship.getType();
+     * Gets the type of this relationship
+     * @return Type type
+     */
+    public Type getType()
+        {return this.type;}
+    
+    /**
+     * Relationship.getType();
+     * Gets the type of this relationship as a string 
+     * @return String representation of type
+     */
+    public String getTypeString(){
+        switch (this.type) {
+            case AGGREGATION: return "Aggregation"; 
+            case COMPOSITION: return "Composition"; 
+            case INHERITANCE: return "Inheritance"; 
+            default: return "Realization"; 
+        }
+    }
+
     // Mutator methods
     /**
      * Relationship.setName(newName);
@@ -88,4 +132,29 @@ public class Relationship{
      */
     public void setName(String newName)
         {this.name = newName;}
+    
+    /**
+     * Relationship.setSource(newSource);
+     * Changes this relationship's source to a ClassObject newSource
+     * @param ClassObject newSource
+     */
+    public void setSource(ClassObject newSource)
+        {this.source = newSource;}
+    
+    /**
+     * Relationship.setDestination(newDest);
+     * Changes this relationship's destination to a ClassObject newDest
+     * @param ClassObject newDest
+     */
+    public void setDestination(ClassObject newDest)
+        {this.destination = newDest;}
+
+    /**
+     * Relationship.setType(newType);
+     * Sets this relationship's type to newType
+     * @param Type newType
+     */
+    public void setType(Type newType)
+        {this.type = newType;}
+
 }
