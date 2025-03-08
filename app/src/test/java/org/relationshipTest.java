@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.Model.UMLModel;
 import org.Model.Relationship;
+import org.Model.Relationship.Type;
 import org.Controller.UMLEditor;
 
 public class relationshipTest {
@@ -17,7 +18,7 @@ public class relationshipTest {
 	
     public void getSource(){
     	populateClasses();
-    	testEditor.addRelationship("test","class1", "class2");
+    	testEditor.addRelationship("test","class1", "class2", Type.REALIZATION);
     	Relationship rel = testModel.relationshipExist("class1", "class2");
 		
 		assertEquals(rel.getSource(), testModel.fetchClass("class1"), "source should equal to 'class1' ");
@@ -25,7 +26,7 @@ public class relationshipTest {
     
     public void getDestination(){
     	populateClasses();
-    	testEditor.addRelationship("test","class1", "class2");
+    	testEditor.addRelationship("test","class1", "class2", Type.REALIZATION);
     	Relationship rel = testModel.relationshipExist("class1", "class2");
 	
     	
@@ -35,7 +36,7 @@ public class relationshipTest {
     
     public void getName(){
     	populateClasses();
-    	testEditor.addRelationship("test","class1", "class2");
+    	testEditor.addRelationship("test","class1", "class2", Type.REALIZATION);
     	Relationship rel = testModel.relationshipExist("class1", "class2");
     	
     	assertEquals(rel.getName(), "test" , "should be equal to 'test' ");
@@ -43,7 +44,7 @@ public class relationshipTest {
     }
     public void getNameBlank(){
     	populateClasses();
-    	testEditor.addRelationship("", "class1", "class2");
+    	testEditor.addRelationship("","class1", "class2", Type.REALIZATION);
     	Relationship rel = testModel.relationshipExist("class1", "class2");
     	
     	assertEquals(rel.getName(),"" , "should return ' ' as there is no name");
@@ -52,7 +53,7 @@ public class relationshipTest {
     
     public void getID(){
     	populateClasses();
-    	testEditor.addRelationship("test","class1", "class2");
+    	testEditor.addRelationship("test","class1", "class2", Type.REALIZATION);
     	Relationship rel = testModel.relationshipExist("class1", "class2");
     	int class1Hash = testModel.fetchClass("class1").hashCode();
     	int class2Hash = testModel.fetchClass("class2").hashCode();
@@ -62,7 +63,7 @@ public class relationshipTest {
     
     public void setName(String newName) {
     	populateClasses();
-    	testEditor.addRelationship("test","class1", "class2");
+    	testEditor.addRelationship("test","class1", "class2", Type.REALIZATION);
     	Relationship rel = testModel.relationshipExist("class1", "class2");
     	rel.setName("newName");
     	
