@@ -1,12 +1,14 @@
 package org.Controller;
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.Model.Relationship;
+
+import java.util.ArrayList;
+
 import org.Model.AttributeInterface;
+import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
-import java.util.ArrayList;
+import org.Model.Relationship;
+import org.Model.UMLModel;
 
 public class UMLEditor {
 	// The model that is being edited
@@ -150,20 +152,20 @@ public class UMLEditor {
 	/**
 	 * Adds a field to the designated ClassObject
 	 * 
-	 * @param cls			| The class the method is being added to
-	 * @param fieldName		| The name of the field
+	 * @param cls       | The class the method is being added to
+	 * @param fieldName | The name of the field
 	 */
 	public void addField(ClassObject cls, String fieldName) {
 		Field fld = new Field(fieldName);
 		cls.addAttribute(fld);
 	}
-	
+
 	/**
 	 * Adds a method to the designated ClassObject
 	 * 
-	 * @param cls			| The class the method is being added to
-	 * @param methodName	| The name of the method
-	 * @param paramList		| The parameter list the method will have
+	 * @param cls        | The class the method is being added to
+	 * @param methodName | The name of the method
+	 * @param paramList  | The parameter list the method will have
 	 */
 	public void addMethod(ClassObject cls, String methodName, ArrayList<Parameter> paramList) {
 		Method method = new Method(methodName, paramList);
@@ -173,20 +175,60 @@ public class UMLEditor {
 	/**
 	 * Deletes fields or methods from the designated ClassObject
 	 * 
-	 * @param cls 		| The class from which the field/method is to be deleted from
-	 * @param delAttr   | The field/method to be removed
+	 * @param cls     | The class from which the field/method is to be deleted from
+	 * @param delAttr | The field/method to be removed
 	 */
 	public void deleteAttribute(ClassObject cls, AttributeInterface delAttr) {
 		cls.removeAttribute(delAttr);
 	}
-	
+
 	/**
 	 * Renames fields or methods from the designated ClassObject
 	 * 
-	 * @param renameAttr	| The filed/method being renamed
-	 * @param newName		| The new name for the field/method
+	 * @param renameAttr | The filed/method being renamed
+	 * @param newName    | The new name for the field/method
 	 */
+	
 	public void renameAttribute(AttributeInterface renameAttr, String newName) {
 		renameAttr.renameAttribute(newName);
+	}
+
+	public void addParam(ArrayList<String> parameterList, Method currMethod) {
+		currMethod.addParameters(parameterList);
+
+	}
+
+	public void removeAllParams(Method activeMethod) {
+		activeMethod.removeAllParameters();
+	}
+
+	public void removeParam(Method activeMethod, Parameter param) {
+		activeMethod.removeParameter(param);
+	}
+
+	public void changeAllParams(Method activeMethod, ArrayList<String> parameterList) {
+		activeMethod.removeAllParameters();
+		activeMethod.addParameters(parameterList);
+	}
+
+	public void changeParameter(Method activeMethod, Parameter oldParam, ArrayList<String> parameterStringList) {
+		int index = activeMethod.getParamList().indexOf(oldParam);
+		ArrayList<Parameter> parameterParamList = new ArrayList<>();
+        Parameter param;
+        for (int i = 0; i < parameterStringList.size(); i++) {
+            param = new Parameter(parameterStringList.get(i));
+            parameterParamList.add(param);
+        }
+		activeMethod.getParamList().addAll(index, parameterParamList);
+		activeMethod.getParamList().remove(oldParam);
+	}
+	
+	public boolean nameAlrAdded(String paramName, ArrayList<String> buildParamNameList) {
+		for(int i = 0; i < buildParamNameList.size(); i++) {
+			if(paramName.equals(buildParamNameList.get(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
