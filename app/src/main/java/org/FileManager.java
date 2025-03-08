@@ -1,4 +1,5 @@
 package org;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.FileWriter;
@@ -14,19 +15,21 @@ import com.google.gson.JsonParser;
 
 import org.Model.UMLModel;
 import org.Model.ClassObject;
-import org.Model.Attribute;
+import org.Model.Field;
+import org.Model.Method;
+import org.Model.AttributeInterface;
 import org.Model.Relationship;
-
 
 public class FileManager {
 
 	public void save(String path, UMLModel model) throws Exception {
-	    StringBuilder json = new StringBuilder();
+		StringBuilder json = new StringBuilder();
 		FileWriter writer = new FileWriter(path);
 
 		json.append("{");
 		json.append(jsonCommas("\"classes\": [", "],", model.getClassList(), this::classToJson));
-		json.append(jsonCommas("\"relationships\": [", "]", model.getRelationshipList(), this::relationshipToJson));
+		json.append(jsonCommas("\"relationships\": [", "]", model.getRelationshipList(),
+				this::relationshipToJson));
 		json.append("}");
 
 		/* use gson to format */
@@ -48,11 +51,11 @@ public class FileManager {
 	}
 
 	private <T> String jsonCommas(String begin, String end, ArrayList<T> data, Function<T, String> convert) {
-	    StringBuilder ret = new StringBuilder(begin);
+		StringBuilder ret = new StringBuilder(begin);
 		boolean first = true;
 		for (T obj : data) {
 			if (!first)
-			    ret.append(",");
+				ret.append(",");
 			first = false;
 			ret.append(convert.apply(obj));
 		}
@@ -60,24 +63,26 @@ public class FileManager {
 		return ret.toString();
 	}
 
-        private String classToJson(ClassObject c) {
-            StringBuilder ret =  new StringBuilder("{\"name\": \"" + c.getName() + "\",");
-            ret.append(jsonCommas("\"fields\": [", "],", c.getAttrList(), this::attributeToJson));// TODO replace with
-                                                                                                        // fields
-            ret.append(jsonCommas("\"methods\": [", "]", c.getAttrList(), this::attributeToJson));// TODO replace with
-                                                                                                        // methods
-            ret.append("}");
-            return ret.toString();
-        }
+	private String classToJson(ClassObject c) {
+		StringBuilder ret = new StringBuilder("{\"name\": \"" + c.getName() + "\",");
+		ret.append(jsonCommas("\"fields\": [", "],", c.getFieldList(), this::FieldsToJson));
+		ret.append(jsonCommas("\"methods\": [", "]", c.getMethodList(), this::MethodsToJson));
+		ret.append("}");
+		return ret.toString();
+	}
 
-	private String attributeToJson(Attribute a) { // TODO replace with fieds and methods
-		return String.format("{\"name\": \"%s\"}", a.getName());
+	private String FieldsToJson(AttributeInterface f) {
+		return String.format("{ \"name\": \"%s\"}", f.getName());
+	}
+
+	private String MethodsToJson(AttributeInterface m) {
+		return "";
 	}
 
 	private String relationshipToJson(Relationship r) {
 		return String.format("{\"source\": \"%s\",\"destination\": \"%s\",\"type\":\"%s\"}",
 				r.getSource().getName(),
 				r.getDestination().getName(),
-				r.getName());
+				r.getTypeString());
 	}
 }
