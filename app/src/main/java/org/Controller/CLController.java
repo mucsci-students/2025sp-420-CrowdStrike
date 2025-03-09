@@ -508,7 +508,7 @@ public class CLController {
 			view.show("Method with name " + input + " and parameter arity " + paramList.size() + " already exists");
 		} else {
 			// Method with same name and # of parameters does not exist
-			//editor.addMethod(activeClass, input, paramList);
+			editor.addMethod(activeClass, input, paramList);
 			view.show("Method " + input + " successfully added to class " + className);
 		}
 	}
