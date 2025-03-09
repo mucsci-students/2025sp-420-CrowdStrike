@@ -685,34 +685,24 @@ private void addMethodToClass() {
     // ==================== SAVE/LOAD MANAGEMENT ==================== //
     private void saveDiagram() {
         String path = JOptionPane.showInputDialog(view, "Where would you like to save:");
-    
-        if (path != null && !path.trim().isEmpty()) { // Ensure path is not null or empty
             try {
                 FileManager fileManager = new FileManager();
                 fileManager.save(path.trim(), model);
                 JOptionPane.showMessageDialog(view, "Diagram saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(view, "Failed to save diagram!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(view, "Invalid file path!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private void loadDiagram() {
         String path = JOptionPane.showInputDialog(view, "Where would you like to load from:");
-
-        if (path != null && !path.trim().isEmpty()) { // Ensure path is not null or empty
             try {
                 FileManager fileManager = new FileManager();
                 model = fileManager.load(path.trim());
                 JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(view, "Failed to load diagram!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(view, "Invalid file path!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
     
 
