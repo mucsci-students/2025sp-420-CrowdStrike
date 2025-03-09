@@ -791,8 +791,20 @@ private void addMethodToClass() {
         String path = JOptionPane.showInputDialog(view, "Where would you like to load from:");
             try {
                 FileManager fileManager = new FileManager();
+
+		for(ClassBox cb: classBoxes){
+		    view.getDrawingPanel().remove(cb);
+		    removeRelationships(cb);
+		}
+
+		view.getDrawingPanel().revalidate();
+		view.getDrawingPanel().repaint();
+
                 model = fileManager.load(path.trim());
-                JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+		editor = new UMLEditor(model);
+		classBoxes.clear();
+		relationships.clear();
+
 		for(ClassObject c:model.getClassList())
 		    addClass(c);
 
@@ -809,6 +821,7 @@ private void addMethodToClass() {
 		    String type = r.getTypeString();
 		    relationships.add(new GUIRelationship(s, d, type));
 		    view.getDrawingPanel().addRelationship(s, d, type);
+		    JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 		}
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
