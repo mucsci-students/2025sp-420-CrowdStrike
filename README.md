@@ -21,7 +21,31 @@ Clone the project from GitHub: `git clone https://github.com/mucsci-students/202
 
 Cd into the directory: `cd 2025sp-420-CrowdStrike`
 
+## Build
+This will generate a distribution file in app/build/distributions/app.zip
+#### Linux/Macos
+```sh
+./gradlew build
+```
+### Windows
+```sh
+.\gradlew.bat build
+```
+
+
 ## Running
+## distribution file
+Unpack the distribution file and run the proper command
+
+## Linux/Macos
+```sh
+./bin/app
+```
+## Window
+```sh
+.\bin\app.bat
+```
+
 ### Tests
 #### Linux/Macos
 ```sh
@@ -33,7 +57,7 @@ Cd into the directory: `cd 2025sp-420-CrowdStrike`
 .\gradlew.bat test
 ```
 
-### Project
+### Project (develop)
 #### Linux/Macos
 #### GUI
 ```sh
@@ -59,13 +83,19 @@ We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow co
 
 ### Model
 The model holds the data of a data driven application, which in this case is an instance of a UML Class Diagram.
-The main file in this folder is `UMLModel.java` which contains user-created instantiations of the objects defined in `ClassObject.java`, `Attribute.java`, and `Relationship.java`.
+The main file in this folder is `UMLModel.java` which contains user-created instantiations of the objects defined in `ClassObject.java`, `Method.java`, `Parameter.java`,`Field.java`, and `Relationship.java`.
 
 ### View
-The view gets data from the model and displays it to the user. We have implemented a Command Line Interface through the class `CLView.java` that can show the user a textual description of their UML diagram.
+The view gets data from the model and displays it to the user. 
+We have implemented a Command Line Interface through the class `CLView.java` that can show the user a textual description of their UML diagram.
+We also implemented a GUI through the class `GUIView.java` to show the use a graphical repersentation of their UML diagram.
+We finally have a helper to the `GUIView.java` called `ClassBox.java` this file reperents the classes in the gui.
 
 ### Controller
-The controller gets the input from the user and changes the state in the model/view accordingly. In our setup, we have a controller that edits the data stored in the model called `UMLEditor.java` and a controller for our view called `CLController.java` that accepts text commands from the user and updates the command line interface.
+The controller gets the input from the user and changes the state in the model/view accordingly. 
+In our setup, we have a controller that edits the data stored in the model called `UMLEditor.java`.
+We have a controller for our cli view called `CLController.java` that accepts text commands from the user and updates the command line interface.
+We also have a controller for our gui view call `GUIController.java` that accepts commands from the user and updates the model and view.
 
 ## Devs
 Brought to you by:  
