@@ -9,6 +9,8 @@ import org.View.GUIView;
 import org.View.ClassBox;
 import org.FileManager;
 import org.Model.*;
+import org.Model.Relationship.Type;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -200,6 +202,7 @@ public class GUIController {
 
         // Remove from panel
         view.getDrawingPanel().remove(selectedClassBox);
+	editor.deleteClass(selectedClassBox.getClassName());
         classBoxes.remove(selectedClassBox);
         removeRelationships(selectedClassBox);
 
@@ -229,6 +232,25 @@ public class GUIController {
         }
     }
 
+    private Type relationshipTypeToEnum(String t){
+	Type relationshipType = null;
+	switch (t) {
+	case "Aggregation":
+	    relationshipType = Type.AGGREGATION;
+	    break;
+	case "Composition":
+	    relationshipType = Type.COMPOSITION;
+	    break;
+	case "Inheritance":
+	    relationshipType = Type.INHERITANCE;
+	    break;
+	case "Realization":
+	    relationshipType = Type.REALIZATION;
+	    break;
+	}
+	return relationshipType;
+    }
+
     /**
      * Creates a new relationship between two selected classes.
      */
@@ -244,6 +266,7 @@ public class GUIController {
 
         Relationship relationship = new Relationship(source, destination, type);
         relationships.add(relationship);
+	editor.addRelationship("",selectedSource.getName(), selectedDestination.getName(),relationshipTypeToEnum(type));
 
         view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
@@ -261,6 +284,7 @@ public class GUIController {
 
         Relationship toRemove = relationships.get(relationships.size() - 1);
         relationships.remove(toRemove);
+	editor.deleteRelationship(toRemove.getSource().getName(),toRemove.getDestination().getName());
         view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
 
         view.getDrawingPanel().repaint();
