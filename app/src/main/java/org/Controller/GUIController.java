@@ -304,7 +304,17 @@ public class GUIController {
     }
 
     private void removeRelationships(ClassBox classBox) {
-        relationships.removeIf(r -> r.getSource() == classBox || r.getDestination() == classBox);
+        List<GUIRelationship> toRemoveList = new ArrayList<>();
+        for (GUIRelationship toRemove : relationships) {
+            if (toRemove.getSource() == classBox || toRemove.getDestination() == classBox) {
+                toRemoveList.add(toRemove);
+            }
+        }
+        for (GUIRelationship toRemove : toRemoveList) {
+            relationships.remove(toRemove);
+            editor.deleteRelationship(toRemove.getSource().getClassName(), toRemove.getDestination().getClassName());
+            view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
+        }
         view.getDrawingPanel().repaint();
     }
 
