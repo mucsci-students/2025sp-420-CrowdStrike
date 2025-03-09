@@ -1055,12 +1055,15 @@ public class CLController {
 				CL_renameMethod();
 				break;
 			case "addparameter":
+			case "ap":
 				CL_addParam();
 				break;
 			case "removeparameter":
+			case "rp":
 				CL_removeParam();
 				break;
 			case "changeparameter":
+			case "cp":
 				CL_changeParam();
 				break;
 			default:
