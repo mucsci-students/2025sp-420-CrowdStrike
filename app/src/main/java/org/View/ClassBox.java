@@ -126,6 +126,8 @@ public class ClassBox extends JPanel {
         fieldsList.setFocusable(false);
         fieldsList.setBorder(BorderFactory.createTitledBorder("Fields"));
         contentPanel.add(new JScrollPane(fieldsList));
+	for(AttributeInterface f: classObject.getFieldList())
+	     fieldModel.addElement(f.getName());
         
 
 
@@ -135,6 +137,8 @@ public class ClassBox extends JPanel {
         methodsList.setFocusable(false);
         methodsList.setBorder(BorderFactory.createTitledBorder("Methods"));
         contentPanel.add(new JScrollPane(methodsList));
+	for(AttributeInterface m: classObject.getMethodList())
+	    methodModel.addElement(displayMethod((Method)m));
 
         add(contentPanel, BorderLayout.CENTER);
         setPreferredSize(new Dimension(250, 150));

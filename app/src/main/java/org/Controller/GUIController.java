@@ -23,7 +23,7 @@ public class GUIController {
 
     private GUIView view;
     private List<ClassBox> classBoxes = new ArrayList<>();
-    private List<Relationship> relationships = new ArrayList<>();
+    private List<GUIRelationship> relationships = new ArrayList<>();
     private ClassBox selectedClassBox = null;
     private boolean addRelationshipMode = false;
     private ClassBox selectedDestination = null;
@@ -264,7 +264,7 @@ public class GUIController {
             return;
         }
 
-        Relationship relationship = new Relationship(source, destination, type);
+        GUIRelationship relationship = new GUIRelationship(source, destination, type);
         relationships.add(relationship);
 	editor.addRelationship("",selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
 
@@ -289,7 +289,7 @@ public class GUIController {
 
         if (result == JOptionPane.OK_OPTION) {
             String selectedRel = (String) relDropdown.getSelectedItem();
-            Relationship toRemove = relationships.get(relDropdown.getSelectedIndex());
+            GUIRelationship toRemove = relationships.get(relDropdown.getSelectedIndex());
             if (selectedRel != null) {
                 relationships.remove(toRemove);
 	            editor.deleteRelationship(toRemove.getSource().getClassName(),toRemove.getDestination().getClassName());
@@ -700,6 +700,21 @@ private void addMethodToClass() {
                 FileManager fileManager = new FileManager();
                 model = fileManager.load(path.trim());
                 JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+		for(ClassObject c:model.getClassList())
+		    addClass(c);
+
+		for(Relationship r: model.getRelationshipList()){
+		    ClassBox s = null;
+		    ClassBox d = null;
+		    String sn,dn;
+		    sn = r.getSource().getName();
+		    dn = r.getDestination().getName();
+		    for(ClassBox b: classBoxes){
+			s = b.getClassName().equals(sn) ? b : s;
+			d = b.getClassName().equals(dn) ? b : d;
+		    }
+		    relationships.add(new GUIRelationship(s, d, r.getTypeString()));
+		}
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -716,12 +731,12 @@ private void addMethodToClass() {
     /**
      * Defines a relationship between two class boxes.
      */
-    private static class Relationship {
+    private static class GUIRelationship {
         private final ClassBox source;
         private final ClassBox destination;
         private final String type;
 
-        public Relationship(ClassBox source, ClassBox destination, String type) {
+        public GUIRelationship(ClassBox source, ClassBox destination, String type) {
             this.source = source;
             this.destination = destination;
             this.type = type;
