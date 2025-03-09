@@ -1,5 +1,7 @@
 package org.Model;
 import java.util.ArrayList;
+import org.Model.Relationship.Type;
+
 
 public class UMLModel implements UMLModelInterface{
 	
@@ -7,18 +9,13 @@ public class UMLModel implements UMLModelInterface{
     private ArrayList<ClassObject> classList;
     // List to track all created relationships
     private ArrayList<Relationship> relationshipList;
-    // Int to track the longest relationship name in relationshipList
-    // Used to format when listing relationships to ensure they line up
-    private int relationshipLength;
     
     /**
      * Creates an empty array to store classes and relationships
-     * Sets relationshipLength to 0
      */
     public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
-    	relationshipLength = 0;
     }
     
     /**
@@ -37,22 +34,8 @@ public class UMLModel implements UMLModelInterface{
     	return relationshipList;
     }
     
-    /**
-     * Returns the length of the longest relationship name
-     * @return relationshipLength
-     */
-    public int getRelationshipLength() {
-    	return relationshipLength;
-    }
     
-    /**
-     * Updates relationshipLength
-     * @param newLen	| Length of new longest relationship name
-     */
-    public void setRelationshipLength(int newLen) {
-    	relationshipLength = newLen;
-    }
-    
+
     /**
      * Gets a ClassObject by the given name
      * @param className		| The name of the class to return
@@ -78,6 +61,32 @@ public class UMLModel implements UMLModelInterface{
      * Checks if a relationships exists
      * @param source	| The source of the relationship
      * @param dest		| Destination of the relationship
+     * @param type      | The type of the relationship 
+     * @return True if relationship exists, false otherwise
+     */
+    public Relationship relationshipExist(String source, String dest, Type type) {
+    	int index = 0;
+    	Relationship curRelationship;
+    	// Iterate through the array of relationships
+    	while (index < relationshipList.size()) {
+    		curRelationship = relationshipList.get(index);
+    		// Check if the current relationship is between source and dest
+    		if (curRelationship.getSource().getName().equals(source) && 
+                curRelationship.getDestination().getName().equals(dest) &&
+                curRelationship.getType().equals(type)) {
+    			// Relationship between source and dest already exists
+    			return curRelationship;
+    		}
+    		index++;
+    	}
+    	// Relationship between source and dest does not exist
+    	return null;
+    }
+
+        /**
+     * Checks if a relationships exists
+     * @param source	| The source of the relationship
+     * @param dest		| Destination of the relationship
      * @return True if relationship exists, false otherwise
      */
     public Relationship relationshipExist(String source, String dest) {
@@ -87,7 +96,8 @@ public class UMLModel implements UMLModelInterface{
     	while (index < relationshipList.size()) {
     		curRelationship = relationshipList.get(index);
     		// Check if the current relationship is between source and dest
-    		if (curRelationship.getSource().getName().equals(source) && curRelationship.getDestination().getName().equals(dest)) {
+    		if (curRelationship.getSource().getName().equals(source) && 
+                curRelationship.getDestination().getName().equals(dest)) {
     			// Relationship between source and dest already exists
     			return curRelationship;
     		}
@@ -96,21 +106,7 @@ public class UMLModel implements UMLModelInterface{
     	// Relationship between source and dest does not exist
     	return null;
     }
-    
-    /**
-     * Iterates through relationships to find the longest name
-     * Used when deleting relationships
-     */
-    public void updateLongest() {
-    	int len = 0;
-    	for (int i = 0; i < relationshipList.size(); i++) {
-    		int curLen = relationshipList.get(i).getName().length();
-    		if (curLen > len) {
-    			len = curLen;
-    		}
-    	}
-    	setRelationshipLength(len);
-    }
+
        
     /**
      * Creates a String listing classes and returns it
@@ -165,13 +161,13 @@ public class UMLModel implements UMLModelInterface{
             if (curRelationship.getSource().getName().equals(cls.getName())) {
             	// Current class is current relationship's source
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newSource = curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to sourceRelatiosnhips
             	sourceRelationships = sourceRelationships + "\n    " + newSource;
             } else if (curRelationship.getDestination().getName().equals(cls.getName())) {
             	// Current class is current relationhip's destination
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newDest =  curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to destRelatiosnhips
             	destRelationships = destRelationships + "\n    " + newDest;
             } else {
@@ -196,7 +192,7 @@ public class UMLModel implements UMLModelInterface{
         Relationship curRelationship;
         while (index < relationshipList.size()) {
             curRelationship = relationshipList.get(index);
-            relString = relString + "\n  " + curRelationship.getName() + " ".repeat(relationshipLength - curRelationship.getName().length()) + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            relString = relString + "\n  " + curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             index++;
         }
         return relString;

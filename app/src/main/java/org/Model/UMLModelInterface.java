@@ -19,35 +19,17 @@ public interface UMLModelInterface {
     * Returns the length of the longest relationship name
     * @return relationshipLength
     */
-    public int getRelationshipLength();
-    
-    /**
-    * Updates relationshipLength
-    * @param newLen	| Length of new longest relationship name
-    */
-    public void setRelationshipLength(int newLen);
-    
-    /**
-    * Gets a ClassObject by the given name
-    * @param className		| The name of the class to return
-    * @return ClassObject with specified name if it exists
-    * 		   returns null if class does not exist
-    */
+
     public ClassObject fetchClass(String className);
     
     /**
     * Checks if a relationships exists
     * @param source	| The source of the relationship
     * @param dest		| Destination of the relationship
-    * @return True if relationship exists, false otherwise
+    * @return Relationship object if it exists, null otherwise
     */
     public Relationship relationshipExist(String source, String dest);
-    
-    /**
-    * Iterates through relationships to find the longest name
-    * Used when deleting relationships
-    */
-    public void updateLongest();
+
     
     /**
     * Creates a String listing classes and returns it

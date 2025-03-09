@@ -2,6 +2,10 @@ package org.Controller;
 
 import java.util.ArrayList;
 
+import org.Model.UMLModel;
+import org.Model.ClassObject;
+import org.Model.Relationship;
+import org.Model.Relationship.Type;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Field;
@@ -97,7 +101,7 @@ public class UMLEditor {
 	 * @param newRel | Relationship to be added to relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean addRelationship(String name, String source, String dest) {
+	public boolean addRelationship(String name, String source, String dest, Type type) {
 		ClassObject sourceClass = model.fetchClass(source);
 		if (source != null) {
 			// Source class does exist
@@ -105,14 +109,10 @@ public class UMLEditor {
 			if (destClass != null) {
 				// Destination class does exist
 				// Check if relationship already exists
-				if (model.relationshipExist(source, dest) == null) {
+				if (model.relationshipExist(source, dest, type) == null) {
 					// Relationship does not already exist
 					// Create new Relationship
-					Relationship newRel = new Relationship(name, sourceClass, destClass);
-					// Update longest relationship name if needed
-					if (newRel.getName().length() > model.getRelationshipLength()) {
-						model.setRelationshipLength(newRel.getName().length());
-					}
+					Relationship newRel = new Relationship(name, sourceClass, destClass, type);
 					model.getRelationshipList().add(newRel);
 					return true;
 				}
@@ -133,21 +133,49 @@ public class UMLEditor {
 		Relationship relExist = model.relationshipExist(source, dest);
 		if (relExist != null) {
 			// Relationship does exist
-			// Check if relationship being deleted has the longest name
-			if (relExist.getName().length() == model.getRelationshipLength()) {
-				// Relationship has the longest name
-				// Remove it from the list and update relationshipLength
 				model.getRelationshipList().remove(relExist);
-				model.updateLongest();
-			} else {
-				// Relationship does not have the longest name
-				// Remove relationship from the list
-				model.getRelationshipList().remove(relExist);
-			}
+			
 			return true;
 		}
 		return false;
 	}
+
+	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue){
+		Relationship relExist = model.relationshipExist(source, dest);
+		if (fieldToUpdate.equals("name")){
+			relExist.setName(newValue);
+		}
+		else if (fieldToUpdate.equals("source")){
+			if(model.fetchClass(newValue)!=null)
+				relExist.setSource(model.fetchClass(newValue));
+			//else return 2;
+		}
+		else if (fieldToUpdate.equals("destination")){
+			if(model.fetchClass(newValue)!=null)
+				relExist.setDestination(model.fetchClass(newValue));
+			//else return 2;
+		}
+		else if (fieldToUpdate.equals("type")){
+			if(newValue.equals("AGGREGATION")){
+				relExist.setType(Type.AGGREGATION);
+			}
+			else if(newValue.equals("COMPOSITION")){
+				relExist.setType(Type.COMPOSITION);
+			}
+			else if(newValue.equals("INHERITANCE")){
+				relExist.setType(Type.INHERITANCE);
+			}
+			else if(newValue.equals("REALIZATION")){
+				relExist.setType(Type.REALIZATION);
+			}
+		}
+		else
+		{
+			//return 1;
+		}
+		//oreturn 0;
+	}
+
 
 	/**
 	 * Adds a field to the designated ClassObject
