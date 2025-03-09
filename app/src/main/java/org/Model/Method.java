@@ -48,7 +48,13 @@ public class Method implements AttributeInterface {
 	 * paramList
 	 * @param moreParams	| List of params being added
 	 */
-	public void addParameter(ArrayList<Parameter> moreParams) {
+	public void addParameters(ArrayList<String> moreParamNames) {
+		ArrayList<Parameter> moreParams= new ArrayList<>();
+		Parameter param;
+		for (int i = 0; i < moreParamNames.size(); i++) {
+			param = new Parameter(moreParamNames.get(i));
+			paramList.add(param);
+		}
 		paramList.addAll(moreParams);
 	}
 	
@@ -73,7 +79,7 @@ public class Method implements AttributeInterface {
 	 * @return True if this is equal to compareMethod, false otherwise
 	 */
 	public boolean equals(Method compareMethod) {
-		if (this.name == compareMethod.getName() && this.paramList.size() == compareMethod.getParamList().size()) {
+		if (this.name.equals(compareMethod.getName()) && this.paramList.size() == compareMethod.getParamList().size()) {
 			return true;
 		} else {
 			return false;
