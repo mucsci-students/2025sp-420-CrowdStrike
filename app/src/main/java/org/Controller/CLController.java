@@ -690,15 +690,14 @@ public class CLController {
 		return false;
 	}
 
-	private boolean save(){
+	private void save(){
 	    view.show("Where would you like to save:");
 	    String path = sc.nextLine();
 	    try{
 		FileManager file = new FileManager();
 		file.save(path,model);
-		return true;
 	    } catch (Exception e){
-		return false;
+		view.show(e.getMessage());
 	    }
 	}
 	private void load(){
