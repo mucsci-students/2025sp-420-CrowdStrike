@@ -1,5 +1,6 @@
 *.class
 *.jar
+.DS_Store
 *.json
 
 # Ignore Gradle project-specific cache directory

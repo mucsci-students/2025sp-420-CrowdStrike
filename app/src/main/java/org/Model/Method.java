@@ -122,4 +122,62 @@ public class Method implements AttributeInterface {
 		return true;
 	}
 
+	 /**
+     * Adds a new parameter with the given name to the method.
+     * @param paramName The name of the new parameter.
+     * @throws IllegalArgumentException if the parameter name is null, empty, or already exists.
+     */
+    public void addParameter(String paramName) {
+        if (paramName == null || paramName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Parameter name cannot be empty.");
+        }
+        // Check for duplicate parameter names.
+        for (Parameter p : paramList) {
+            if (p.getName().equals(paramName)) {
+                throw new IllegalArgumentException("Parameter already exists: " + paramName);
+            }
+        }
+        paramList.add(new Parameter(paramName));
+    }
+
+    /**
+     * Removes the parameter with the specified name from the method.
+     * @param paramName The name of the parameter to remove.
+     * @throws IllegalArgumentException if the parameter is not found.
+     */
+    public void removeParameter(String paramName) {
+        Parameter toRemove = null;
+        for (Parameter p : paramList) {
+            if (p.getName().equals(paramName)) {
+                toRemove = p;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            paramList.remove(toRemove);
+        } else {
+            throw new IllegalArgumentException("Parameter not found: " + paramName);
+        }
+    }
+
+    /**
+     * Updates the name of an existing parameter.
+     * @param oldParamName The current name of the parameter.
+     * @param newParamName The new name for the parameter.
+     * @throws IllegalArgumentException if the new name is invalid or the parameter is not found.
+     */
+    public void updateParameter(String oldParamName, String newParamName) {
+        if (newParamName == null || newParamName.trim().isEmpty()) {
+            throw new IllegalArgumentException("New parameter name cannot be empty.");
+        }
+        for (Parameter p : paramList) {
+            if (p.getName().equals(oldParamName)) {
+                p.setName(newParamName);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Parameter not found: " + oldParamName);
+    }
+
+
 }
