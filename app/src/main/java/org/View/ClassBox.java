@@ -156,9 +156,13 @@ public class ClassBox extends JPanel {
 
     public void setClassName(String newName) {
         controller.getEditor().renameClass(classObject, newName);
+        classNameField.setText(newName);
     }
 
     public void addField(String field) {
+        if (classObject.fetchField(field) != null) {
+            return;
+        }
         controller.getEditor().addField(classObject, field);
         fieldModel.addElement(field);
     }
