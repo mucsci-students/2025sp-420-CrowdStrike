@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Relationship;
+import org.Model.Relationship.Type;
 import org.Controller.UMLEditor;
 
 class FileManagerSaveTest {
@@ -115,7 +116,7 @@ class FileManagerLoadTest {
 			    {
 			      "source": "a",
 			      "destination": "b",
-			      "type": ""
+			      "type": "Composition"
 			    }
 			  ]
 			}
@@ -124,12 +125,13 @@ class FileManagerLoadTest {
 	@BeforeEach
 	void init() {
 		// TODO create more full state.
+		file = new FileManager();
 		mdl = new UMLModel();
 		edit = new UMLEditor(mdl);
 		edit.addClass("a");
 		edit.addClass("b");
 		edit.addClass("c");
-		edit.addRelationship("", "a", "b");
+		edit.addRelationship("", "a", "b", Type.COMPOSITION);
 
 		try (FileWriter writer = new FileWriter(PATH)) {
 			writer.write(CONTENT);
@@ -151,7 +153,7 @@ class FileManagerLoadTest {
 			assertEquals(a.listClasses(), mdl.listClasses(), "Miss match classes.");
 			assertEquals(a.listRelationships(), mdl.listRelationships(), "Miss match relationships.");
 		} catch (Exception e) {
-			fail("did not load");
+			fail("did not load (" + e.toString() + ")");
 
 		}
 	}
