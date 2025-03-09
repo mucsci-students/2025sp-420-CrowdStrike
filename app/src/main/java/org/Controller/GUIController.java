@@ -87,6 +87,10 @@ public class GUIController {
         view.getDeleteMethodButton().addActionListener(e -> deleteMethodFromClass());
         view.getRenameMethodButton().addActionListener(e -> renameMethodInClass());
 
+        view.getAddParamButton().addActionListener(e -> addParameterToMethod());
+        view.getDeleteParamButton().addActionListener(e -> deleteParameterFromMethod());
+        view.getChangeParamButton().addActionListener(e -> changeParameterInMethod());
+
         view.getSaveButton().addActionListener(e -> saveDiagram());
         view.getLoadButton().addActionListener(e -> loadDiagram());
         
@@ -718,8 +722,191 @@ private void addMethodToClass() {
         }
     }
 
+// ======================= PARAMETERS =============================== //
+    /**
+ * Prompts the user to select a method from the active class and then enter a new parameter name.
+ * The new parameter is added to the selected method.
+ */
+private void addParameterToMethod() {
+    if (activeClass == null) {
+        JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
+    if (methodList.isEmpty()) {
+        JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // First, select the method.
+    JComboBox<String> methodDropdown = new JComboBox<>();
+    for (AttributeInterface ai : methodList) {
+        Method m = (Method) ai;
+        methodDropdown.addItem(m.getName());
+    }
+    int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String selectedMethodName = (String) methodDropdown.getSelectedItem();
+    Method selectedMethod = null;
+    for (AttributeInterface ai : methodList) {
+        Method m = (Method) ai;
+        if (m.getName().equals(selectedMethodName)) {
+            selectedMethod = m;
+            break;
+        }
+    }
+    if (selectedMethod == null) return;
+    
+    // Then, prompt for the new parameter name.
+    JTextField paramField = new JTextField();
+    result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String newParamName = paramField.getText().trim();
+    if (newParamName.isEmpty()) return;
+    
+    // Update the method with the new parameter.
+    selectedMethod.addParameter(newParamName);
+    // Optionally, update the model via editor, e.g., editor.addParameter(selectedMethod.getName(), newParamName);
 
+    selectedClassBox.updateMethodDisplay(selectedMethod);
 
+    selectedClassBox.revalidate();
+    selectedClassBox.repaint();
+    view.getDrawingPanel().repaint();
+}
+
+/**
+ * Prompts the user to select a method and then one of its parameters for deletion.
+ */
+private void deleteParameterFromMethod() {
+    if (activeClass == null) {
+        JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
+    if (methodList.isEmpty()) {
+        JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // First, select the method.
+    JComboBox<String> methodDropdown = new JComboBox<>();
+    for (AttributeInterface ai : methodList) {
+        Method m = (Method) ai;
+        methodDropdown.addItem(m.getName());
+    }
+    int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String selectedMethodName = (String) methodDropdown.getSelectedItem();
+    Method selectedMethod = null;
+    for (AttributeInterface ai : methodList) {
+        Method m = (Method) ai;
+        if (m.getName().equals(selectedMethodName)) {
+            selectedMethod = m;
+            break;
+        }
+    }
+    if (selectedMethod == null) return;
+    
+    // Ensure the selected method has parameters.
+    if (selectedMethod.getParamList().isEmpty()) {
+        JOptionPane.showMessageDialog(view, "No parameters available in the selected method!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // Next, select the parameter to delete.
+    JComboBox<String> paramDropdown = new JComboBox<>();
+    for (Parameter param : selectedMethod.getParamList()) {
+        paramDropdown.addItem(param.getName());
+    }
+    result = JOptionPane.showConfirmDialog(view, paramDropdown, "Select Parameter to Delete", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String selectedParamName = (String) paramDropdown.getSelectedItem();
+    // Remove the parameter from the method.
+    selectedMethod.removeParameter(selectedParamName);
+
+    selectedClassBox.updateMethodDisplay(selectedMethod);
+    // Optionally, update the model via editor, e.g., editor.deleteParameter(selectedMethod.getName(), selectedParamName);
+    selectedClassBox.revalidate();
+    selectedClassBox.repaint();
+    view.getDrawingPanel().repaint();
+}
+
+/**
+ * Prompts the user to select a method and then one of its parameters,
+ * and finally allows entry of a new parameter name to update the selected parameter.
+ */
+private void changeParameterInMethod() {
+    if (activeClass == null) {
+        JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
+    if (methodList.isEmpty()) {
+        JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // First, select the method.
+    JComboBox<String> methodDropdown = new JComboBox<>();
+    for (AttributeInterface ai : methodList) {
+        Method m = (Method) ai;
+        methodDropdown.addItem(m.getName());
+    }
+    int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String selectedMethodName = (String) methodDropdown.getSelectedItem();
+    Method selectedMethod = null;
+    for (AttributeInterface ai : methodList) {
+        Method m = (Method) ai;
+        if (m.getName().equals(selectedMethodName)) {
+            selectedMethod = m;
+            break;
+        }
+    }
+    if (selectedMethod == null) return;
+    
+    // Ensure the selected method has parameters to edit.
+    if (selectedMethod.getParamList().isEmpty()) {
+        JOptionPane.showMessageDialog(view, "No parameters available in the selected method!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // Next, select the parameter to change.
+    JComboBox<String> paramDropdown = new JComboBox<>();
+    for (Parameter param : selectedMethod.getParamList()) {
+        paramDropdown.addItem(param.getName());
+    }
+    result = JOptionPane.showConfirmDialog(view, paramDropdown, "Select Parameter to Edit", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String oldParamName = (String) paramDropdown.getSelectedItem();
+    
+    // Prompt for the new parameter name.
+    JTextField paramField = new JTextField(oldParamName);
+    result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    String newParamName = paramField.getText().trim();
+    if (newParamName.isEmpty()) return;
+    
+    // Update the parameter.
+    selectedMethod.updateParameter(oldParamName, newParamName);
+
+    selectedClassBox.updateMethodDisplay(selectedMethod);
+    // Optionally, update the model via editor, e.g., editor.changeParameter(selectedMethod.getName(), oldParamName, newParamName);
+    selectedClassBox.revalidate();
+    selectedClassBox.repaint();
+    view.getDrawingPanel().repaint();
+}
 
 
     //

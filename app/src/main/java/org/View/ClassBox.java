@@ -145,6 +145,17 @@ public class ClassBox extends JPanel {
 
     }
 
+    public void updateMethodDisplay(Method m) {
+        for (int i = 0; i < methodModel.getSize(); i++) {
+            String display = methodModel.get(i);
+            
+            if (display.startsWith(m.getName() + "(")) {
+                methodModel.set(i, displayMethod(m));
+                break;
+            }
+        }
+    }
+
     public void setSelected(boolean selected){
         if(selected){
             setBorder(SELECTED_BORDER);
