@@ -173,6 +173,9 @@ public class ClassBox extends JPanel {
     }
 
     public void renameField(String fs, String newName) {
+        if (classObject.fetchField(newName) != null) {
+            return;
+        }
         AttributeInterface field = classObject.fetchField(fs);
         controller.getEditor().renameAttribute(field, newName);
         int index = fieldModel.indexOf(fs);
