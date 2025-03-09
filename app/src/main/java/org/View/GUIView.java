@@ -13,6 +13,7 @@ public class GUIView extends JFrame {
 
     private JToggleButton addRelationshipButton;
     private JButton deleteRelationshipButton;
+    private JButton editRelationshipButton;
     
 
     // Field Management Buttons
@@ -24,6 +25,11 @@ public class GUIView extends JFrame {
     private JButton addMethodButton;
     private JButton deleteMethodButton;
     private JButton renameMethodButton;
+
+    // Parameter Management Buttosn
+    private JButton addParameterButton;
+    private JButton deleteParameterButton;
+    private JButton changeParameterButton;
 
     //Save/Load buttons
     private JButton saveButton;
@@ -52,6 +58,7 @@ public class GUIView extends JFrame {
         deleteClassButton = new JButton("Delete Class");
         addRelationshipButton = new JToggleButton("Add Relationship");
         deleteRelationshipButton = new JButton("Delete Relationship");
+        editRelationshipButton = new JButton("Edit Relationship");
 
         // Field Controls
         addFieldButton = new JButton("Add Field");
@@ -62,6 +69,11 @@ public class GUIView extends JFrame {
         addMethodButton = new JButton("Add Method");
         deleteMethodButton = new JButton("Delete Method");
         renameMethodButton = new JButton("Rename Method");
+
+        // Parameter Controls
+        addParameterButton = new JButton("Add Parameter");
+        deleteParameterButton = new JButton("Delete Parameter");
+        changeParameterButton = new JButton("Change Parameter");
 
         //Save/Load Controls 
         saveButton = new JButton("Save");
@@ -77,6 +89,7 @@ public class GUIView extends JFrame {
         toolPanel.add(deleteClassButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(addRelationshipButton);
+        toolPanel.add(editRelationshipButton);
         toolPanel.add(deleteRelationshipButton);
         toolPanel.add(new JSeparator()); // UI Divider
         toolPanel.add(addFieldButton);
@@ -86,6 +99,10 @@ public class GUIView extends JFrame {
         toolPanel.add(addMethodButton);
         toolPanel.add(deleteMethodButton);
         toolPanel.add(renameMethodButton);
+        toolPanel.add(new JSeparator());
+        toolPanel.add(addParameterButton);
+        toolPanel.add(deleteParameterButton);
+        toolPanel.add(changeParameterButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(saveButton);
         toolPanel.add(loadButton);
@@ -119,13 +136,16 @@ public class GUIView extends JFrame {
     public JButton getDeleteRelationshipButton() {
         return deleteRelationshipButton;
     }
-
+    public JButton getEditRelationshipButton() { return editRelationshipButton; }
     public JButton getAddFieldButton() { return addFieldButton; }
     public JButton getDeleteFieldButton() { return deleteFieldButton; }
     public JButton getRenameFieldButton() { return renameFieldButton; }
     public JButton getAddMethodButton() { return addMethodButton; }
     public JButton getDeleteMethodButton() { return deleteMethodButton; }
     public JButton getRenameMethodButton() { return renameMethodButton; }
+    public JButton getAddParamButton() { return addParameterButton; }
+    public JButton getDeleteParamButton() { return deleteParameterButton; }
+    public JButton getChangeParamButton() { return changeParameterButton; }
     public JButton getSaveButton(){return saveButton;}
     public JButton getLoadButton(){return loadButton;}
 
