@@ -266,7 +266,7 @@ public class GUIController {
 
         Relationship relationship = new Relationship(source, destination, type);
         relationships.add(relationship);
-	editor.addRelationship("",selectedSource.getName(), selectedDestination.getName(),relationshipTypeToEnum(type));
+	editor.addRelationship("",selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
 
         view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
@@ -284,7 +284,7 @@ public class GUIController {
 
         Relationship toRemove = relationships.get(relationships.size() - 1);
         relationships.remove(toRemove);
-	editor.deleteRelationship(toRemove.getSource().getName(),toRemove.getDestination().getName());
+	editor.deleteRelationship(toRemove.getSource().getClassName(),toRemove.getDestination().getClassName());
         view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
 
         view.getDrawingPanel().repaint();
