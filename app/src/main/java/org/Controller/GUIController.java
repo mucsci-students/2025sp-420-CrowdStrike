@@ -281,13 +281,26 @@ public class GUIController {
             JOptionPane.showMessageDialog(view, "No relationships to delete!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        JComboBox<String> relDropdown = new JComboBox<>();
+        for(int index = 0; index<relationships.size(); index++){
+            relDropdown.addItem(relationships.get(index).getSource().getObjectFromBox().getName() + " -> " + relationships.get(index).getDestination().getObjectFromBox().getName());
+        }
+        int result = JOptionPane.showConfirmDialog(view, relDropdown, "Select Relationship to Delete", JOptionPane.OK_CANCEL_OPTION);
 
-        Relationship toRemove = relationships.get(relationships.size() - 1);
-        relationships.remove(toRemove);
-	editor.deleteRelationship(toRemove.getSource().getClassName(),toRemove.getDestination().getClassName());
-        view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
-
-        view.getDrawingPanel().repaint();
+        if (result == JOptionPane.OK_OPTION) {
+            String selectedRel = (String) relDropdown.getSelectedItem();
+            Relationship toRemove = relationships.get(relDropdown.getSelectedIndex());
+            if (selectedRel != null) {
+                relationships.remove(toRemove);
+	            editor.deleteRelationship(toRemove.getSource().getClassName(),toRemove.getDestination().getClassName());
+                view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
+                view.getDrawingPanel().repaint();
+            }
+            else{
+                JOptionPane.showMessageDialog(view, "No relationship in model between those classes!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+            }
+        }   
     }
 
     private void removeRelationships(ClassBox classBox) {
