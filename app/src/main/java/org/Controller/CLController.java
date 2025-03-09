@@ -701,15 +701,15 @@ public class CLController {
 		return false;
 	    }
 	}
-	private boolean load(){
+	private void load(){
 	    view.show("Where would you like to load from:");
 	    String path = sc.nextLine();
 	    try{
 		FileManager file = new FileManager();
 		model = file.load(path);
-		return true;
+		editor = new UMLEditor(model);
 	    } catch (Exception e){
-		return false;
+		view.show(e.getMessage());
 	    }
 	}
 
