@@ -37,131 +37,133 @@ public class FileManager {
 		writer.close();
 	}
 
-    /**
-     * Loads a UMLModel from Json
-     *
-     * @param path The path to the json.
-     * @return A new UMLModel containing the state from the json.
-     */
+	/**
+	 * Loads a UMLModel from Json
+	 *
+	 * @param path The path to the json.
+	 * @return A new UMLModel containing the state from the json.
+	 */
 	public UMLModel load(String path) throws Exception {
-		UMLModel model = new UMLModel();
-		ArrayList<ClassObject> clist = model.getClassList();/**/
+		UMLModel umlModel = new UMLModel();
+		ArrayList<ClassObject> classList = umlModel.getClassList();
 
 		if (!Files.isReadable(Paths.get(path)))
 			throw new InvalidPathException(path, "given path is not valid");
 
 		String content = Files.readString(Paths.get(path));
-		JsonElement mdl = JsonParser.parseString(content);
-		JsonObject mdlObj;
+		JsonElement modelJson = JsonParser.parseString(content);
+		JsonObject modelObject;
 
-		if (!mdl.isJsonObject())
+		if (!modelJson.isJsonObject())
 			throw new InvalidObjectException("given json is invalid");
 
-		mdlObj = mdl.getAsJsonObject();
-		if (!mdlObj.has("classes"))
+		modelObject = modelJson.getAsJsonObject();
+		if (!modelObject.has("classes"))
 			throw new InvalidObjectException("Missing classes in json");
-		if (!mdlObj.has("relationships"))
+		if (!modelObject.has("relationships"))
 			throw new InvalidObjectException("Missing relationships in json");
 
-		for (JsonElement e : mdlObj.get("classes").getAsJsonArray()) {
-			clist.add(buildClass(e.getAsJsonObject()));
+		for (JsonElement e : modelObject.get("classes").getAsJsonArray()) {
+			classList.add(buildClass(e.getAsJsonObject()));
 		}
 
-		for (JsonElement e : mdlObj.get("relationships").getAsJsonArray()) {
-			addRelationships(e, model);
+		for (JsonElement e : modelObject.get("relationships").getAsJsonArray()) {
+			addRelationships(e, umlModel);
 		}
 
-		return model;
+		return umlModel;
 	}
 
-	private void addRelationships(JsonElement json, UMLModel m) throws Exception {
-		UMLEditor e = new UMLEditor(m);
-		JsonObject robj;
+	private void addRelationships(JsonElement json, UMLModel model) throws Exception {
+		UMLEditor e = new UMLEditor(model);
+		JsonObject relationshipObject;
 		if (!json.isJsonObject())
 			throw new InvalidObjectException("relationship is not an object");
 
-		robj = json.getAsJsonObject();
-		if (!(robj.has("source") && robj.has("destination") && robj.has("type")))
+		relationshipObject = json.getAsJsonObject();
+		if (!(relationshipObject.has("source") && relationshipObject.has("destination")
+				&& relationshipObject.has("type")))
 			throw new InvalidObjectException("relationship is missing a field");
-		Type t = null;/*if not changed will crash the cli*/
-		switch (robj.get("type").getAsString()) {
+
+		Type relationshipType = null;/* if not changed will crash the cli */
+		switch (relationshipObject.get("type").getAsString()) {
 			case "Aggregation":
-				t = Type.AGGREGATION;
+				relationshipType = Type.AGGREGATION;
 				break;
 			case "Composition":
-				t = Type.COMPOSITION;
+				relationshipType = Type.COMPOSITION;
 				break;
 			case "Inheritance":
-				t = Type.INHERITANCE;
+				relationshipType = Type.INHERITANCE;
 				break;
 			case "Realization":
-				t = Type.REALIZATION;
+				relationshipType = Type.REALIZATION;
 				break;
 		}
-		e.addRelationship("", robj.get("source").getAsString(),
-				robj.get("destination").getAsString(), t);
+		e.addRelationship("", relationshipObject.get("source").getAsString(),
+				relationshipObject.get("destination").getAsString(), relationshipType);
 	}
 
-	private ClassObject buildClass(JsonObject c) throws Exception {
+	private ClassObject buildClass(JsonObject classJson) throws Exception {
 		JsonArray tmp;
-		ClassObject obj;
+		ClassObject classObject;
 
-		if (!c.has("name"))
+		if (!classJson.has("name"))
 			throw new InvalidObjectException("Missing name in class object");
-		if (!c.has("fields") && c.get("fields").isJsonArray())
+		if (!classJson.has("fields") && classJson.get("fields").isJsonArray())
 			throw new InvalidObjectException("Missing fields in class object");
-		if (!c.has("methods") && c.get("methods").isJsonArray())
+		if (!classJson.has("methods") && classJson.get("methods").isJsonArray())
 			throw new InvalidObjectException("Missing methods in class object");
 
-		obj = new ClassObject(c.get("name").getAsString());
-		tmp = c.get("fields").getAsJsonArray();
-		addFields(tmp, obj.getFieldList());
+		classObject = new ClassObject(classJson.get("name").getAsString());
+		tmp = classJson.get("fields").getAsJsonArray();
+		addFields(tmp, classObject.getFieldList());
 
-		tmp = c.get("methods").getAsJsonArray();
-		addMethods(tmp, obj.getMethodList());
+		tmp = classJson.get("methods").getAsJsonArray();
+		addMethods(tmp, classObject.getMethodList());
 
-		return obj;
+		return classObject;
 	}
 
-	private void addFields(JsonArray json, ArrayList<AttributeInterface> flds) throws Exception {
+	private void addFields(JsonArray json, ArrayList<AttributeInterface> fields) throws Exception {
 		for (JsonElement field : json) {
 			if (!field.isJsonObject())
 				throw new InvalidObjectException("Field is not an object");
 			if (!field.getAsJsonObject().has("name"))
 				throw new InvalidObjectException("Field is missing name");
 
-			flds.add(new Field(field.getAsJsonObject().get("name").getAsString()));
+			fields.add(new Field(field.getAsJsonObject().get("name").getAsString()));
 		}
 	}
 
-	private void addMethods(JsonArray json, ArrayList<AttributeInterface> mths) throws Exception {
-		for (JsonElement method : json) {
-			JsonObject m;
-			Method mobj;
-			ArrayList<Parameter> plst = new ArrayList<Parameter>();
+	private void addMethods(JsonArray json, ArrayList<AttributeInterface> methods) throws Exception {
+		for (JsonElement methodJson : json) {
+			JsonObject methodObject;
+			Method method;
+			ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
 
-			if (!method.isJsonObject())
+			if (!methodJson.isJsonObject())
 				throw new InvalidObjectException("method is not an object");
 
-			m = method.getAsJsonObject();
+			methodObject = methodJson.getAsJsonObject();
 
-			if (!(m.has("name") && m.has("params")))
+			if (!(methodObject.has("name") && methodObject.has("params")))
 				throw new InvalidObjectException("method is missing nanme");
 
-			if (!m.has("params") && m.get("params").isJsonArray())
+			if (!methodObject.has("params") && methodObject.get("params").isJsonArray())
 				throw new InvalidObjectException("method params are malformed");
 
-			addParams(m.get("params").getAsJsonArray(), plst);
-			mobj = new Method(m.get("name").getAsString(), plst);
-			mths.add(mobj);
+			addParameters(methodObject.get("params").getAsJsonArray(), parameterList);
+			method = new Method(methodObject.get("name").getAsString(), parameterList);
+			methods.add(method);
 		}
 	}
 
-	private void addParams(JsonArray json, ArrayList<Parameter> plst) throws Exception {
-		for (JsonElement p : json) {
-			if (!p.isJsonObject() && p.getAsJsonObject().has("name"))
+	private void addParameters(JsonArray json, ArrayList<Parameter> parameterList) throws Exception {
+		for (JsonElement parameter : json) {
+			if (!parameter.isJsonObject() && parameter.getAsJsonObject().has("name"))
 				throw new InvalidObjectException("Parameter is malformed");
-			plst.add(new Parameter(p.getAsJsonObject().get("name").getAsString()));
+			parameterList.add(new Parameter(parameter.getAsJsonObject().get("name").getAsString()));
 		}
 	}
 }
