@@ -75,6 +75,8 @@ public class GUIController {
             }
         });
 
+        view.getEditRelationshipButton().addActionListener(e -> editRelationship());
+
         view.getDeleteRelationshipButton().addActionListener(e -> deleteRelationship());
 
         view.getAddFieldButton().addActionListener(e -> addFieldToClass());
@@ -271,6 +273,87 @@ public class GUIController {
         view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
 
+    }
+
+    private void editRelationship() {
+    // Check if there are any relationships to edit
+    if (relationships.isEmpty()) {
+        JOptionPane.showMessageDialog(view, "No relationships to edit!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Select the relationship to edit
+    JComboBox<String> relDropdown = new JComboBox<>();
+    for (GUIRelationship rel : relationships) {
+        String relString = rel.getSource().getObjectFromBox().getName() + " -> " + rel.getDestination().getObjectFromBox().getName();
+        relDropdown.addItem(relString);
+    }
+    int result = JOptionPane.showConfirmDialog(view, relDropdown, "Select Relationship to Edit", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    
+    int selectedIndex = relDropdown.getSelectedIndex();
+    if (selectedIndex < 0) return;
+    GUIRelationship selectedRel = relationships.get(selectedIndex);
+    
+    // Choose which aspect to edit: source, dest, type
+    String[] editOptions = {"Source", "Destination", "Type"};
+    JComboBox<String> editOptionDropdown = new JComboBox<>(editOptions);
+    result = JOptionPane.showConfirmDialog(view, editOptionDropdown, "Select element to edit", JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    String editChoice = (String) editOptionDropdown.getSelectedItem();
+    
+    // Provide a final selection for the new value based on the element chosen
+    JComboBox<String> newValueDropdown;
+    if (editChoice.equals("Type")) {
+        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
+        newValueDropdown = new JComboBox<>(types);
+    } else { // For "Source" or "Destination", list available classes
+        newValueDropdown = new JComboBox<>();
+        for (ClassBox cb : classBoxes) {
+            newValueDropdown.addItem(cb.getClassName());
+        }
+    }
+    result = JOptionPane.showConfirmDialog(view, newValueDropdown, "Select new " + editChoice, JOptionPane.OK_CANCEL_OPTION);
+    if (result != JOptionPane.OK_OPTION) return;
+    String newValue = (String) newValueDropdown.getSelectedItem();
+    
+    // Determine the updated relationship details; initialize with current values.
+    ClassBox newSource = selectedRel.getSource();
+    ClassBox newDestination = selectedRel.getDestination();
+    String newType = selectedRel.getType();
+    
+    if (editChoice.equals("Source")) {
+        for (ClassBox cb : classBoxes) {
+            if (cb.getClassName().equals(newValue)) {
+                newSource = cb;
+                break;
+            }
+        }
+    } 
+    else if (editChoice.equals("Destination")) {
+        for (ClassBox cb : classBoxes) {
+            if (cb.getClassName().equals(newValue)) {
+                newDestination = cb;
+                break;
+            }
+        }
+    } 
+    else if (editChoice.equals("Type")) {
+        newType = newValue;
+    }
+    
+    // ABOVE: Getting relevant info
+    // BELOW: Updating the model and view
+    relationships.remove(selectedRel);
+    view.getDrawingPanel().removeRelationship(selectedRel.getSource(), selectedRel.getDestination());
+    editor.deleteRelationship(selectedRel.getSource().getClassName(), selectedRel.getDestination().getClassName());
+    
+    // Create an updated relationship
+    GUIRelationship updatedRel = new GUIRelationship(newSource, newDestination, newType);
+    relationships.add(updatedRel);
+    editor.addRelationship("", newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+    view.getDrawingPanel().addRelationship(newSource, newDestination, newType);
+    view.getDrawingPanel().repaint();
     }
 
     /**
