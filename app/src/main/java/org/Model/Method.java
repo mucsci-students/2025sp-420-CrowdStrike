@@ -83,7 +83,7 @@ public class Method implements AttributeInterface {
 	 * @return True if this is equal to compareMethod, false otherwise
 	 */
 	public boolean equals(Method compareMethod) {
-		if (this.name == compareMethod.getName() && this.paramList.size() == compareMethod.getParamList().size()) {
+		if (this.name.equals(compareMethod.getName()) && this.paramList.size() == compareMethod.getParamList().size()) {
 			return true;
 		} else {
 			return false;

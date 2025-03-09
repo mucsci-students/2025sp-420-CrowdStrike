@@ -8,6 +8,7 @@ import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
+import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.UMLModel;
@@ -555,7 +556,7 @@ public class CLController {
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalud input. Please enter a number");
+			view.show("Invalid input. Please enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
@@ -605,7 +606,7 @@ public class CLController {
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalud input. Please enter a number");
+			view.show("Invalid input. Please enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
@@ -649,6 +650,10 @@ public class CLController {
 		}
 
 		// The class exists
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
 		view.show("Please type the name of the method you'd like to add parameters to:");
 		String methodName = sc.nextLine();
 		int paramArity = -1;
@@ -662,7 +667,7 @@ public class CLController {
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalud input. Please enter a number");
+			view.show("Invalid input. Please enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
@@ -722,6 +727,10 @@ public class CLController {
 			return;
 		}
 		// The class exists
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
 		view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
 		String methodName = sc.nextLine();
 		
@@ -787,6 +796,10 @@ public class CLController {
 			return;
 		}
 		// The class exists
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
 		view.show("Please type the name of the method you'd like to add parameters to:");
 		String methodName = sc.nextLine();
 		
@@ -801,7 +814,7 @@ public class CLController {
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalud input. Please enter a number");
+			view.show("Invalid input. Please enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
@@ -814,8 +827,7 @@ public class CLController {
 
 		// The method exists
 		Method activeMethod = (Method) attr;
-		view.show(
-				"Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
+		view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
 		input = sc.nextLine().replaceAll("//s", "");
 		Parameter oldParam = activeMethod.fetchParameter(input);
 		if (!input.equalsIgnoreCase("all") &&  oldParam == null ) {
@@ -826,6 +838,7 @@ public class CLController {
 		}
 		ArrayList<String> parameterList = new ArrayList<>();
 		boolean loop = true;
+		boolean changeParamReadded = false;
 		String paramName = "";
 		view.show("Type the name of a parameter you'd like to add to the new list. Type 'stop' to stop adding parameters:");
 		while (loop) {
@@ -834,17 +847,25 @@ public class CLController {
 			if (paramName.equalsIgnoreCase("stop")) {
 				loop = false;
 			} else {
-				if(activeMethod.paramUsed(paramName) ) {
-					view.show("This parameter is already in the method.");
-					view.show("Please type the name of the next parameter:");
-					continue;
+				if (!input.equalsIgnoreCase("all")) {
+					// Only need to check if new paramName is in method if all parameters are not being replaced
+					if(activeMethod.paramUsed(paramName) ) {
+						if (!changeParamReadded && paramName.equals(input)) {
+							parameterList.add(paramName);
+							view.show("Please type the name of the next parameter:");
+							changeParamReadded = true;
+							continue;
+						}
+						view.show("This parameter is already in the method.");
+						view.show("Please type the name of the next parameter:");
+						continue;
+					}
 				}
 				if(editor.nameAlrAdded(paramName, parameterList)) {
 					view.show("This parameter has already been added.");
 					view.show("Please type the name of the next parameter:");
 					continue;
 				}
-				
 				parameterList.add(paramName);
 			}
 			view.show("Please type the name of the next parameter:");

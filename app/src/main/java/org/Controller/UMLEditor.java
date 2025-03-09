@@ -11,8 +11,6 @@ import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
-import org.Model.Relationship;
-import org.Model.UMLModel;
 
 public class UMLEditor {
 	// The model that is being edited
