@@ -21,6 +21,7 @@ import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
+import org.Model.Relationship.Type;
 
 import org.Controller.UMLEditor;
 
@@ -36,6 +37,12 @@ public class FileManager {
 		writer.close();
 	}
 
+    /**
+     * Loads a UMLModel from Json
+     *
+     * @param path The path to the json.
+     * @return A new UMLModel containing the state from the json.
+     */
 	public UMLModel load(String path) throws Exception {
 		UMLModel model = new UMLModel();
 		ArrayList<ClassObject> clist = model.getClassList();/**/
@@ -76,8 +83,23 @@ public class FileManager {
 		robj = json.getAsJsonObject();
 		if (!(robj.has("source") && robj.has("destination") && robj.has("type")))
 			throw new InvalidObjectException("relationship is missing a field");
-		e.addRelationship(robj.get("type").getAsString(), robj.get("source").getAsString(),
-				robj.get("destination").getAsString());
+		Type t = null;/*if not changed will crash the cli*/
+		switch (robj.get("type").getAsString()) {
+			case "Aggregation":
+				t = Type.AGGREGATION;
+				break;
+			case "Composition":
+				t = Type.COMPOSITION;
+				break;
+			case "Inheritance":
+				t = Type.INHERITANCE;
+				break;
+			case "Realization":
+				t = Type.REALIZATION;
+				break;
+		}
+		e.addRelationship("", robj.get("source").getAsString(),
+				robj.get("destination").getAsString(), t);
 	}
 
 	private ClassObject buildClass(JsonObject c) throws Exception {
