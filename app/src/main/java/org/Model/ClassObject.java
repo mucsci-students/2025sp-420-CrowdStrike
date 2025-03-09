@@ -108,5 +108,17 @@ public class ClassObject implements ClassObjectInterface {
         // Class with className did not exist, return false
         return null;
 	}
+
+	public ArrayList<Method> fetchMethodByName(String methodName) {
+		ArrayList<Method> sameNameList = new ArrayList<>();
+		Method activeMethod;
+		for (int i = 0; i < attrMap.get("Method").size(); i++) {
+			if (methodName.equals(attrMap.get("Method").get(i).getName())) {
+				activeMethod = (Method) attrMap.get("Method").get(i);
+				sameNameList.add(activeMethod);
+			}
+		}
+		return sameNameList;
+	}
 }
 
