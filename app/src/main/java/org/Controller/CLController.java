@@ -1,41 +1,45 @@
 package org.Controller;
+
+import java.util.ArrayList;
 import java.util.Scanner;
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.View.CLView;
+
 import org.FileManager;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.AttributeInterface;
+import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
-import java.util.ArrayList;
+import org.Model.UMLModel;
+import org.View.CLView;
 
 // Checks validity of action then calls function in
 // editor to carry out change
 public class CLController {
 
 	private UMLModel model;
-	
+
 	private UMLEditor editor;
-	
+
 	private CLView view;
-	
+
 	// Create scanner to read user input
-    private Scanner sc;
-    // Create a string to read user input
-    private String input = "";
+	private Scanner sc;
+	// Create a string to read user input
+	private String input = "";
 	// Create a global class that can be used and passed into editor
 	ClassObject activeClass = null;
 	// Prompt to be displayed at beginning of every loop
 	private final String basePrompt = "Please type your command(Help for list of commands): ";
-	
+
 	/**
 	 * Constructs an instance of the CLController
-	 * @param model		| Contains lists of classes and relationships and accessors for those lists
-	 * @param editor	| Allows user to edit the lists i the model
-	 * @param view		| Determines how the UML system will be displayed
+	 * 
+	 * @param model  | Contains lists of classes and relationships and accessors for
+	 *               those lists
+	 * @param editor | Allows user to edit the lists i the model
+	 * @param view   | Determines how the UML system will be displayed
 	 */
 	public CLController(UMLModel model, UMLEditor editor, CLView view) {
 		this.model = model;
@@ -43,7 +47,7 @@ public class CLController {
 		this.view = view;
 		this.sc = new Scanner(System.in);
 	}
-	
+
 	/**
 	 * Checks if any classes exist before printing them
 	 */
@@ -54,8 +58,7 @@ public class CLController {
 			view.show("No classes currently exist");
 		}
 	}
-	
-	
+
 	/**
 	 * Gets the class to be listed and tells user if action failed
 	 */
@@ -80,7 +83,7 @@ public class CLController {
 			view.show(classInfo);
 		}
 	}
-	
+
 	/**
 	 * Checks if any relationships exist before printing them
 	 */
@@ -91,7 +94,7 @@ public class CLController {
 			view.show("No relationships currently exist");
 		}
 	}
-	
+
 	/**
 	 * Gets name of new class from user and displays if it was added successfully
 	 */
@@ -99,7 +102,7 @@ public class CLController {
 		view.show("Enter the new class' name: ");
 		input = sc.nextLine();
 		int result = model.isValidClassName(input);
-		switch(result) {
+		switch (result) {
 		case 1:
 			view.show("No class name was given");
 			break;
@@ -119,7 +122,7 @@ public class CLController {
 			break;
 		}
 	}
-	
+
 	/**
 	 * Gets class info from user and displays if class was deleted
 	 */
@@ -136,7 +139,7 @@ public class CLController {
 			view.show("Class " + input + " could not be deleted");
 		}
 	}
-	
+
 	/**
 	 * Gets class info from user and displays if class was renamed
 	 */
@@ -177,7 +180,7 @@ public class CLController {
 			view.show("Class " + input + " does not exist");
 		}
 	}
-	
+
 	/**
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
@@ -189,6 +192,12 @@ public class CLController {
 
 		view.show("Optionally, input a name for the relationship: (Enter to skip)");
 		input = sc.nextLine();
+		if (input.equalsIgnoreCase("Y")) {
+			view.show("Enter the relationship's name");
+			input = sc.nextLine();
+		} else {
+			input = "";
+		}
 		
 			view.show("Enter the source class");
 			listClassNames();
@@ -316,7 +325,7 @@ public class CLController {
 			{view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");}
 		}
 	
-	
+
 	/**
 	 * Gets relationship info from user and returns if it was deleted
 	 */
@@ -552,7 +561,7 @@ public class CLController {
 			// Consume newLine char left by nextInt
 			sc.nextLine();
 		} else {
-			view.show("Invalid input. You must enter a number");
+			view.show("Invalid input. Please enter a number");
 			// Clear invalid input from buffer
 			sc.nextLine();
 			return;
@@ -631,10 +640,261 @@ public class CLController {
 					+ " parameters");
 		}
 	}
-	
+
+	/*Gets a class, a method, and the names of parameters that a user would like to add
+	* to the list of parameters attached to the method.
+	*/
+	private void CL_addParam() {
+		if (!listClassNames()) {
+			// no class exists
+			view.show("No classes currently exist");
+			return;
+		}
+		view.show("What class does the method you want to add the parameter to belong to?");
+		String className = sc.nextLine();
+		ClassObject activeClass = model.fetchClass(className);
+
+		if (activeClass == null) {
+			// class doesn't exist
+			view.show("Class not here :(");
+			return;
+		}
+
+		// The class exists
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
+		view.show("Please type the name of the method you'd like to add parameters to:");
+		String methodName = sc.nextLine();
+		int paramArity = -1;
+		view.show("How many parameters does " + methodName + " have?");
+		if (sc.hasNextInt()) {
+			paramArity = sc.nextInt();
+			if (paramArity < 0) {
+				view.show("Parameter arity must be non-negative");
+				return;
+			}
+			// Consume newLine char left by nextInt
+			sc.nextLine();
+		} else {
+			view.show("Invalid input. Please enter a number");
+			// Clear invalid input from buffer
+			sc.nextLine();
+			return;
+		}
+		Method attr = activeClass.fetchMethod(methodName, paramArity);
+		if (attr == null) {
+			view.show("no Method by this name exists");
+			return;
+		}
+		// The method does exist
+		Method activeMethod = (Method) attr;
+		ArrayList<String> parameterList = new ArrayList<>();
+		ArrayList<Parameter> listOfParameters = new ArrayList<>();
+		boolean loop = true;
+		view.show("Type the name of a parameter you'd like to add to the list. Type 'stop' to stop adding parameters:");
+		while (loop) {
+			// Loops for adding
+			input = sc.nextLine().replaceAll("\\s", "");
+			if (input.equalsIgnoreCase("stop")) {
+				loop = false;
+			} else {
+				if(activeMethod.paramUsed(input) ) {
+					view.show("This parameter is already in the method.");
+					view.show("Please type the name of the next parameter:");
+					continue;
+				}
+				if(editor.nameAlrAdded(input, parameterList)) {
+					view.show("This parameter has already been added.");
+					view.show("Please type the name of the next parameter:");
+					continue;
+				}
+				
+				parameterList.add(input);
+			}
+			view.show("Please type the name of the next parameter:");
+		}
+		editor.addParam(parameterList, activeMethod);
+		view.show("The parameter(s) were added.");
+
+	}
+	/*Gets the class, method, and either all of the name of a parameter that the user
+	* would like to remove. If all every parameter is deleted, otherwise its just the named parameter.
+	*/
+	private void CL_removeParam() {
+		if (!listClassNames()) {
+			// no classes
+			view.show("No classes currently exist");
+			return;
+
+		}
+		view.show("What class does the method you want to remove the parameter to belong to?");
+		String className = sc.nextLine();
+		ClassObject activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			// class doesn't exist
+			view.show("The class " + className + " does not exist.");
+			return;
+		}
+		// The class exists
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
+		view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
+		String methodName = sc.nextLine();
+		
+		int paramArity = -1;
+		view.show("How many parameters does " + methodName + " have?");
+		if (sc.hasNextInt()) {
+			paramArity = sc.nextInt();
+			if (paramArity < 0) {
+				view.show("Parameter arity must be non-negative.");
+				return;
+			}
+			// Consume newLine char left by nextInt
+			sc.nextLine();
+		} else {
+			view.show("Invalid input. Please enter a number:");
+			// Clear invalid input from buffer
+			sc.nextLine();
+			return;
+		}
+		Method attr = activeClass.fetchMethod(methodName, paramArity);
+		
+		if (attr == null) {
+			view.show("method not here");
+			return;
+		}
+		// The method exists
+		Method activeMethod = (Method) attr;
+		view.show("In order to delete all methods type 'all', otherwise type anything to remove one parameter.");
+		input = sc.nextLine().replaceAll("\\s", "");
+		if (input.equalsIgnoreCase("all")) {
+			// all params gone
+			editor.removeAllParams(activeMethod);
+			view.show("All parameters were removed");
+		} else {
+			view.show("please type the parameter name you'd like to remove: ");
+			input = sc.nextLine();
+			Parameter param = activeMethod.fetchParameter(input);
+			if(param == null){
+				view.show("The current method does not contain the parameter " + input + ".");
+				return;
+			}
+			
+			editor.removeParam(activeMethod, param);
+			view.show(input + " was removed.");
+		}
+	}
+	/*Gets the class, and method that the parameters belongs to and asks the user if they'd like to change
+	* one or all of the parameters. If its all parameters it replaces everything after index 0 with a new list.
+	* if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
+	* containing all of the new parameters as well as the old parameters at their locations prior to the change. 
+	*/
+	private void CL_changeParam() {
+		if (!listClassNames()) {
+			// no classes
+			view.show("No classes currently exist.");
+			return;
+		}
+		view.show("What class does the method you want to add the parameter to belong to?");
+		String className = sc.nextLine();
+		ClassObject activeClass = model.fetchClass(className);
+		if (activeClass == null) {
+			view.show("Class not here :(");
+			return;
+		}
+		// The class exists
+		if (!listMethodNames(activeClass)) {
+			view.show("Class has no methods");
+			return;
+		}
+		view.show("Please type the name of the method you'd like to add parameters to:");
+		String methodName = sc.nextLine();
+		
+		int paramArity = -1;
+		view.show("How many parameters does " + methodName + " have?");
+		if (sc.hasNextInt()) {
+			paramArity = sc.nextInt();
+			if (paramArity < 0) {
+				view.show("Parameter arity must be non-negative");
+				return;
+			}
+			// Consume newLine char left by nextInt
+			sc.nextLine();
+		} else {
+			view.show("Invalid input. Please enter a number");
+			// Clear invalid input from buffer
+			sc.nextLine();
+			return;
+		}
+		Method attr = activeClass.fetchMethod(methodName, paramArity);
+		if (attr == null) {
+			view.show("method not here");
+			return;
+		}
+
+		// The method exists
+		Method activeMethod = (Method) attr;
+		view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
+		input = sc.nextLine().replaceAll("//s", "");
+		Parameter oldParam = activeMethod.fetchParameter(input);
+		if (!input.equalsIgnoreCase("all") &&  oldParam == null ) {
+			view.show("You did not type 'All' or the name of an existing parameter.");
+			view.show("Function not executed.");
+			return;
+			
+		}
+		ArrayList<String> parameterList = new ArrayList<>();
+		boolean loop = true;
+		boolean changeParamReadded = false;
+		String paramName = "";
+		view.show("Type the name of a parameter you'd like to add to the new list. Type 'stop' to stop adding parameters:");
+		while (loop) {
+			// Loops for adding
+			paramName = sc.nextLine().replaceAll("\\s", "");
+			if (paramName.equalsIgnoreCase("stop")) {
+				loop = false;
+			} else {
+				if (!input.equalsIgnoreCase("all")) {
+					// Only need to check if new paramName is in method if all parameters are not being replaced
+					if(activeMethod.paramUsed(paramName) ) {
+						if (!changeParamReadded && paramName.equals(input)) {
+							parameterList.add(paramName);
+							view.show("Please type the name of the next parameter:");
+							changeParamReadded = true;
+							continue;
+						}
+						view.show("This parameter is already in the method.");
+						view.show("Please type the name of the next parameter:");
+						continue;
+					}
+				}
+				if(editor.nameAlrAdded(paramName, parameterList)) {
+					view.show("This parameter has already been added.");
+					view.show("Please type the name of the next parameter:");
+					continue;
+				}
+				parameterList.add(paramName);
+			}
+			view.show("Please type the name of the next parameter:");
+		}
+
+		if (input.equalsIgnoreCase("all")) {
+			editor.changeAllParams(activeMethod, parameterList);
+			view.show("All parameters were replaced.");
+		} else {
+			editor.changeParameter(activeMethod, oldParam, parameterList);
+			view.show("parameter " + oldParam.getName() + " was replaced with new parameter list.");
+		}
+	}
+
 	/**
-	 * Helper class to return if any classes have been listed
-	 * Used for error catching and avoiding redundant code
+	 * Helper class to return if any classes have been listed Used for error
+	 * catching and avoiding redundant code
+	 * 
 	 * @return True if classes have been listed, false otherwise
 	 */
 	private boolean listClassNames() {
@@ -713,8 +973,7 @@ public class CLController {
 	}
 
 	/**
-	 * Initializes the controller that allows user to interact
-	 * with UML software
+	 * Initializes the controller that allows user to interact with UML software
 	 */
 	public void init() {
         // Value that is always true unless exit command is given
@@ -803,15 +1062,27 @@ public class CLController {
 			case "rm":
 				CL_renameMethod();
 				break;
-        	default:
-        		view.show("Command not recognized, please try something else");
-        		break;
-        	}
-        	// Reset Variables
-        	input = "";
+			case "addparameter":
+			case "ap":
+				CL_addParam();
+				break;
+			case "removeparameter":
+			case "rp":
+				CL_removeParam();
+				break;
+			case "changeparameter":
+			case "cp":
+				CL_changeParam();
+				break;
+			default:
+				view.show("Command not recognized, please try something else");
+				break;
+			}
+			// Reset Variables
+			input = "";
 			activeClass = null;
-        	// Skip a line to break up user actions in the command line
-        	view.show("");
-        }
+			// Skip a line to break up user actions in the command line
+			view.show("");
+		}
 	}
 }

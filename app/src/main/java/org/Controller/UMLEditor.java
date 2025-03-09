@@ -1,13 +1,16 @@
 package org.Controller;
+
+import java.util.ArrayList;
+
 import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.AttributeInterface;
+import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
-import java.util.ArrayList;
 
 public class UMLEditor {
 	// The model that is being edited
@@ -175,20 +178,20 @@ public class UMLEditor {
 	/**
 	 * Adds a field to the designated ClassObject
 	 * 
-	 * @param cls			| The class the method is being added to
-	 * @param fieldName		| The name of the field
+	 * @param cls       | The class the method is being added to
+	 * @param fieldName | The name of the field
 	 */
 	public void addField(ClassObject cls, String fieldName) {
 		Field fld = new Field(fieldName);
 		cls.addAttribute(fld);
 	}
-	
+
 	/**
 	 * Adds a method to the designated ClassObject
 	 * 
-	 * @param cls			| The class the method is being added to
-	 * @param methodName	| The name of the method
-	 * @param paramList		| The parameter list the method will have
+	 * @param cls        | The class the method is being added to
+	 * @param methodName | The name of the method
+	 * @param paramList  | The parameter list the method will have
 	 */
 	public void addMethod(ClassObject cls, String methodName, ArrayList<String> paramNameList) {
 		ArrayList<Parameter> paramList= new ArrayList<>();
@@ -204,20 +207,88 @@ public class UMLEditor {
 	/**
 	 * Deletes fields or methods from the designated ClassObject
 	 * 
-	 * @param cls 		| The class from which the field/method is to be deleted from
-	 * @param delAttr   | The field/method to be removed
+	 * @param cls     | The class from which the field/method is to be deleted from
+	 * @param delAttr | The field/method to be removed
 	 */
 	public void deleteAttribute(ClassObject cls, AttributeInterface delAttr) {
 		cls.removeAttribute(delAttr);
 	}
-	
+
 	/**
 	 * Renames fields or methods from the designated ClassObject
 	 * 
-	 * @param renameAttr	| The filed/method being renamed
-	 * @param newName		| The new name for the field/method
+	 * @param renameAttr | The filed/method being renamed
+	 * @param newName    | The new name for the field/method
 	 */
+	
 	public void renameAttribute(AttributeInterface renameAttr, String newName) {
 		renameAttr.renameAttribute(newName);
+	}
+
+	/**
+	 * Adds a parameter to a list of a methods parameter list
+	 * 
+	 * @param parameterList | The list of parameters being added to the methods parameter list
+	 * @param currMethod    | the current Method of which new parameters are being added
+	 */
+	public void addParam(ArrayList<String> parameterList, Method currMethod) {
+		currMethod.addParameters(parameterList);
+
+	}
+
+	/**
+	 * Removes all the parameters from a given parameter list
+	 * 
+	 * @param activeMethod | The method whos parameter list is going to be deleted.
+	 */
+	public void removeAllParams(Method activeMethod) {
+		activeMethod.removeAllParameters();
+	}
+
+	/**
+	 * removes a singular parameter from a methods list
+	 * 
+	 * @param activeMethod | the current method that the parameter will be removed from
+	 * @param param        | the parameter that will be removed from the parameter list
+	 */
+	public void removeParam(Method activeMethod, Parameter param) {
+		activeMethod.removeParameter(param);
+	}
+	/**
+	 * Changes all the parameters of a method by replacing it with a new list
+	 * 
+	 * @param activeMethod  | The method that will have all of its parameters replaced
+	 * @param parameterList | The list of new parameters that will replace the old list
+	 */
+	public void changeAllParams(Method activeMethod, ArrayList<String> parameterList) {
+		activeMethod.removeAllParameters();
+		activeMethod.addParameters(parameterList);
+	}
+	/**
+	 * Changes a parameter in a method with a new list of parameters
+	 * 
+	 * @param activeMethod        | The method which will have its parameter list changed
+	 * @param oldParam            | The old parameter where the new list will be inserted
+	 * @param parameterStringList | The new parameter list set as a string to be added as parameter type
+	 */
+	public void changeParameter(Method activeMethod, Parameter oldParam, ArrayList<String> parameterStringList) {
+		int index = activeMethod.getParamList().indexOf(oldParam);
+		ArrayList<Parameter> parameterParamList = new ArrayList<>();
+        Parameter param;
+        for (int i = 0; i < parameterStringList.size(); i++) {
+            param = new Parameter(parameterStringList.get(i));
+            parameterParamList.add(param);
+        }
+		activeMethod.getParamList().addAll(index, parameterParamList);
+		activeMethod.getParamList().remove(oldParam);
+	}
+	
+	public boolean nameAlrAdded(String paramName, ArrayList<String> buildParamNameList) {
+		for(int i = 0; i < buildParamNameList.size(); i++) {
+			if(paramName.equals(buildParamNameList.get(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
