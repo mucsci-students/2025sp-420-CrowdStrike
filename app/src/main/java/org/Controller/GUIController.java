@@ -806,7 +806,9 @@ private void addMethodToClass() {
 			s = b.getClassName().equals(sn) ? b : s;
 			d = b.getClassName().equals(dn) ? b : d;
 		    }
-		    relationships.add(new GUIRelationship(s, d, r.getTypeString()));
+		    String type = r.getTypeString();
+		    relationships.add(new GUIRelationship(s, d, type));
+		    view.getDrawingPanel().addRelationship(s, d, type);
 		}
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
