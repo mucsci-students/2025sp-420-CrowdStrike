@@ -1,2 +1,0 @@
-Main-Class: UMLClassEditorApp
-Class-Path: lib/gson-2.12.1.jar lib/junit-platform-console-standalone-1.11.4.jar
