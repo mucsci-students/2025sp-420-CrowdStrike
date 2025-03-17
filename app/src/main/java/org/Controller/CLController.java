@@ -189,15 +189,6 @@ public class CLController {
 			view.show("Error: No classes currently exist! Aborting.");
 			return;
 		}
-
-		view.show("Optionally, input a name for the relationship: (Enter to skip)");
-		input = sc.nextLine();
-		if (input.equalsIgnoreCase("Y")) {
-			view.show("Enter the relationship's name");
-			input = sc.nextLine();
-		} else {
-			input = "";
-		}
 		
 			view.show("Enter the source class");
 			listClassNames();
@@ -231,15 +222,11 @@ public class CLController {
 				else {view.show("Invalid input! Try again (or 'cancel' the creation).");}
 			}
 
-			if (type!=null && editor.addRelationship(input, source, dest, type)) {
-				if(input.equals("")){
-					view.show("Unnamed " + type + " Relationship successfully created from " + source + " to " + dest);
-				}
-				else{
-					view.show(type + " Relationship " + input + " successfully created from " + source + " to " + dest);
-				}
-			} else {
-				view.show("Relationship " + input + " could not be created");
+			if (type!=null && editor.addRelationship(source, dest, type)) {
+				view.show(type + " Relationship successfully created from " + source + " to " + dest);
+			}
+			else {
+				view.show("Relationship could not be created");
 			}
 	}
 
@@ -268,17 +255,10 @@ public class CLController {
     		}
 			if(model.relationshipExist(source, dest)!=null){
 				view.show("What property of the relationship are you changing?\n");
-				view.show("You can edit the 'name', 'source', 'destination', or 'type' of this relationship.");
+				view.show("You can edit the 'source', 'destination', or 'type' of this relationship.");
 				String field = sc.nextLine().toLowerCase();
 				String value = null;
 					switch(field){
-						
-						case "name":
-							view.show("What do you want to name the relationship?");
-							value = sc.nextLine();
-							view.show("Relationship successfully renamed " + value);
-							break;
-
 						case "source":
 							view.show("Which class do you want to name as the new source?");
 							listClassNames();
@@ -311,10 +291,7 @@ public class CLController {
 							}
 							view.show("Relationship's type successfully set to " + value);
 							break;
-
-
 						default:
-							//
 							view.show("Unfortunately, we don't support changing the " + field + " of a relationship right now. Aborting.");
 							break;
 					}

@@ -161,13 +161,13 @@ public class UMLModel implements UMLModelInterface{
             if (curRelationship.getSource().getName().equals(cls.getName())) {
             	// Current class is current relationship's source
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newSource = " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to sourceRelatiosnhips
             	sourceRelationships = sourceRelationships + "\n    " + newSource;
             } else if (curRelationship.getDestination().getName().equals(cls.getName())) {
             	// Current class is current relationhip's destination
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newDest =" (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to destRelatiosnhips
             	destRelationships = destRelationships + "\n    " + newDest;
             } else {
@@ -192,7 +192,7 @@ public class UMLModel implements UMLModelInterface{
         Relationship curRelationship;
         while (index < relationshipList.size()) {
             curRelationship = relationshipList.get(index);
-            relString = relString + "\n  " + curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            relString = relString + "\n  " + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             index++;
         }
         return relString;
