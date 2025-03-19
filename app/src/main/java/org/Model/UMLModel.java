@@ -150,10 +150,15 @@ public class UMLModel implements UMLModelInterface{
         finalString = finalString + "  Methods:\n";
         for (int i = 0; i < cls.getMethodList().size(); i++) {
         	Method method1 = (Method) cls.getMethodList().get(i);
-        	finalString = finalString + "   " + method1.getName() + "\n     Parameters:\n"; 
-        	for (int j = 0; j < method1.getParamList().size(); j++) {
-        		finalString = finalString + "       " + method1.getParamList().get(j).getName() + "\n";
-        	}
+        	//finalString = finalString + "   " + method1.getName() + "\n     Parameters:\n"; 
+			finalString = finalString + "   " + method1.getName() + "(";
+			if (method1.getParamList().size() > 0) {
+				finalString = finalString + method1.getParamList().get(0).getName();
+				for (int j = 1; j < method1.getParamList().size(); j++) {
+					finalString = finalString + ", " + method1.getParamList().get(j).getName();
+				}
+			}
+			finalString = finalString + ")\n";
         }
         /*
          * Call the listRelationships function passing in the class to get that part
