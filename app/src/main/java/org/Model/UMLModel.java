@@ -150,7 +150,6 @@ public class UMLModel implements UMLModelInterface{
         finalString = finalString + "  Methods:\n";
         for (int i = 0; i < cls.getMethodList().size(); i++) {
         	Method method1 = (Method) cls.getMethodList().get(i);
-        	//finalString = finalString + "   " + method1.getName() + "\n     Parameters:\n"; 
 			finalString = finalString + "   " + method1.getName() + "(";
 			if (method1.getParamList().size() > 0) {
 				finalString = finalString + method1.getParamList().get(0).getName();
