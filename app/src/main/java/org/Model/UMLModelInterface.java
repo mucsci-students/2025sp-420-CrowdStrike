@@ -49,7 +49,7 @@ public interface UMLModelInterface {
      * Lists all created relationships
      * @return A string containing a list of all relationships
      */
-    public String listRelationships();
+    public String listRelationships() throws Exception;
     
     /**
     * Creates a list of all created class names that user can reference

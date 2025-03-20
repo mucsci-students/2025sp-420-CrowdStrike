@@ -144,7 +144,10 @@ public class UMLModel implements UMLModelInterface{
         	finalString = finalString + "   " +  cls.getFieldList().get(i).getName() + "\n";
         }
         finalString = finalString + "  Methods:\n";
-		finalString += listMethods(cls);
+		for (AttributeInterface mthd : cls.getMethodList()) {
+			Method activeMethod = (Method) mthd;
+			finalString = finalString + "   " + activeMethod.getName() + listParams(activeMethod) + "\n";
+		}
 
         /*
          * Call the listRelationships function passing in the class to get that part
@@ -179,7 +182,10 @@ public class UMLModel implements UMLModelInterface{
 	 * Lists all created relationships
 	 * @return A string containing a list of all relationships
 	 */
-    public String listRelationships() {
+    public String listRelationships() throws Exception {
+		if (relationshipList.size() == 0) {
+			throw new Exception ("No relationships currently exist");
+		}
         int index = 0;
         String relString = "Relationships:";
         // Create a variable to store the current relationship
@@ -263,22 +269,33 @@ public class UMLModel implements UMLModelInterface{
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "Available Methods:\n- " + methodList.get(0).getName();
+    	String finalString = "Available Methods:\n- " + methodList.get(0).getName() + listParams((Method) methodList.get(0));
     	AttributeInterface attr;
     	while (index < methodList.size()) {
     		attr = methodList.get(index);
     		if (countNewLine >= 5) {
     			// Create a new line after every six names
-    			finalString = finalString + "\n- " + attr.getName();
+    			finalString = finalString + "\n- " + attr.getName() + listParams((Method) attr);
     			countNewLine = 0;
     		} else {
-    			finalString = finalString + "   - " + attr.getName();
+    			finalString = finalString + "   - " + attr.getName() + listParams((Method) attr);
     			countNewLine++;
     		}
     		index++;
     	}
     	return finalString;
     }
+
+	private String listParams(Method mthd) {
+		String str = "(";
+		if (mthd.getParamList().size() > 0) {
+			str = str + mthd.getParamList().get(0).getName();
+			for (int i = 1; i < mthd.getParamList().size(); i++) {
+				str = str + ", " + mthd.getParamList().get(i).getName();
+			}
+		}
+		return str = str + ")";
+	}
 
 	public String listMethodArities(ClassObject cls, String methodName) throws Exception {
 		// Get all methods with the same name
