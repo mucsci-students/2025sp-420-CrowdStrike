@@ -63,8 +63,10 @@ public class CLController {
 	 * Gets the class to be listed and tells user if action failed
 	 */
 	private void CL_listClassInfo() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like printed?");
@@ -127,8 +129,10 @@ public class CLController {
 	 * Gets class info from user and displays if class was deleted
 	 */
 	private void CL_deleteClass() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like to delete?");
@@ -144,8 +148,10 @@ public class CLController {
 	 * Gets class info from user and displays if class was renamed
 	 */
 	private void CL_renameClass() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like to rename?");
@@ -363,12 +369,16 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	private void CL_addField() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+			
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like to add a field to?");
 		String className = sc.nextLine();
+		// Error throw will be added to fetchClass later
 		activeClass = model.fetchClass(className);
 		if (activeClass == null) {
 			// Class does not exist
@@ -377,6 +387,7 @@ public class CLController {
 		}
 		view.show("What do you want to name the field?");
 		input = sc.nextLine();
+		// Duplication check will be done in addField method later
 		if (activeClass.fetchField(input) == null) {
 			// Field does not already exist in class
 			editor.addField(activeClass, input);
@@ -390,8 +401,10 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteField() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like to delete a field from?");
@@ -402,8 +415,10 @@ public class CLController {
 			view.show("Class " + className + " does not exist");
 			return;
 		}
-		if (!listFieldNames(activeClass)) {
-			view.show("Class has no fields");
+		try {
+			view.show(model.listFields(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What is the name of the field you want to delete?");
@@ -424,8 +439,10 @@ public class CLController {
 	 * Returns whether or not the operation succeeds
 	 */
 	private void CL_renameField() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class do you want to rename a field from?");
@@ -436,8 +453,10 @@ public class CLController {
 			view.show("Class " + className + " does not exist");
 			return;
 		}
-		if (!listFieldNames(activeClass)) {
-			view.show("Class has no fields");
+		try {
+			view.show(model.listFields(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What is the name of the field you want to rename?");
@@ -465,8 +484,10 @@ public class CLController {
 	 * or not
 	 */
 	private void CL_addMethod() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like to add a method to?");
@@ -526,8 +547,10 @@ public class CLController {
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteMethod() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class would you like to delete a method from?");
@@ -538,14 +561,18 @@ public class CLController {
 			view.show("Class " + className + " does not exist");
 			return;
 		}
-		if (!listMethodNames(activeClass)) {
-			view.show("Class has no methods");
+		try {
+			view.show(model.listMethods(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What is the name of the method you want to delete?");
 		input = sc.nextLine();
-		if (activeClass.fetchMethodByName(input).size() == 0) {
-			view.show(activeClass.getName() + " has no methods with name " + input);
+		try {
+			view.show(model.listMethodArities(activeClass, input));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		int paramArity = -1;
@@ -582,8 +609,10 @@ public class CLController {
 	 * to Returns whether or not the operation succeeds
 	 */
 	private void CL_renameMethod() {
-		if (!listClassNames()) {
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class do you want to rename a method from?");
@@ -594,14 +623,18 @@ public class CLController {
 			view.show("Class " + className + " does not exist");
 			return;
 		}
-		if (!listMethodNames(activeClass)) {
-			view.show("Class has no methods");
+		try {
+			view.show(model.listMethods(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What is the name of the method you want to rename?");
 		input = sc.nextLine();
-		if (activeClass.fetchMethodByName(input).size() == 0) {
-			view.show(activeClass.getName() + " has no methods with name " + input);
+		try {
+			view.show(model.listMethodArities(activeClass, input));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		int paramArity = -1;
@@ -645,9 +678,10 @@ public class CLController {
 	* to the list of parameters attached to the method.
 	*/
 	private void CL_addParam() {
-		if (!listClassNames()) {
-			// no class exists
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class does the method you want to add the parameter to belong to?");
@@ -661,12 +695,20 @@ public class CLController {
 		}
 
 		// The class exists
-		if (!listMethodNames(activeClass)) {
-			view.show("Class has no methods");
+		try {
+			view.show(model.listMethods(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("Please type the name of the method you'd like to add parameters to:");
 		String methodName = sc.nextLine();
+		try {
+			view.show(model.listMethodArities(activeClass, methodName));
+		} catch (Exception e) {
+			view.show(e.getMessage());
+			return;
+		}
 		int paramArity = -1;
 		view.show("How many parameters does " + methodName + " have?");
 		if (sc.hasNextInt()) {
@@ -723,11 +765,11 @@ public class CLController {
 	* would like to remove. If all every parameter is deleted, otherwise its just the named parameter.
 	*/
 	private void CL_removeParam() {
-		if (!listClassNames()) {
-			// no classes
-			view.show("No classes currently exist");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
-
 		}
 		view.show("What class does the method you want to remove the parameter to belong to?");
 		String className = sc.nextLine();
@@ -737,14 +779,20 @@ public class CLController {
 			view.show("The class " + className + " does not exist.");
 			return;
 		}
-		// The class exists
-		if (!listMethodNames(activeClass)) {
-			view.show("Class has no methods");
+		try {
+			view.show(model.listMethods(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
 		String methodName = sc.nextLine();
-		
+		try {
+			view.show(model.listMethodArities(activeClass, methodName));
+		} catch (Exception e) {
+			view.show(e.getMessage());
+			return;
+		}
 		int paramArity = -1;
 		view.show("How many parameters does " + methodName + " have?");
 		if (sc.hasNextInt()) {
@@ -794,9 +842,10 @@ public class CLController {
 	* containing all of the new parameters as well as the old parameters at their locations prior to the change. 
 	*/
 	private void CL_changeParam() {
-		if (!listClassNames()) {
-			// no classes
-			view.show("No classes currently exist.");
+		try {
+			view.show(model.listClassNames());
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("What class does the method you want to add the parameter to belong to?");
@@ -806,14 +855,20 @@ public class CLController {
 			view.show("Class not here :(");
 			return;
 		}
-		// The class exists
-		if (!listMethodNames(activeClass)) {
-			view.show("Class has no methods");
+		try {
+			view.show(model.listMethods(activeClass));
+		} catch (Exception e) {
+			view.show(e.getMessage());
 			return;
 		}
 		view.show("Please type the name of the method you'd like to add parameters to:");
 		String methodName = sc.nextLine();
-		
+		try {
+			view.show(model.listMethodArities(activeClass, methodName));
+		} catch (Exception e) {
+			view.show(e.getMessage());
+			return;
+		}
 		int paramArity = -1;
 		view.show("How many parameters does " + methodName + " have?");
 		if (sc.hasNextInt()) {
@@ -898,12 +953,16 @@ public class CLController {
 	 * @return True if classes have been listed, false otherwise
 	 */
 	private boolean listClassNames() {
-		String classNames = model.listClassNames();
-		if (!classNames.equals("")) {
-			view.show("Available Classes:\n" + classNames);
-			return true;
+		try {
+			String classNames = model.listClassNames();
+			if (!classNames.equals("")) {
+				view.show("Available Classes:\n" + classNames);
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -915,36 +974,6 @@ public class CLController {
 		String relNames = model.listRelationships();
 		if (!relNames.equals("Relationships:")) {
 			view.show("Existing Relationships:\n" + relNames);
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Helper function to return if any fields have been listed
-	 * 
-	 * @param cls | The class whose fields are being listed
-	 * @return True if fields have been listed, false otherwise
-	 */
-	private boolean listFieldNames(ClassObject cls) {
-		String fieldNames = model.listFields(cls);
-		if (!fieldNames.equals("")) {
-			view.show("Available Fields:\n" + fieldNames);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Helper function to return if any methods have been listed
-	 * 
-	 * @param cls | The class whose methods are being listed
-	 * @return True if methods have been listed, false otherwise
-	 */
-	private boolean listMethodNames(ClassObject cls) {
-		String methodNames = model.listMethods(cls);
-		if (!methodNames.equals("")) {
-			view.show("Available Methods:\n" + methodNames);
 			return true;
 		}
 		return false;

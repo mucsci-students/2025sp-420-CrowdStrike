@@ -153,7 +153,13 @@ public class GUIView extends JFrame {
         return drawingPanel;
     }
 
-
+    /**
+     * Function to display any error messages that occur
+     * @param message   | The message to be displayed
+     */
+    public void displayErrorMessage(String message) {
+        JOptionPane.showMessageDialog(this, message,"Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     public void showGUI() {
         setVisible(true);
