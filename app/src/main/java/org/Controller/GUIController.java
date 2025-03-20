@@ -272,7 +272,7 @@ public class GUIController {
 
         GUIRelationship relationship = new GUIRelationship(source, destination, type);
         relationships.add(relationship);
-	editor.addRelationship("",selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
+	editor.addRelationship(selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
 
         view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
@@ -355,7 +355,7 @@ public class GUIController {
     // Create an updated relationship
     GUIRelationship updatedRel = new GUIRelationship(newSource, newDestination, newType);
     relationships.add(updatedRel);
-    editor.addRelationship("", newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+    editor.addRelationship(newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
     view.getDrawingPanel().addRelationship(newSource, newDestination, newType);
     view.getDrawingPanel().repaint();
     }

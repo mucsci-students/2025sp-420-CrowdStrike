@@ -144,17 +144,8 @@ public class UMLModel implements UMLModelInterface{
         	finalString = finalString + "   " +  cls.getFieldList().get(i).getName() + "\n";
         }
         finalString = finalString + "  Methods:\n";
-        for (int i = 0; i < cls.getMethodList().size(); i++) {
-        	Method method1 = (Method) cls.getMethodList().get(i);
-			finalString = finalString + "   " + method1.getName() + "(";
-			if (method1.getParamList().size() > 0) {
-				finalString = finalString + method1.getParamList().get(0).getName();
-				for (int j = 1; j < method1.getParamList().size(); j++) {
-					finalString = finalString + ", " + method1.getParamList().get(j).getName();
-				}
-			}
-			finalString = finalString + ")\n";
-        }
+		finalString += listMethods(cls);
+
         /*
          * Call the listRelationships function passing in the class to get that part
          * of the string
@@ -165,13 +156,13 @@ public class UMLModel implements UMLModelInterface{
             if (curRelationship.getSource().getName().equals(cls.getName())) {
             	// Current class is current relationship's source
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newSource = curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newSource = " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to sourceRelatiosnhips
             	sourceRelationships = sourceRelationships + "\n    " + newSource;
             } else if (curRelationship.getDestination().getName().equals(cls.getName())) {
             	// Current class is current relationhip's destination
                 // Create a String of the curRelationship and format using relationshipLength
-            	String newDest =  curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            	String newDest =" (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             	// Add formatted String to destRelatiosnhips
             	destRelationships = destRelationships + "\n    " + newDest;
             } else {
@@ -196,7 +187,7 @@ public class UMLModel implements UMLModelInterface{
         Relationship curRelationship;
         while (index < relationshipList.size()) {
             curRelationship = relationshipList.get(index);
-            relString = relString + "\n  " + curRelationship.getName() + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
+            relString = relString + "\n  " + " (" + curRelationship.getTypeString() + ")" + ": " + curRelationship.getSource().getName() + " -> " + curRelationship.getDestination().getName();
             index++;
         }
         return relString;
@@ -270,23 +261,19 @@ public class UMLModel implements UMLModelInterface{
     	if (methodList.size() == 0) {
     		return "";
     	}
-    	int countNewLine = 0;
-    	int index = 1;
-    	String finalString = "- " + methodList.get(0).getName();
-    	AttributeInterface attr;
-    	while (index < methodList.size()) {
-    		attr = methodList.get(index);
-    		if (countNewLine >= 5) {
-    			// Create a new line after every six names
-    			finalString = finalString + "\n- " + attr.getName();
-    			countNewLine = 0;
-    		} else {
-    			finalString = finalString + "   - " + attr.getName();
-    			countNewLine++;
-    		}
-    		index++;
-    	}
-    	return finalString;
+		String finalString = "";
+           for (int i = 0; i < methodList.size(); i++) {
+        	Method method1 = (Method) methodList.get(i);
+        	finalString = finalString + "   " + method1.getName() + "("; 
+        	for (int j = 0; j < method1.getParamList().size(); j++) {
+				if(j>0)
+					finalString += ", ";
+
+        		finalString = finalString + method1.getParamList().get(j).getName();
+        	}
+			finalString += ")\n";
+        }
+		return finalString;
     }
 
     /**

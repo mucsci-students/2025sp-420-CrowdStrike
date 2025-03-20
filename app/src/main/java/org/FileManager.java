@@ -121,7 +121,7 @@ public class FileManager {
 				relationshipType = Type.REALIZATION;
 				break;
 		}
-		e.addRelationship("", relationshipObject.get("source").getAsString(),
+		e.addRelationship(relationshipObject.get("source").getAsString(),
 				relationshipObject.get("destination").getAsString(), relationshipType);
 	}
 

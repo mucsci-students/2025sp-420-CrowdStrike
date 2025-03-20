@@ -136,7 +136,7 @@ class FileManagerLoadTest {
 		edit.addClass("a");
 		edit.addClass("b");
 		edit.addClass("c");
-		edit.addRelationship("", "a", "b", Type.COMPOSITION);
+		edit.addRelationship("a", "b", Type.COMPOSITION);
 
 		try (FileWriter writer = new FileWriter(PATH)) {
 			writer.write(CONTENT);
