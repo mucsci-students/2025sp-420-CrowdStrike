@@ -52,7 +52,7 @@ public class UMLEditor {
 	 * @param className | Name of class to be deleted
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean deleteClass(String className) {
+	public boolean deleteClass(String className) throws Exception{
 		activeClass = model.fetchClass(className);
 		if (activeClass != null) {
 			// Class exists
@@ -99,7 +99,7 @@ public class UMLEditor {
 	 * @param newRel | Relationship to be added to relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean addRelationship(String source, String dest, Type type) {
+	public boolean addRelationship(String source, String dest, Type type) throws Exception{
 		ClassObject sourceClass = model.fetchClass(source);
 		if (source != null) {
 			// Source class does exist
@@ -138,7 +138,7 @@ public class UMLEditor {
 		return false;
 	}
 
-	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue){
+	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue) throws Exception{
 		Relationship relExist = model.relationshipExist(source, dest);
 		if (fieldToUpdate.equals("source")){
 			if(model.fetchClass(newValue)!=null)

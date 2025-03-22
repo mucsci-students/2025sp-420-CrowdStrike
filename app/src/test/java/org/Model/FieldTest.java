@@ -18,13 +18,20 @@ public class FieldTest {
 
     @BeforeEach
     public void populateClasses() {
-        testEditor.addClass("class1");
-        class1 = testModel.fetchClass("class1");
+        try {
+            testEditor.addClass("class1");
+            class1 = testModel.fetchClass("class1");
+        } catch (Exception e) {
+        }
+       
     }
 
     @AfterEach
     public void cleanUp() {
-        testEditor.deleteClass("class1");
+        try {
+            testEditor.deleteClass("class1");
+        } catch (Exception e) {
+        }
     }
 
     @Test

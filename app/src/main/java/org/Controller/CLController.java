@@ -65,16 +65,11 @@ public class CLController {
 	private void CL_listClassInfo() {
 		try {
 			view.show(model.listClassNames());
+			view.show("What class would you like printed?");
+			input = sc.nextLine();
+			activeClass = model.fetchClass(input);
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class would you like printed?");
-		input = sc.nextLine();
-		activeClass = model.fetchClass(input);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + input + " does not exist");
 			return;
 		}
 		String classInfo = model.listClassInfo(activeClass);
@@ -101,27 +96,14 @@ public class CLController {
 	 * Gets name of new class from user and displays if it was added successfully
 	 */
 	private void CL_addClass() {
-		view.show("Enter the new class' name: ");
-		input = sc.nextLine();
-		int result = model.isValidClassName(input);
-		switch (result) {
-			case 1:
-				view.show("No class name was given");
-				break;
-			case 2:
-				view.show("Name " + input + " is invalid. First character must be a letter or '_'");
-				break;
-			case 3:
-				view.show("Name " + input + " is invalid. Name can only contain alphanumerics, '_', or '$'");
-				break;
-			case 4:
-				view.show("Name " + input + " is already used by another class");
-				break;
-			case 0:
-			default:
-				editor.addClass(input);
-				view.show("Class " + input + " succesfully added");
-				break;
+		try {
+			view.show("Enter the new class' name: ");
+			input = sc.nextLine();
+			model.isValidClassName(input);
+			editor.addClass(input);
+			view.show("Class " + input + " succesfully added");
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 
@@ -131,16 +113,12 @@ public class CLController {
 	private void CL_deleteClass() {
 		try {
 			view.show(model.listClassNames());
+			view.show("What class would you like to delete?");
+			input = sc.nextLine();
+			editor.deleteClass(input);
+			view.show("Class " + input + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class would you like to delete?");
-		input = sc.nextLine();
-		if (editor.deleteClass(input)) {
-			view.show("Class " + input + " successfully deleted");
-		} else {
-			view.show("Class " + input + " could not be deleted");
 		}
 	}
 
@@ -150,40 +128,16 @@ public class CLController {
 	private void CL_renameClass() {
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class would you like to rename?");
-		input = sc.nextLine();
-		activeClass = model.fetchClass(input);
-		if (activeClass != null) {
-			// Class to be renamed exists
+			view.show("What class would you like to rename?");
+			input = sc.nextLine();
+			activeClass = model.fetchClass(input);
 			view.show("What would you like the new name to be?");
 			String newName = sc.nextLine();
-			int result = model.isValidClassName(newName);
-			switch (result) {
-				case 1:
-					view.show("No new class name was given");
-					break;
-				case 2:
-					view.show("Name " + newName + " is invalid. First character must be a letter or '_'");
-					break;
-				case 3:
-					view.show("Name " + newName + " is invalid. Name can only contain alphanumerics, '_', or '$'");
-					break;
-				case 4:
-					view.show("Name " + newName + " is already used by another class");
-					break;
-				case 0:
-				default:
-					editor.renameClass(activeClass, newName);
-					view.show("Class " + input + " renamed to " + newName);
-					break;
-			}
-		} else {
-			// Class to be renamed does not exist
-			view.show("Class " + input + " does not exist");
+			model.isValidClassName(newName);
+			editor.renameClass(activeClass, newName);
+			view.show("Class " + input + " renamed to " + newName);
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 
@@ -191,32 +145,24 @@ public class CLController {
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
 	private void CL_addRelationship() {
+		// Temporarily move instantations to before try block so
+		// they are accessible later in function
+		String source = "";
+		String dest = "";
 		try {
 			view.show(model.listClassNames());
+			view.show("Enter the source class");
+			source = sc.nextLine();
+			model.fetchClass(source);
+			view.show(model.listClassNames());
+			view.show("Enter the destination class");
+			dest = sc.nextLine();
+			model.fetchClass(dest);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
 
-		view.show("Enter the source class");
-		String source = sc.nextLine();
-		if (model.fetchClass(source) == null) {
-			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
-			return;
-		}
-
-		try {
-			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("Enter the destination class");
-		String dest = sc.nextLine();
-		if (model.fetchClass(dest) == null) {
-			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
-			return;
-		}
 		if (model.relationshipExist(source, dest) != null) {
 			view.show("Error: A relationship already exists between " + source + " and " + dest + "! Aborting.");
 			return;
@@ -243,10 +189,14 @@ public class CLController {
 			}
 		}
 
+		try {
 		if (type != null && editor.addRelationship(source, dest, type)) {
 			view.show(type + " Relationship successfully created from " + source + " to " + dest);
 		} else {
 			view.show("Relationship could not be created");
+		}
+		} catch (Exception e) {
+			//Temp Try-Catch block
 		}
 	}
 
@@ -255,37 +205,25 @@ public class CLController {
 	 * Loops until the
 	 */
 	private void CL_editRelationship() {
+		String source = "";
+		String dest = "";
 		try {
 			view.show(model.listRelationships());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		// Because we are listing relationships listing classes after feels redundant
-		try {
+			// Because we are listing relationships listing classes after feels redundant
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What is the source of the relationship are you changing?");
-		String source = sc.nextLine();
-		if (model.fetchClass(source) == null) {
-			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
-			return;
-		}
-		try {
+			view.show("What is the source of the relationship are you changing?");
+			source = sc.nextLine();
+			model.fetchClass(source);
 			view.show(model.listClassNames());
+			view.show("What is the destination of the relationship are you changing?");
+			dest = sc.nextLine();
+			model.fetchClass(dest);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		view.show("What is the destination of the relationship are you changing?");
-		String dest = sc.nextLine();
-		if (model.fetchClass(dest) == null) {
-			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
-			return;
-		}
+		
+		
 		if (model.relationshipExist(source, dest) != null) {
 			view.show("What property of the relationship are you changing?\n");
 			view.show("You can edit the 'source', 'destination', or 'type' of this relationship.");
@@ -295,16 +233,13 @@ public class CLController {
 				case "source":
 					try {
 						view.show(model.listClassNames());
+						view.show("Which class do you want to name as the new source?");
+						value = sc.nextLine();
+						model.fetchClass(value);
+						// Need to check if Relationship w/ new source and current dest
+						// already exists and abort if yes
 					} catch (Exception e) {
 						view.show(e.getMessage());
-						return;
-					}
-					view.show("Which class do you want to name as the new source?");
-					value = sc.nextLine();
-					if (model.fetchClass(value) != null) {
-						view.show("Relationship's source successfully set to " + value);
-					} else {
-						view.show("Error: No class named " + value + "! Aborting.");
 						return;
 					}
 					break;
@@ -312,16 +247,13 @@ public class CLController {
 				case "destination":
 					try {
 						view.show(model.listClassNames());
+						view.show("What class do you want to name as the new destination?");
+						value = sc.nextLine();
+						model.fetchClass(value);
+						// Need to check if Relationship w/ current source and new dest
+						// already exists and abort if yes
 					} catch (Exception e) {
 						view.show(e.getMessage());
-						return;
-					}
-					view.show("What class do you want to name as the new destination?");
-					value = sc.nextLine();
-					if (model.fetchClass(value) != null) {
-						view.show("Relationship's destination successfully set to " + value);
-					} else {
-						view.show("Error: No class named " + value + "! Aborting.");
 						return;
 					}
 					break;
@@ -355,8 +287,12 @@ public class CLController {
 							+ " of a relationship right now. Aborting.");
 					break;
 			}
+			try {
 			if (value != null)
 				editor.editRelationship(source, dest, field, value);
+			} catch (Exception e) {
+				//Temp Try-Catch block
+			}
 		} else {
 			view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
 		}
@@ -366,6 +302,8 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	private void CL_deleteRelationship() {
+		String source = "";
+		String dest = "";
 		try {
 			view.show(model.listRelationships());
 		} catch (Exception e) {
@@ -374,28 +312,18 @@ public class CLController {
 		}
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What is the source of the relationship are you deleting?");
-		String source = sc.nextLine();
-		if (model.fetchClass(source) == null) {
-			view.show("Error: Inputted class " + source + " does not exist! Aborting.");
-			return;
-		}
-		try {
+			view.show("What is the source of the relationship are you deleting?");
+			source = sc.nextLine();
+			model.fetchClass(source);
 			view.show(model.listClassNames());
+			view.show("What is the destination of the relationship are you deleting?");
+			dest = sc.nextLine();
+			model.fetchClass(dest);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		view.show("What is the destination of the relationship are you deleting?");
-		String dest = sc.nextLine();
-		if (model.fetchClass(dest) == null) {
-			view.show("Error: Inputted class " + dest + " does not exist! Aborting.");
-			return;
-		}
+		
 		if (model.relationshipExist(source, dest) == null) {
 			view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
 			return;
@@ -411,21 +339,17 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	private void CL_addField() {
+		String className = "";
 		try {
 			view.show(model.listClassNames());
+			view.show("What class would you like to add a field to?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		view.show("What class would you like to add a field to?");
-		String className = sc.nextLine();
-		// Error throw will be added to fetchClass later
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + className + " does not exist");
-			return;
-		}
+		
 		view.show("What do you want to name the field?");
 		input = sc.nextLine();
 		// Duplication check will be done in addField method later
@@ -442,26 +366,18 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteField() {
+		String className = "";
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class would you like to delete a field from?");
-		String className = sc.nextLine();
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + className + " does not exist");
-			return;
-		}
-		try {
+			view.show("What class would you like to delete a field from?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
+		
 		view.show("What is the name of the field you want to delete?");
 		input = sc.nextLine();
 		AttributeInterface delField = activeClass.fetchField(input);
@@ -480,26 +396,18 @@ public class CLController {
 	 * Returns whether or not the operation succeeds
 	 */
 	private void CL_renameField() {
+		String className = "";
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class do you want to rename a field from?");
-		String className = sc.nextLine();
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + className + " does not exist");
-			return;
-		}
-		try {
+			view.show("What class do you want to rename a field from?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
+		
 		view.show("What is the name of the field you want to rename?");
 		input = sc.nextLine();
 		AttributeInterface renameField = activeClass.fetchField(input);
@@ -525,20 +433,17 @@ public class CLController {
 	 * or not
 	 */
 	private void CL_addMethod() {
+		String className = "";
 		try {
 			view.show(model.listClassNames());
+			view.show("What class would you like to add a method to?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		view.show("What class would you like to add a method to?");
-		String className = sc.nextLine();
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + className + " does not exist");
-			return;
-		}
+		
 		// Class exists, get Method name and params
 		view.show("What do you want to name the method?");
 		input = sc.nextLine();
@@ -597,54 +502,39 @@ public class CLController {
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteMethod() {
+		String className = "";
+		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class would you like to delete a method from?");
-		String className = sc.nextLine();
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + className + " does not exist");
-			return;
-		}
-		try {
+			view.show("What class would you like to delete a method from?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What is the name of the method you want to delete?");
-		input = sc.nextLine();
-		try {
+			view.show("What is the name of the method you want to delete?");
+			input = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, input));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		int paramArity = -1;
-		view.show("How many parameters does " + input + " have?");
-		boolean validArity = false;
-		while (!validArity) {
-			if (sc.hasNextInt()) {
-				paramArity = sc.nextInt();
-				if (paramArity < 0) {
-					view.show("Parameter arity must be non-negative.");
-					return;
+			//int paramArity = -1;
+			view.show("How many parameters does " + input + " have?");
+			boolean validArity = false;
+			while (!validArity) {
+				if (sc.hasNextInt()) {
+					paramArity = sc.nextInt();
+					try {
+						validArity = model.arityValid(paramArity);
+					} catch (Exception e) {
+						view.show(e.getMessage());
+					}
+				} else {
+					view.show("Invalid input. Please enter a positive number");
 				}
-				// Consume newLine char left by nextInt
-				sc.nextLine();
-				validArity = true;
-			} else {
 				// Clear invalid input from buffer
 				sc.nextLine();
-				view.show("Invalid input. Please enter a number:");
-				paramArity = sc.nextInt();
 			}
+		} catch (Exception e) {
+			view.show(e.getMessage());
+			return;
 		}
+		
 		Method delMethod = activeClass.fetchMethod(input, paramArity);
 		if (delMethod != null) {
 			// The method specified exists
@@ -661,52 +551,39 @@ public class CLController {
 	 * to Returns whether or not the operation succeeds
 	 */
 	private void CL_renameMethod() {
+		String className = "";
+		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class do you want to rename a method from?");
-		String className = sc.nextLine();
-		activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// Class does not exist
-			view.show("Class " + className + " does not exist");
-			return;
-		}
-		try {
+			view.show("What class do you want to rename a method from?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What is the name of the method you want to rename?");
-		input = sc.nextLine();
-		try {
+			view.show("What is the name of the method you want to rename?");
+			input = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, input));
+			//int paramArity = -1;
+			view.show("How many parameters does " + input + " have?");
+			boolean validArity = false;
+			while (!validArity) {
+				if (sc.hasNextInt()) {
+					paramArity = sc.nextInt();
+					try {
+						validArity = model.arityValid(paramArity);
+					} catch (Exception e) {
+						view.show(e.getMessage());
+					}
+				} else {
+					view.show("Invalid input. Please enter a positive number");
+				}
+				// Clear invalid input from buffer
+				sc.nextLine();
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		int paramArity = -1;
-		view.show("How many parameters does " + input + " have?");
-		if (sc.hasNextInt()) {
-			paramArity = sc.nextInt();
-			if (paramArity < 0) {
-				view.show("Parameter arity must be non-negative");
-				// Consume newLine char left by nextInt
-				sc.nextLine();
-				return;
-			}
-			// Consume newLine char left by nextInt
-			sc.nextLine();
-		} else {
-			view.show("Invalid input. Please enter a number");
-			// Clear invalid input from buffer
-			sc.nextLine();
-			return;
-		}
+		
 		Method renameMethod = activeClass.fetchMethod(input, paramArity);
 		if (renameMethod != null) {
 			// The method does exist
@@ -732,53 +609,40 @@ public class CLController {
 	 * to the list of parameters attached to the method.
 	 */
 	private void CL_addParam() {
+		String className = "";
+		String methodName = "";
+		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class does the method you want to add the parameter to belong to?");
-		String className = sc.nextLine();
-		ClassObject activeClass = model.fetchClass(className);
-
-		if (activeClass == null) {
-			// class doesn't exist
-			view.show("Class not here :(");
-			return;
-		}
-
-		// The class exists
-		try {
+			view.show("What class does the method you want to add the parameter to belong to?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("Please type the name of the method you'd like to add parameters to:");
-		String methodName = sc.nextLine();
-		try {
+			view.show("Please type the name of the method you'd like to add parameters to:");
+			methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
+			//int paramArity = -1;
+			view.show("How many parameters does " + input + " have?");
+			boolean validArity = false;
+			while (!validArity) {
+				if (sc.hasNextInt()) {
+					paramArity = sc.nextInt();
+					try {
+						validArity = model.arityValid(paramArity);
+					} catch (Exception e) {
+						view.show(e.getMessage());
+					}
+				} else {
+					view.show("Invalid input. Please enter a positive number");
+				}
+				// Clear invalid input from buffer
+				sc.nextLine();
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		int paramArity = -1;
-		view.show("How many parameters does " + methodName + " have?");
-		if (sc.hasNextInt()) {
-			paramArity = sc.nextInt();
-			if (paramArity < 0) {
-				view.show("Parameter arity must be non-negative");
-				return;
-			}
-			// Consume newLine char left by nextInt
-			sc.nextLine();
-		} else {
-			view.show("Invalid input. Please enter a number");
-			// Clear invalid input from buffer
-			sc.nextLine();
-			return;
-		}
+
 		Method attr = activeClass.fetchMethod(methodName, paramArity);
 		if (attr == null) {
 			view.show("no Method by this name exists");
@@ -824,48 +688,41 @@ public class CLController {
 	 * the named parameter.
 	 */
 	private void CL_removeParam() {
+		String className = "";
+		String methodName = "";
+		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class does the method you want to remove the parameter from belong to?");
-		String className = sc.nextLine();
-		ClassObject activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// class doesn't exist
-			view.show("The class " + className + " does not exist.");
-			return;
-		}
-		try {
+			view.show("What class does the method you want to remove the parameter from belong to?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-		String methodName = sc.nextLine();
-		int paramArity = -1;
-		view.show("How many parameters does " + methodName + " have?");
-		boolean validArity = false;
-		while (!validArity) {
-			validArity = sc.hasNextInt();
-			if (validArity) {
-				paramArity = sc.nextInt();
-				if (paramArity < 0) {
-					view.show("Parameter arity must be non-negative.");
-					return;
+			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
+			methodName = sc.nextLine();
+			view.show(model.listMethodArities(activeClass, methodName));
+			//int paramArity = -1;
+			view.show("How many parameters does " + methodName + " have?");
+			boolean validArity = false;
+			while (!validArity) {
+				if (sc.hasNextInt()) {
+					paramArity = sc.nextInt();
+					try {
+						validArity = model.arityValid(paramArity);
+					} catch (Exception e) {
+						view.show(e.getMessage());
+					}
+				} else {
+					view.show("Invalid input. Please enter a positive number");
 				}
-				// Consume newLine char left by nextInt
-				sc.nextLine();
-			} else {
-
 				// Clear invalid input from buffer
 				sc.nextLine();
-				view.show("Invalid input. Please enter a number:");
 			}
+		} catch (Exception e) {
+			view.show(e.getMessage());
+			return;
 		}
+		
+
 		Method attr = activeClass.fetchMethod(methodName, paramArity);
 
 		if (attr == null) {
@@ -910,50 +767,41 @@ public class CLController {
 	}
 
 	private void CL_removeAllParam() {
+		String className = "";
+		String methodName = "";
+		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class does the method you want to remove the parameter from belong to?");
-		String className = sc.nextLine();
-		ClassObject activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			// class doesn't exist
-			view.show("The class " + className + " does not exist.");
-			return;
-		}
-		// The class exists
-		try {
+			view.show("What class does the method you want to remove the parameter from belong to?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-		String methodName = sc.nextLine();
-		int paramArity = -1;
-		view.show("How many parameters does " + methodName + " have?");
-		boolean validArity = false;
-		while (!validArity) {
-			if (sc.hasNextInt()) {
-				paramArity = sc.nextInt();
-				if (paramArity < 0) {
-					view.show("Parameter arity must be non-negative.");
-					return;
+			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
+			methodName = sc.nextLine();
+			view.show(model.listMethodArities(activeClass, methodName));
+			//int paramArity = -1;
+			view.show("How many parameters does " + methodName + " have?");
+			boolean validArity = false;
+			while (!validArity) {
+				if (sc.hasNextInt()) {
+					paramArity = sc.nextInt();
+					try {
+						validArity = model.arityValid(paramArity);
+					} catch (Exception e) {
+						view.show(e.getMessage());
+					}
+				} else {
+					view.show("Invalid input. Please enter a positive number");
 				}
-				// Consume newLine char left by nextInt
-				sc.nextLine();
-				validArity = true;
-			} else {
-
 				// Clear invalid input from buffer
 				sc.nextLine();
-				view.show("Invalid input. Please enter a number:");
-				paramArity = sc.nextInt();
 			}
+		} catch (Exception e) {
+			view.show(e.getMessage());
+			return;
 		}
+		
+		
 		Method attr = activeClass.fetchMethod(methodName, paramArity);
 
 		if (attr == null) {
@@ -967,59 +815,47 @@ public class CLController {
 	}
 
 	/*
-	 * Gets the class, and method that the parameters belongs to and asks the user
-	 * if they'd like to change
-	 * one or all of the parameters. If its all parameters it replaces everything
-	 * after index 0 with a new list.
-	 * if its one parameter it replaces everything after the parameter to be changed
-	 * with a new list of parameters
-	 * containing all of the new parameters as well as the old parameters at their
-	 * locations prior to the change.
+	 * Gets the class, and method that the parameters belongs to and asks the user if they'd like to change
+	 * one or all of the parameters. If its all parameters it replaces everything after index 0 with a new list.
+	 * if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
+	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
 	 */
 	private void CL_changeParam() {
+		String className = "";
+		String methodName = "";
+		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("What class does the method you want to add the parameter to belong to?");
-		String className = sc.nextLine();
-		ClassObject activeClass = model.fetchClass(className);
-		if (activeClass == null) {
-			view.show("Class not here :(");
-			return;
-		}
-		try {
+			view.show("What class does the method you want to add the parameter to belong to?");
+			className = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		view.show("Please type the name of the method you'd like to add parameters to:");
-		String methodName = sc.nextLine();
-		try {
+			view.show("Please type the name of the method you'd like to add parameters to:");
+			methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
+			//int paramArity = -1;
+			view.show("How many parameters does " + methodName + " have?");
+			boolean validArity = false;
+			while (!validArity) {
+				if (sc.hasNextInt()) {
+					paramArity = sc.nextInt();
+					try {
+						validArity = model.arityValid(paramArity);
+					} catch (Exception e) {
+						view.show(e.getMessage());
+					}
+				} else {
+					view.show("Invalid input. Please enter a positive number");
+				}
+				// Clear invalid input from buffer
+				sc.nextLine();
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
 		}
-		int paramArity = -1;
-		view.show("How many parameters does " + methodName + " have?");
-		if (sc.hasNextInt()) {
-			paramArity = sc.nextInt();
-			if (paramArity < 0) {
-				view.show("Parameter arity must be non-negative");
-				return;
-			}
-			// Consume newLine char left by nextInt
-			sc.nextLine();
-		} else {
-			view.show("Invalid input. Please enter a number");
-			// Clear invalid input from buffer
-			sc.nextLine();
-			return;
-		}
+
+
 		Method attr = activeClass.fetchMethod(methodName, paramArity);
 		if (attr == null) {
 			view.show("method not here");
@@ -1028,8 +864,7 @@ public class CLController {
 
 		// The method exists
 		Method activeMethod = (Method) attr;
-		view.show(
-				"Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
+		view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
 		input = sc.nextLine().replaceAll("//s", "");
 		Parameter oldParam = activeMethod.fetchParameter(input);
 		if (!input.equalsIgnoreCase("all") && oldParam == null) {
