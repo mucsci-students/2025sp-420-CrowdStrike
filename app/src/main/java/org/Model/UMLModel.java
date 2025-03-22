@@ -144,7 +144,10 @@ public class UMLModel implements UMLModelInterface{
         	finalString = finalString + "   " +  cls.getFieldList().get(i).getName() + "\n";
         }
         finalString = finalString + "  Methods:\n";
-		finalString += listMethods(cls);
+		for (AttributeInterface mthd : cls.getMethodList()) {
+			Method activeMethod = (Method) mthd;
+			finalString = finalString + "   " + activeMethod.getName() + listParams(activeMethod) + "\n";
+		}
 
         /*
          * Call the listRelationships function passing in the class to get that part
@@ -179,7 +182,10 @@ public class UMLModel implements UMLModelInterface{
 	 * Lists all created relationships
 	 * @return A string containing a list of all relationships
 	 */
-    public String listRelationships() {
+    public String listRelationships() throws Exception {
+		if (relationshipList.size() == 0) {
+			throw new Exception ("No relationships currently exist");
+		}
         int index = 0;
         String relString = "Relationships:";
         // Create a variable to store the current relationship
@@ -197,13 +203,13 @@ public class UMLModel implements UMLModelInterface{
      * Creates a list of all created class names that user can reference
      * @return List of class names
      */
-    public String listClassNames() {
+    public String listClassNames() throws Exception {
     	if (classList.size() == 0) {
-    		return "";
+    		throw new Exception ("No classes exist");
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "- " + classList.get(0).getName();
+    	String finalString = "Available CLasses:\n- " + classList.get(0).getName();
     	ClassObject curClass;
     	while (index < classList.size()) {
     		curClass = classList.get(index);
@@ -226,14 +232,14 @@ public class UMLModel implements UMLModelInterface{
      * @param cls	| Class whose fields are being listed
      * @return A string of all fields in the class
      */
-    public String listFields(ClassObject cls) {
+    public String listFields(ClassObject cls) throws Exception{
     	ArrayList<AttributeInterface> fieldList = cls.getFieldList();
     	if (fieldList.size() == 0) {
-    		return "";
+    		throw new Exception("No fields exist in class " + cls.getName());
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "- " + fieldList.get(0).getName();
+    	String finalString = "Available Fields:\n- " + fieldList.get(0).getName();
     	AttributeInterface attr;
     	while (index < fieldList.size()) {
     		attr = fieldList.get(index);
@@ -256,25 +262,53 @@ public class UMLModel implements UMLModelInterface{
      * @param cls	| Class whose methods are being listed
      * @return A string containing all methods in the class
      */
-    public String listMethods(ClassObject cls) {
+    public String listMethods(ClassObject cls) throws Exception{
     	ArrayList<AttributeInterface> methodList = cls.getMethodList();
     	if (methodList.size() == 0) {
-    		return "";
+    		throw new Exception("No methods exist in class " + cls.getName());
     	}
-		String finalString = "";
-           for (int i = 0; i < methodList.size(); i++) {
-        	Method method1 = (Method) methodList.get(i);
-        	finalString = finalString + "   " + method1.getName() + "("; 
-        	for (int j = 0; j < method1.getParamList().size(); j++) {
-				if(j>0)
-					finalString += ", ";
-
-        		finalString = finalString + method1.getParamList().get(j).getName();
-        	}
-			finalString += ")\n";
-        }
-		return finalString;
+    	int countNewLine = 0;
+    	int index = 1;
+    	String finalString = "Available Methods:\n- " + methodList.get(0).getName() + listParams((Method) methodList.get(0));
+    	AttributeInterface attr;
+    	while (index < methodList.size()) {
+    		attr = methodList.get(index);
+    		if (countNewLine >= 5) {
+    			// Create a new line after every six names
+    			finalString = finalString + "\n- " + attr.getName() + listParams((Method) attr);
+    			countNewLine = 0;
+    		} else {
+    			finalString = finalString + "   - " + attr.getName() + listParams((Method) attr);
+    			countNewLine++;
+    		}
+    		index++;
+    	}
+    	return finalString;
     }
+
+	private String listParams(Method mthd) {
+		String str = "(";
+		if (mthd.getParamList().size() > 0) {
+			str = str + mthd.getParamList().get(0).getName();
+			for (int i = 1; i < mthd.getParamList().size(); i++) {
+				str = str + ", " + mthd.getParamList().get(i).getName();
+			}
+		}
+		return str = str + ")";
+	}
+
+	public String listMethodArities(ClassObject cls, String methodName) throws Exception {
+		// Get all methods with the same name
+		ArrayList<Method> methodList = cls.fetchMethodByName(methodName);
+		if (methodList.size() == 0) {
+			throw new Exception ("No methods with name " + methodName + " exist in " + cls.getName());
+		}
+		String finalString = "Available Arities:\n";
+		for (Method method : methodList) {
+			finalString = finalString + "- " + method.getParamList().size() + "   ";
+		}
+		return finalString;
+	}
 
     /**
 	 * Validates whether the provided string could be a valid Java class name

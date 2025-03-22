@@ -121,6 +121,10 @@ public class GUIController {
     private void renameSelectedClass(){
         if(selectedClassBox == null){
             JOptionPane.showMessageDialog(view, "No class selected","Error", JOptionPane.ERROR_MESSAGE);
+            /*
+             * Switch the command to display errors to the one below
+             * view.displayErrorMessage("No class selected");
+             */
             return;
         }
 
