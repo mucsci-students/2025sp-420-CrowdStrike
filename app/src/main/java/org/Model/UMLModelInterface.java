@@ -20,7 +20,7 @@ public interface UMLModelInterface {
     * @return relationshipLength
     */
 
-    public ClassObject fetchClass(String className);
+    public ClassObject fetchClass(String className) throws Exception;
     
     /**
     * Checks if a relationships exists

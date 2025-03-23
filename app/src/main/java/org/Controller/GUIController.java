@@ -105,13 +105,17 @@ public class GUIController {
     private void promptForClassName() {
         String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
 
-        if (model.isValidClassName(className)!=0) return; //replace with switch for more specific error messages
-
-        className = className.trim();
+        //if (model.isValidClassName(className)!=0) return; replace with switch for more specific error messages
+        try {
+            model.isValidClassName(className);
+            className = className.trim();
         
-        editor.addClass(className);
-        activeClass = model.fetchClass(className);
-        addClass(activeClass);
+            editor.addClass(className);
+            activeClass = model.fetchClass(className);
+            addClass(activeClass);  
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+        }
     }
 
 
@@ -212,7 +216,13 @@ public class GUIController {
 
         // Remove from panel
         view.getDrawingPanel().remove(selectedClassBox);
-	editor.deleteClass(selectedClassBox.getClassName());
+        try {
+            editor.deleteClass(selectedClassBox.getClassName());
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+            return;
+        }
+	
         classBoxes.remove(selectedClassBox);
         removeRelationships(selectedClassBox);
 
@@ -276,7 +286,13 @@ public class GUIController {
 
         GUIRelationship relationship = new GUIRelationship(source, destination, type);
         relationships.add(relationship);
-	editor.addRelationship(selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
+        try {
+            editor.addRelationship(selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+            return;
+        }
+	
 
         view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
@@ -359,7 +375,13 @@ public class GUIController {
     // Create an updated relationship
     GUIRelationship updatedRel = new GUIRelationship(newSource, newDestination, newType);
     relationships.add(updatedRel);
-    editor.addRelationship(newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+    try {
+        editor.addRelationship(newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+    } catch (Exception e) {
+        view.displayErrorMessage(e.getMessage());
+        return;
+    }
+    
     view.getDrawingPanel().addRelationship(newSource, newDestination, newType);
     view.getDrawingPanel().repaint();
     }

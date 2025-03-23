@@ -41,8 +41,9 @@ public class UMLModel implements UMLModelInterface{
      * @param className		| The name of the class to return
      * @return ClassObject with specified name if it exists
      * 		   returns null if class does not exist
+	 * @throws Exception
      */
-    public ClassObject fetchClass(String className) {
+    public ClassObject fetchClass(String className) throws Exception {
         int index = 0;
         // Iterate through the array of classes
         while (index < classList.size()) {
@@ -53,9 +54,22 @@ public class UMLModel implements UMLModelInterface{
             }
             index++;
         }
-        // Class with className did not exist, return false
-        return null;
+        throw new Exception("Class " + className + " does not exist");
     }
+
+	/**
+	 * Checks if a class name is currently in use
+	 * @param className	| The name being checked
+	 * @return True if a class by the given name exists, false otherwise
+	 */
+	public boolean classNameUsed(String className) {
+		try {
+			fetchClass(className);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
     
     /**
      * Checks if a relationships exists
@@ -181,6 +195,7 @@ public class UMLModel implements UMLModelInterface{
 	/**
 	 * Lists all created relationships
 	 * @return A string containing a list of all relationships
+	 * @throws Exception
 	 */
     public String listRelationships() throws Exception {
 		if (relationshipList.size() == 0) {
@@ -202,6 +217,7 @@ public class UMLModel implements UMLModelInterface{
     /**
      * Creates a list of all created class names that user can reference
      * @return List of class names
+	 * @throws Exception
      */
     public String listClassNames() throws Exception {
     	if (classList.size() == 0) {
@@ -231,6 +247,7 @@ public class UMLModel implements UMLModelInterface{
      * 
      * @param cls	| Class whose fields are being listed
      * @return A string of all fields in the class
+	 * @throws Exception
      */
     public String listFields(ClassObject cls) throws Exception{
     	ArrayList<AttributeInterface> fieldList = cls.getFieldList();
@@ -261,6 +278,7 @@ public class UMLModel implements UMLModelInterface{
      * 
      * @param cls	| Class whose methods are being listed
      * @return A string containing all methods in the class
+	 * @throws Exception
      */
     public String listMethods(ClassObject cls) throws Exception{
     	ArrayList<AttributeInterface> methodList = cls.getMethodList();
@@ -297,6 +315,14 @@ public class UMLModel implements UMLModelInterface{
 		return str = str + ")";
 	}
 
+	/**
+	 * Checks if method with methodName exists
+	 * If yes, list the arities of any methods with methodName
+	 * @param cls			| The class being checked for methods with methodName
+	 * @param methodName	| The name of methods being looked for
+	 * @return String that lists arities of any methods with the given name
+	 * @throws Exception
+	 */
 	public String listMethodArities(ClassObject cls, String methodName) throws Exception {
 		// Get all methods with the same name
 		ArrayList<Method> methodList = cls.fetchMethodByName(methodName);
@@ -320,32 +346,37 @@ public class UMLModel implements UMLModelInterface{
 	 *  4. Class w/ ClassName already exists
 	 * 
 	 * @param className | The class name to be validated
-	 * @return 0 on success, 1-3 on fail
+	 * @throws Exception
 	 */
-	public int isValidClassName(String className) {
+	public void isValidClassName(String className) throws Exception{
 		// Check if the className is null or an empty string.
 		if (className == null || className.isEmpty()) {
-			return 1;
+			throw new Exception ("No class name was given");
 		}
 
 		// Verify that the first character is valid: this can be a letter or underscore
 		if (!Character.isLetter(className.charAt(0)) && className.charAt(0) != '_') {
-			return 2;
+			throw new Exception ("Name " + className + " is invalid. First character must be a letter or '_'");
 		}
 
 		// Verify that the characters are alphanumerics, underscores, or dollar signs
 		for (int i = 0; i < className.length(); i++) {
 			if (!Character.isLetterOrDigit(className.charAt(i)) && className.charAt(i) != '_') {
-				return 3;
+				throw new Exception ("Name " + className + " is invalid. Name can only contain alphanumerics, '_', or '$'");
 			}
 		}
 
 		// Check if class w/ className already exists
-		if (fetchClass(className) != null) {
-			return 4;
+		if (classNameUsed(className)) {
+			throw new Exception ("Name " + className + " is already used by another class");
 		}
+	}
 
-		// The className passed all checks and will be declared valid
-		return 0;
+	public boolean arityValid(int arity) throws Exception {
+		if (arity < 0) {
+			throw new Exception ("Arity must be non-negative");
+		} else {
+			return true;
+		}
 	}
 }
