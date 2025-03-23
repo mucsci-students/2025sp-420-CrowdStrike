@@ -622,7 +622,7 @@ public class CLController {
 			methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
 			//int paramArity = -1;
-			view.show("How many parameters does " + input + " have?");
+			view.show("How many parameters does " + methodName + " have?");
 			boolean validArity = false;
 			while (!validArity) {
 				if (sc.hasNextInt()) {
@@ -757,7 +757,7 @@ public class CLController {
 					editor.removeParam(activeMethod, param);
 					view.show("Success! Parameter " + paramName + " has been removed.");
 				} else {
-					view.show("Error: Parameter " + paramName + " does not exist in method " + input);
+					view.show("Error: Parameter " + paramName + " does not exist in method " + methodName);
 				}
 			}
 			view.show("What parameter would you like to remove next?");
@@ -877,12 +877,11 @@ public class CLController {
 		boolean loop = true;
 		boolean changeParamReadded = false;
 		String paramName = "";
-		view.show(
-				"Type the name of a parameter you'd like to add to the new list. Type 'stop' to stop adding parameters:");
+		view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
 		while (loop) {
 			// Loops for adding
 			paramName = sc.nextLine().replaceAll("\\s", "");
-			if (paramName.equalsIgnoreCase("stop")) {
+			if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
 				loop = false;
 			} else {
 				if (!input.equalsIgnoreCase("all")) {
