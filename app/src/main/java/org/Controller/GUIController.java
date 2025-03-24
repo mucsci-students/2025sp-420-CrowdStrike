@@ -494,8 +494,8 @@ public class GUIController {
         if (result == JOptionPane.OK_OPTION) {
             for (JTextField input : fieldInputs) {
                 String fieldName = input.getText().trim();
-                AttributeInterface field = activeClass.fetchField(fieldName);
-                if (!fieldName.isEmpty()) {
+                //AttributeInterface field = activeClass.fetchField(fieldName);
+                if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName)) {
                     selectedClassBox.addField(fieldName);
                 }
             }
@@ -518,11 +518,15 @@ public class GUIController {
         }
         int result = JOptionPane.showConfirmDialog(view, fieldDropdown, "Select Field to Delete", JOptionPane.OK_CANCEL_OPTION);
 
-        if (result == JOptionPane.OK_OPTION) {
-            String selectedField = (String) fieldDropdown.getSelectedItem();
-            if (selectedField != null) {
-                selectedClassBox.removeField(activeClass.fetchField(selectedField));
+        try {
+            if (result == JOptionPane.OK_OPTION) {
+                String selectedField = (String) fieldDropdown.getSelectedItem();
+                if (selectedField != null) {
+                    selectedClassBox.removeField(activeClass.fetchField(selectedField));
+                }
             }
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
         }
     }
 
@@ -670,11 +674,20 @@ private void addMethodToClass() {
             signature.append(")");
             */
             
-            // Only add the method if it doesn't already exist.
-            AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
+            /*
+            try {
+                // Only add the method if it doesn't already exist.
+                AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
                 if (!methodName.isEmpty() && !activeClass.getMethodList().contains(method)) {
                     selectedClassBox.addMethod(methodName, params);
                 }
+            } catch (Exception e) {
+                view.displayErrorMessage(e.getMessage());
+            }
+            */
+            if (!methodName.isEmpty() && !activeClass.methodExists(methodName, params.size())) {
+                selectedClassBox.addMethod(methodName, params);
+            }
         }
         view.getDrawingPanel().repaint();
     }

@@ -22,12 +22,12 @@ public interface ClassObjectInterface {
 	 * Fetches the specific field from the list of fields
 	 * @param attrName		| The given name that will be searched for
 	 */
-	public Field fetchField(String fieldName);
+	public Field fetchField(String fieldName) throws Exception;
 
 	/**
 	 * Fetches the specific method from the list of methods
 	 * @param attrName		| The given name that will be searched for
 	 * @param paramArity	| The number of params the method should have
 	 */
-	public Method fetchMethod(String methodName, int paramArity);
+	public Method fetchMethod(String methodName, int paramArity) throws Exception;
 }

@@ -68,16 +68,9 @@ public class CLController {
 			view.show("What class would you like printed?");
 			input = sc.nextLine();
 			activeClass = model.fetchClass(input);
+			view.show(model.listClassInfo(activeClass));
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-		String classInfo = model.listClassInfo(activeClass);
-		if (classInfo.equals("")) {
-			// Class does not exist
-			view.show("Requested class does not exist");
-		} else {
-			view.show(classInfo);
 		}
 	}
 
@@ -345,20 +338,12 @@ public class CLController {
 			view.show("What class would you like to add a field to?");
 			className = sc.nextLine();
 			activeClass = model.fetchClass(className);
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		
-		view.show("What do you want to name the field?");
-		input = sc.nextLine();
-		// Duplication check will be done in addField method later
-		if (activeClass.fetchField(input) == null) {
-			// Field does not already exist in class
+			view.show("What do you want to name the field?");
+			input = sc.nextLine();
 			editor.addField(activeClass, input);
 			view.show("Field " + input + " successfully added to class " + className);
-		} else {
-			view.show("Field with name " + input + " already exists in class " + className);
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 
@@ -373,21 +358,12 @@ public class CLController {
 			className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
+			view.show("What is the name of the field you want to delete?");
+			input = sc.nextLine();
+			editor.deleteField(activeClass, input);
+			view.show("Field " + input + " successfully deleted from class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-		
-		view.show("What is the name of the field you want to delete?");
-		input = sc.nextLine();
-		AttributeInterface delField = activeClass.fetchField(input);
-		if (delField != null) {
-			// The field specified exists
-			editor.deleteAttribute(activeClass, delField);
-			view.show("Field " + input + " successfully deleted from class " + className);
-		} else {
-			// The field does not exist
-			view.show("Class " + className + " does not have a field named " + input);
 		}
 	}
 
@@ -403,28 +379,15 @@ public class CLController {
 			className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		
-		view.show("What is the name of the field you want to rename?");
-		input = sc.nextLine();
-		AttributeInterface renameField = activeClass.fetchField(input);
-		if (renameField != null) {
-			// The method does exist
+			view.show("What is the name of the field you want to rename?");
+			input = sc.nextLine();
+			AttributeInterface renameField = activeClass.fetchField(input);
 			view.show("What do you want to rename the field to?");
 			String newName = sc.nextLine();
-			if (activeClass.fetchField(newName) == null) {
-				// The newName is not in use
-				editor.renameAttribute(renameField, newName);
-				view.show("Field " + input + " renamed to " + newName);
-			} else {
-				view.show(newName + " is currently used by another field in " + className);
-			}
-		} else {
-			// The method does not exist
-			view.show("Class " + className + " does not have a field named " + input);
+			editor.renameField(activeClass, renameField, newName);
+			view.show("Field " + input + " renamed to " + newName);
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 
@@ -439,51 +402,40 @@ public class CLController {
 			view.show("What class would you like to add a method to?");
 			className = sc.nextLine();
 			activeClass = model.fetchClass(className);
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		
-		// Class exists, get Method name and params
-		view.show("What do you want to name the method?");
-		input = sc.nextLine();
-		ArrayList<String> paramList = new ArrayList<>();
-		view.show("Type the name of a parameter you'd like to add to this new method (enter to skip)");
-		String paramName = sc.nextLine().replaceAll("\\s", "");
+			view.show("What do you want to name the method?");
+			input = sc.nextLine();
+			ArrayList<String> paramList = new ArrayList<>();
+			view.show("Type the name of a parameter you'd like to add to this new method (enter to skip)");
+			String paramName = sc.nextLine().replaceAll("\\s", "");
 
-		boolean empty_input = paramName.equalsIgnoreCase("");
-		while (!empty_input) {
-			if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
-				empty_input = true;
-				break;
-			} else {
-				boolean exist = false;
-				for (int i = 0; i < paramList.size(); i++) {
-					if (paramName.equals(paramList.get(i))) {
-						// Parameter name has already been added
-						exist = true;
-						break;
+			boolean empty_input = paramName.equalsIgnoreCase("");
+			while (!empty_input) {
+				if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
+					empty_input = true;
+					break;
+				} else {
+					boolean exist = false;
+					for (int i = 0; i < paramList.size(); i++) {
+						if (paramName.equals(paramList.get(i))) {
+							// Parameter name has already been added
+							exist = true;
+							break;
+						} else {
+							// Do nothing
+						}
+					}
+					if (exist) {
+						view.show("Parameter " + paramName + " has already been added");
 					} else {
-						// Do nothing
+						paramList.add(paramName);
+						view.show("Parameter " + paramName + " added to method " + input);
 					}
 				}
-				if (exist) {
-					view.show("Parameter " + paramName + " has already been added");
-				} else {
-					paramList.add(paramName);
-					view.show("Parameter " + paramName + " added to method " + input);
-				}
+				view.show("What would you like to name the next parameter?");
+				paramName = sc.nextLine().replaceAll("\\s", "");
 			}
-			view.show("What would you like to name the next parameter?");
-			paramName = sc.nextLine().replaceAll("\\s", "");
-		}
-
-		if (activeClass.fetchMethod(input, paramList.size()) != null) {
-			// Method with same name and # of parameters already exists
-			view.show("Method with name " + input + " and parameter arity " + paramList.size() + " already exists");
-		} else {
-			// Method with same name and # of parameters does not exist
 			editor.addMethod(activeClass, input, paramList);
+
 			if (paramList.size() == 0) {
 				view.show("Method " + input + "() successfully added to class " + className);
 			} else {
@@ -495,6 +447,8 @@ public class CLController {
 				message += " successfully added to class " + className;
 				view.show(message);
 			}
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 
@@ -530,19 +484,10 @@ public class CLController {
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
+			editor.deleteMethod(activeClass, input, paramArity);
+			view.show("Method " + input + " successfully deleted from class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-		
-		Method delMethod = activeClass.fetchMethod(input, paramArity);
-		if (delMethod != null) {
-			// The method specified exists
-			editor.deleteAttribute(activeClass, delMethod);
-			view.show("Method " + input + " successfully deleted from class " + className);
-		} else {
-			// The method does not exist
-			view.show("Class " + className + " does not have a method named " + input);
 		}
 	}
 
@@ -579,27 +524,13 @@ public class CLController {
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		
-		Method renameMethod = activeClass.fetchMethod(input, paramArity);
-		if (renameMethod != null) {
-			// The method does exist
+			Method renameMethod = activeClass.fetchMethod(input, paramArity);
 			view.show("What do you want to rename the method to?");
 			String newName = sc.nextLine();
-			if (activeClass.fetchMethod(newName, paramArity) == null) {
-				// The newName is not in use
-				editor.renameAttribute(renameMethod, newName);
-				view.show("Method " + input + " renamed to " + newName);
-			} else {
-				view.show(newName + " is currently used by another method in " + className);
-			}
-		} else {
-			// The method does not exist
-			view.show("Class " + className + " does not have a method named " + input + " with " + paramArity
-					+ " parameters");
+			editor.renameMethod(activeClass, renameMethod, newName);
+			view.show("Method " + input + " renamed to " + newName);
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 
@@ -638,47 +569,35 @@ public class CLController {
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
+
+			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+			ArrayList<String> parameterList = new ArrayList<>();
+			boolean loop = true;
+			view.show("Type the name of a parameter you'd like to add (enter to stop)");
+			while(loop) {
+				input = sc.nextLine().replaceAll("\\s", "");
+				if (input.equalsIgnoreCase("stop") || input.equals("")) {
+					loop = false;
+				} else {
+					if (activeMethod.paramUsed(input)) {
+						view.show("This parameter is already in the method.");
+						view.show("Please type the name of the next parameter:");
+						continue;
+					}
+					if (editor.nameAlrAdded(input, parameterList)) {
+						view.show("This parameter has already been added.");
+						view.show("Please type the name of the next parameter:");
+						continue;
+					}
+					parameterList.add(input);
+				}
+				view.show("Please type the name of the next parameter:");
+			}
+			editor.addParam(parameterList, activeMethod);
+			view.show("The parameter(s) were added");
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
 		}
-
-		Method attr = activeClass.fetchMethod(methodName, paramArity);
-		if (attr == null) {
-			view.show("no Method by this name exists");
-			return;
-		}
-		// The method does exist
-		Method activeMethod = (Method) attr;
-		ArrayList<String> parameterList = new ArrayList<>();
-		ArrayList<Parameter> listOfParameters = new ArrayList<>();
-		boolean loop = true;
-		view.show(
-				"Type the name of a parameter you'd like to add to the list. Type 'stop' or press enter to stop adding parameters:");
-		while (loop) {
-			// Loops for adding
-			input = sc.nextLine().replaceAll("\\s", "");
-			if (input.equalsIgnoreCase("stop") || input.equals("")) {
-				loop = false;
-			} else {
-				if (activeMethod.paramUsed(input)) {
-					view.show("This parameter is already in the method.");
-					view.show("Please type the name of the next parameter:");
-					continue;
-				}
-				if (editor.nameAlrAdded(input, parameterList)) {
-					view.show("This parameter has already been added.");
-					view.show("Please type the name of the next parameter:");
-					continue;
-				}
-
-				parameterList.add(input);
-			}
-			view.show("Please type the name of the next parameter:");
-		}
-		editor.addParam(parameterList, activeMethod);
-		view.show("The parameter(s) were added.");
-
 	}
 
 	/*
@@ -717,53 +636,17 @@ public class CLController {
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
+
+			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+			ArrayList<Parameter> paramList = activeMethod.getParamList();
+			view.show("Type the name of the parameter you'd like to remove");
+			String paramName = sc.nextLine().replaceAll("\\s", "");
+			Parameter param = activeMethod.fetchParameter(paramName);
+			editor.removeParam(activeMethod, param);
+			view.show("Success! Parameter " + paramName + " has been removed.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
 		}
-		
-
-		Method attr = activeClass.fetchMethod(methodName, paramArity);
-
-		if (attr == null) {
-			view.show("Error: Method " + methodName + " does not exist! Aborting. ");
-			return;
-		}
-		// The method exists
-		Method activeMethod = (Method) attr;
-		ArrayList<Parameter> paramList = activeMethod.getParamList();
-
-		view.show("Type the name of a parameter you'd like to remove from this method (enter to stop)");
-		String paramName = sc.nextLine().replaceAll("\\s", "");
-
-		boolean empty_input = paramName.equalsIgnoreCase("");
-		while (!empty_input) {
-			if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
-				empty_input = true;
-				break;
-			} else {
-				boolean exist = false;
-				for (int i = 0; i < paramList.size(); i++) {
-					if (paramName.equals(paramList.get(i).getName())) {
-						// Parameter name has already been added
-						exist = true;
-						break;
-					} else {
-						// Do nothing
-					}
-				}
-				if (exist) {
-					Parameter param = activeMethod.fetchParameter(paramName);
-					editor.removeParam(activeMethod, param);
-					view.show("Success! Parameter " + paramName + " has been removed.");
-				} else {
-					view.show("Error: Parameter " + paramName + " does not exist in method " + methodName);
-				}
-			}
-			view.show("What parameter would you like to remove next?");
-			paramName = sc.nextLine().replaceAll("\\s", "");
-		}
-
 	}
 
 	private void CL_removeAllParam() {
@@ -796,22 +679,13 @@ public class CLController {
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
+
+			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+			editor.removeAllParams(activeMethod);
+			view.show("All parameters were removed");
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
 		}
-		
-		
-		Method attr = activeClass.fetchMethod(methodName, paramArity);
-
-		if (attr == null) {
-			view.show("method not here");
-			return;
-		}
-		// The method exists
-		Method activeMethod = (Method) attr;
-		editor.removeAllParams(activeMethod);
-		view.show("All parameters were removed");
 	}
 
 	/*
@@ -850,71 +724,63 @@ public class CLController {
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
 
-
-		Method attr = activeClass.fetchMethod(methodName, paramArity);
-		if (attr == null) {
-			view.show("method not here");
-			return;
-		}
-
-		// The method exists
-		Method activeMethod = (Method) attr;
-		view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
-		input = sc.nextLine().replaceAll("//s", "");
-		Parameter oldParam = activeMethod.fetchParameter(input);
-		if (!input.equalsIgnoreCase("all") && oldParam == null) {
-			view.show("You did not type 'All' or the name of an existing parameter.");
-			view.show("Function not executed.");
-			return;
-
-		}
-		ArrayList<String> parameterList = new ArrayList<>();
-		boolean loop = true;
-		boolean changeParamReadded = false;
-		String paramName = "";
-		view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
-		while (loop) {
-			// Loops for adding
-			paramName = sc.nextLine().replaceAll("\\s", "");
-			if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
-				loop = false;
+			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+			view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
+			input = sc.nextLine().replaceAll("//s", "");
+			Parameter oldParam = null;
+			boolean changeAll = false;
+			if (input.equalsIgnoreCase("all")) {
+				// Changing all parameters
+				changeAll = true;
 			} else {
-				if (!input.equalsIgnoreCase("all")) {
-					// Only need to check if new paramName is in method if all parameters are not
-					// being replaced
-					if (activeMethod.paramUsed(paramName)) {
-						if (!changeParamReadded && paramName.equals(input)) {
-							parameterList.add(paramName);
+				// Changing one parameter
+				oldParam = activeMethod.fetchParameter(input);
+			}
+			ArrayList<String> parameterList = new ArrayList<>();
+			boolean loop = true;
+			boolean changeParamReadded = false;
+			String paramName = "";
+			view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
+			while (loop) {
+				// Loops for adding
+				paramName = sc.nextLine().replaceAll("\\s", "");
+				if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
+					loop = false;
+				} else {
+					if (!input.equalsIgnoreCase("all")) {
+						// Only need to check if new paramName is in method if all parameters are not
+						// being replaced
+						if (activeMethod.paramUsed(paramName)) {
+							if (!changeParamReadded && paramName.equals(input)) {
+								parameterList.add(paramName);
+								view.show("Please type the name of the next parameter:");
+								changeParamReadded = true;
+								continue;
+							}
+							view.show("This parameter is already in the method.");
 							view.show("Please type the name of the next parameter:");
-							changeParamReadded = true;
 							continue;
 						}
-						view.show("This parameter is already in the method.");
+					}
+					if (editor.nameAlrAdded(paramName, parameterList)) {
+						view.show("This parameter has already been added.");
 						view.show("Please type the name of the next parameter:");
 						continue;
 					}
+					parameterList.add(paramName);
 				}
-				if (editor.nameAlrAdded(paramName, parameterList)) {
-					view.show("This parameter has already been added.");
-					view.show("Please type the name of the next parameter:");
-					continue;
-				}
-				parameterList.add(paramName);
+				view.show("Please type the name of the next parameter:");
 			}
-			view.show("Please type the name of the next parameter:");
-		}
-
-		if (input.equalsIgnoreCase("all")) {
-			editor.changeAllParams(activeMethod, parameterList);
-			view.show("All parameters were replaced.");
-		} else {
-			editor.changeParameter(activeMethod, oldParam, parameterList);
-			view.show("parameter " + oldParam.getName() + " was replaced with new parameter list.");
+			if (changeAll) {
+				editor.changeAllParams(activeMethod, parameterList);
+				view.show("All parameters were replaced.");
+			} else {
+				editor.changeParameter(activeMethod, oldParam, parameterList);
+				view.show("Parameter " + oldParam.getName() + " was replaced with new parameter list.");
+			}
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 

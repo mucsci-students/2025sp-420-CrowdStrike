@@ -74,7 +74,7 @@ public class ClassObject implements ClassObjectInterface {
 	}
 	
 	@Override
-	public Field fetchField(String fieldName) {
+	public Field fetchField(String fieldName) throws Exception {
 		int index = 0;
         // Iterate through the array of classes
         while (index < attrMap.get("Field").size()) {
@@ -86,11 +86,25 @@ public class ClassObject implements ClassObjectInterface {
             index++;
         }
         // Class with className did not exist, return false
-        return null;
+        throw new Exception ("Field " + fieldName + " does not exist in " + name);
+	}
+
+	/**
+	 * Used to return a boolean when needed for checking is a field exists
+	 * @param fieldName		| The name of the field being checked
+	 * @return True is a field with the name exists, false otherwise
+	 */
+	public boolean fieldNameUsed (String fieldName) {
+		try {
+			fetchField(fieldName);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 	
 	@Override
-	public Method fetchMethod(String methodName, int paramArity) {
+	public Method fetchMethod(String methodName, int paramArity) throws Exception{
 		int index = 0;
         // Iterate through the array of classes
         while (index < attrMap.get("Method").size()) {
@@ -106,7 +120,22 @@ public class ClassObject implements ClassObjectInterface {
             index++;
         }
         // Class with className did not exist, return false
-        return null;
+        throw new Exception ("Method " + methodName + " with parameter arity " + paramArity + " does not exist in " + name);
+	}
+
+	/**
+	 * Used to return a boolean when needed for checking is a method exists
+	 * @param methodName	| Name of method being checked
+	 * @param paramArity	| Number of expected parameters
+	 * @return True if method with name and arity exists, false otherwise
+	 */
+	public boolean methodExists(String methodName, int paramArity) {
+		try {
+			fetchMethod(methodName, paramArity);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	public ArrayList<Method> fetchMethodByName(String methodName) {
