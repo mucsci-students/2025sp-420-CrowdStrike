@@ -40,6 +40,7 @@ application {
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
