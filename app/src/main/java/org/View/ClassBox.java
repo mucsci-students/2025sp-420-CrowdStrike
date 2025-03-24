@@ -175,61 +175,78 @@ public class ClassBox extends JPanel {
     }
 
     public void addField(String field) {
-        if (classObject.fetchField(field) != null) {
-            return;
+        try {
+            controller.getEditor().addField(classObject, field);
+            fieldModel.addElement(field);
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
         }
-        controller.getEditor().addField(classObject, field);
-        fieldModel.addElement(field);
     }
 
     public void removeField(AttributeInterface field) {
-        controller.getEditor().deleteAttribute(classObject, field);
-        fieldModel.removeElement(field.getName());
+        try {
+            controller.getEditor().deleteField(classObject, field.getName());
+            fieldModel.removeElement(field.getName());
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
+        }
     }
 
     public void renameField(String fs, String newName) {
-        if (classObject.fetchField(newName) != null) {
-            return;
-        }
-        AttributeInterface field = classObject.fetchField(fs);
-        controller.getEditor().renameAttribute(field, newName);
-        int index = fieldModel.indexOf(fs);
-        if(index != -1){
-            fieldModel.set(index, newName);
+        try {
+            if (classObject.fieldNameUsed(newName)) {
+                displayErrorMessage("Field with name " + newName + " already exists");
+                return;
+            }
+            AttributeInterface field = classObject.fetchField(fs);
+            controller.getEditor().renameField(classObject, field, newName);
+            int index = fieldModel.indexOf(fs);
+            if(index != -1){
+                fieldModel.set(index, newName);
+            }
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
         }
     }
 
     public void addMethod(String method, ArrayList<String> params) {
-        controller.getEditor().addMethod(classObject, method, params);
-        // Optionally format the method signature
-        Method mthd = classObject.fetchMethod(method, params.size());
-        
-        //String methodSignature = method + "(" + String.join(", ", params) + ")";
-        methodModel.addElement(displayMethod(mthd));
+        try {
+            controller.getEditor().addMethod(classObject, method, params);
+            Method mthd = classObject.fetchMethod(method, params.size());
+            methodModel.addElement(displayMethod(mthd));
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
+        }
     }
 
     public void removeMethod(String method) {
-        String [] parts = method.split(":"); //parts={String name, String arity}
-        Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
-        controller.getEditor().deleteAttribute(classObject, mthd);
+        try {
+            String [] parts = method.split(":"); //parts={String name, String arity}
+            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+            controller.getEditor().deleteMethod(classObject, mthd.getName(), mthd.getParamList().size());
         
-        methodModel.removeElement(displayMethod(mthd));
-        //int index = methodModel.indexOf(displayMethod(mthd));
-        //methodModel.set(index, "Removed");
+            methodModel.removeElement(displayMethod(mthd));
+            //int index = methodModel.indexOf(displayMethod(mthd));
+            //methodModel.set(index, "Removed");
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
+        }
     }
 
     public void renameMethod(String method, String newName) {
-        
-        String [] parts = method.split(":"); //parts={String name, String arity}
-        Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
-        int index = methodModel.indexOf(displayMethod(mthd));
-        controller.getEditor().renameAttribute(mthd, newName);
-        //int index = methodModel.indexOf(displayMethod(classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]))));
-        Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
-        if(index != -1){
-            //methodModel.set(index, displayMethod(classObject.fetchMethod(newName, Integer.parseInt(parts[1]))));
-            methodModel.set(index, displayMethod(renamedMethod));
-
+        try {
+            String [] parts = method.split(":"); //parts={String name, String arity}
+            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+            int index = methodModel.indexOf(displayMethod(mthd));
+            controller.getEditor().renameMethod(classObject, mthd, newName);
+            //int index = methodModel.indexOf(displayMethod(classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]))));
+            Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
+            if(index != -1){
+                //methodModel.set(index, displayMethod(classObject.fetchMethod(newName, Integer.parseInt(parts[1]))));
+                methodModel.set(index, displayMethod(renamedMethod));
+            }
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
         }
     }
 
@@ -259,5 +276,13 @@ public class ClassBox extends JPanel {
             sig += m.getParamList().get(i).getName() + ", ";
         }
         return sig + m.getParamList().get(m.getParamList().size()-1).getName() + ")";
+    }
+
+    /**
+     * Function to display any error messages that occur
+     * @param message   | The message to be displayed
+     */
+    public void displayErrorMessage(String message) {
+        JOptionPane.showMessageDialog(this, message,"Error", JOptionPane.ERROR_MESSAGE);
     }
 }
