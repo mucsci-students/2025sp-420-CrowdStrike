@@ -26,7 +26,7 @@ public class relationshipTest {
 			class1 = testModel.fetchClass("class1");
 			class2 = testModel.fetchClass("class2");
 			testEditor.addRelationship("class1", "class2", Type.REALIZATION);
-    		rel = testModel.relationshipExist("class1", "class2");
+    		rel = testModel.fetchRelationship("class1", "class2");
 		} catch (Exception e) {
 		}
 	}

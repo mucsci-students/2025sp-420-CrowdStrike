@@ -28,7 +28,7 @@ public interface UMLModelInterface {
     * @param dest		| Destination of the relationship
     * @return Relationship object if it exists, null otherwise
     */
-    public Relationship relationshipExist(String source, String dest);
+    public boolean relationshipExist(String source, String dest);
 
     
     /**

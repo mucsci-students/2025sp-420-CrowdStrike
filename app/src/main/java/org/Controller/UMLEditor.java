@@ -99,24 +99,24 @@ public class UMLEditor {
 	 * @param newRel | Relationship to be added to relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean addRelationship(String source, String dest, Type type) throws Exception{
-		ClassObject sourceClass = model.fetchClass(source);
-		if (source != null) {
-			// Source class does exist
+	public boolean addRelationship(String source, String dest, Type type) {
+		try {
+			ClassObject sourceClass = model.fetchClass(source);
+				// Source class does exist
 			ClassObject destClass = model.fetchClass(dest);
-			if (destClass != null) {
-				// Destination class does exist
-				// Check if relationship already exists
-				if (model.relationshipExist(source, dest, type) == null) {
-					// Relationship does not already exist
-					// Create new Relationship
-					Relationship newRel = new Relationship(sourceClass, destClass, type);
-					model.getRelationshipList().add(newRel);
-					return true;
-				}
-			}
+					// Destination class does exist
+					// Check if relationship already exists
+					if (!model.relationshipExist(source, dest)) {
+						// Relationship does not already exist
+						// Create new Relationship
+						Relationship newRel = new Relationship(sourceClass, destClass, type);
+						model.getRelationshipList().add(newRel);
+						return true;
+					}
+			// Adding relationship failed
+			
+		} catch (Exception e) {
 		}
-		// Adding relationship failed
 		return false;
 	}
 
@@ -128,47 +128,47 @@ public class UMLEditor {
 	 */
 	public boolean deleteRelationship(String source, String dest) {
 		// Check if relationship exists
-		Relationship relExist = model.relationshipExist(source, dest);
-		if (relExist != null) {
-			// Relationship does exist
+		try {
+			Relationship relExist = model.fetchRelationship(source, dest);
+			if (relExist != null) {
+				// Relationship does exist
 				model.getRelationshipList().remove(relExist);
-			
-			return true;
+				return true;
+			}
+		} catch (Exception e) {
 		}
 		return false;
 	}
 
 	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue) throws Exception{
-		Relationship relExist = model.relationshipExist(source, dest);
-		if (fieldToUpdate.equals("source")){
-			if(model.fetchClass(newValue)!=null)
-				relExist.setSource(model.fetchClass(newValue));
-			//else return 2;
-		}
-		else if (fieldToUpdate.equals("destination")){
-			if(model.fetchClass(newValue)!=null)
-				relExist.setDestination(model.fetchClass(newValue));
-			//else return 2;
-		}
-		else if (fieldToUpdate.equals("type")){
-			if(newValue.equals("AGGREGATION")){
-				relExist.setType(Type.AGGREGATION);
+		try {
+			Relationship relExist = model.fetchRelationship(source, dest);
+			if (fieldToUpdate.equals("source")){
+				if(model.fetchClass(newValue)!=null)
+					relExist.setSource(model.fetchClass(newValue));
+				//else return 2;
 			}
-			else if(newValue.equals("COMPOSITION")){
-				relExist.setType(Type.COMPOSITION);
+			else if (fieldToUpdate.equals("destination")){
+				if(model.fetchClass(newValue)!=null)
+					relExist.setDestination(model.fetchClass(newValue));
+				//else return 2;
 			}
-			else if(newValue.equals("INHERITANCE")){
-				relExist.setType(Type.INHERITANCE);
+			else if (fieldToUpdate.equals("type")){
+				if(newValue.equals("AGGREGATION")){
+					relExist.setType(Type.AGGREGATION);
+				}
+				else if(newValue.equals("COMPOSITION")){
+					relExist.setType(Type.COMPOSITION);
+				}
+				else if(newValue.equals("INHERITANCE")){
+					relExist.setType(Type.INHERITANCE);
+				}
+				else if(newValue.equals("REALIZATION")){
+					relExist.setType(Type.REALIZATION);
+				}
 			}
-			else if(newValue.equals("REALIZATION")){
-				relExist.setType(Type.REALIZATION);
-			}
+		} catch (Exception e) {
 		}
-		else
-		{
-			//return 1;
-		}
-		//oreturn 0;
 	}
 
 
