@@ -20,7 +20,7 @@ public interface UMLModelInterface {
     * @return relationshipLength
     */
 
-    public ClassObject fetchClass(String className);
+    public ClassObject fetchClass(String className) throws Exception;
     
     /**
     * Checks if a relationships exists
@@ -49,13 +49,13 @@ public interface UMLModelInterface {
      * Lists all created relationships
      * @return A string containing a list of all relationships
      */
-    public String listRelationships();
+    public String listRelationships() throws Exception;
     
     /**
     * Creates a list of all created class names that user can reference
     * @return List of class names
     */
-    public String listClassNames();
+    public String listClassNames() throws Exception;
     
     /**
     * Creates a list of all created fields in the given class
@@ -63,7 +63,7 @@ public interface UMLModelInterface {
     * @param cls	| Class whose fields are being listed
     * @return A string of all fields in the class
     */
-   public String listFields(ClassObject cls);
+   public String listFields(ClassObject cls) throws Exception;
     
     /**
     * Creates a list of all created methods in the given class
@@ -71,5 +71,5 @@ public interface UMLModelInterface {
     * @param cls	| Class whose methods are being listed
     * @return A string containing all methods in the class
     */
-   public String listMethods(ClassObject cls);
+   public String listMethods(ClassObject cls) throws Exception;
 }

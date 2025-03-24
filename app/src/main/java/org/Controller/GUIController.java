@@ -105,13 +105,17 @@ public class GUIController {
     private void promptForClassName() {
         String className = JOptionPane.showInputDialog(view, "Enter Class Name:", "New Class", JOptionPane.PLAIN_MESSAGE);
 
-        if (model.isValidClassName(className)!=0) return; //replace with switch for more specific error messages
-
-        className = className.trim();
+        //if (model.isValidClassName(className)!=0) return; replace with switch for more specific error messages
+        try {
+            model.isValidClassName(className);
+            className = className.trim();
         
-        editor.addClass(className);
-        activeClass = model.fetchClass(className);
-        addClass(activeClass);
+            editor.addClass(className);
+            activeClass = model.fetchClass(className);
+            addClass(activeClass);  
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+        }
     }
 
 
@@ -121,6 +125,10 @@ public class GUIController {
     private void renameSelectedClass(){
         if(selectedClassBox == null){
             JOptionPane.showMessageDialog(view, "No class selected","Error", JOptionPane.ERROR_MESSAGE);
+            /*
+             * Switch the command to display errors to the one below
+             * view.displayErrorMessage("No class selected");
+             */
             return;
         }
 
@@ -208,7 +216,13 @@ public class GUIController {
 
         // Remove from panel
         view.getDrawingPanel().remove(selectedClassBox);
-	editor.deleteClass(selectedClassBox.getClassName());
+        try {
+            editor.deleteClass(selectedClassBox.getClassName());
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+            return;
+        }
+	
         classBoxes.remove(selectedClassBox);
         removeRelationships(selectedClassBox);
 
@@ -272,7 +286,13 @@ public class GUIController {
 
         GUIRelationship relationship = new GUIRelationship(source, destination, type);
         relationships.add(relationship);
-	editor.addRelationship("",selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
+        try {
+            editor.addRelationship(selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+            return;
+        }
+	
 
         view.getDrawingPanel().addRelationship(source, destination, type);
         resetRelationshipSelection();
@@ -355,7 +375,13 @@ public class GUIController {
     // Create an updated relationship
     GUIRelationship updatedRel = new GUIRelationship(newSource, newDestination, newType);
     relationships.add(updatedRel);
-    editor.addRelationship("", newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+    try {
+        editor.addRelationship(newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+    } catch (Exception e) {
+        view.displayErrorMessage(e.getMessage());
+        return;
+    }
+    
     view.getDrawingPanel().addRelationship(newSource, newDestination, newType);
     view.getDrawingPanel().repaint();
     }
@@ -468,8 +494,8 @@ public class GUIController {
         if (result == JOptionPane.OK_OPTION) {
             for (JTextField input : fieldInputs) {
                 String fieldName = input.getText().trim();
-                AttributeInterface field = activeClass.fetchField(fieldName);
-                if (!fieldName.isEmpty()) {
+                //AttributeInterface field = activeClass.fetchField(fieldName);
+                if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName)) {
                     selectedClassBox.addField(fieldName);
                 }
             }
@@ -492,11 +518,15 @@ public class GUIController {
         }
         int result = JOptionPane.showConfirmDialog(view, fieldDropdown, "Select Field to Delete", JOptionPane.OK_CANCEL_OPTION);
 
-        if (result == JOptionPane.OK_OPTION) {
-            String selectedField = (String) fieldDropdown.getSelectedItem();
-            if (selectedField != null) {
-                selectedClassBox.removeField(activeClass.fetchField(selectedField));
+        try {
+            if (result == JOptionPane.OK_OPTION) {
+                String selectedField = (String) fieldDropdown.getSelectedItem();
+                if (selectedField != null) {
+                    selectedClassBox.removeField(activeClass.fetchField(selectedField));
+                }
             }
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
         }
     }
 
@@ -644,11 +674,20 @@ private void addMethodToClass() {
             signature.append(")");
             */
             
-            // Only add the method if it doesn't already exist.
-            AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
+            /*
+            try {
+                // Only add the method if it doesn't already exist.
+                AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
                 if (!methodName.isEmpty() && !activeClass.getMethodList().contains(method)) {
                     selectedClassBox.addMethod(methodName, params);
                 }
+            } catch (Exception e) {
+                view.displayErrorMessage(e.getMessage());
+            }
+            */
+            if (!methodName.isEmpty() && !activeClass.methodExists(methodName, params.size())) {
+                selectedClassBox.addMethod(methodName, params);
+            }
         }
         view.getDrawingPanel().repaint();
     }

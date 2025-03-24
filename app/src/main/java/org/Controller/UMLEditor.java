@@ -52,7 +52,7 @@ public class UMLEditor {
 	 * @param className | Name of class to be deleted
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean deleteClass(String className) {
+	public boolean deleteClass(String className) throws Exception{
 		activeClass = model.fetchClass(className);
 		if (activeClass != null) {
 			// Class exists
@@ -99,7 +99,7 @@ public class UMLEditor {
 	 * @param newRel | Relationship to be added to relationshipList
 	 * @return True if operation succeeded, false otherwise
 	 */
-	public boolean addRelationship(String name, String source, String dest, Type type) {
+	public boolean addRelationship(String source, String dest, Type type) throws Exception{
 		ClassObject sourceClass = model.fetchClass(source);
 		if (source != null) {
 			// Source class does exist
@@ -110,7 +110,7 @@ public class UMLEditor {
 				if (model.relationshipExist(source, dest, type) == null) {
 					// Relationship does not already exist
 					// Create new Relationship
-					Relationship newRel = new Relationship(name, sourceClass, destClass, type);
+					Relationship newRel = new Relationship(sourceClass, destClass, type);
 					model.getRelationshipList().add(newRel);
 					return true;
 				}
@@ -138,12 +138,9 @@ public class UMLEditor {
 		return false;
 	}
 
-	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue){
+	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue) throws Exception{
 		Relationship relExist = model.relationshipExist(source, dest);
-		if (fieldToUpdate.equals("name")){
-			relExist.setName(newValue);
-		}
-		else if (fieldToUpdate.equals("source")){
+		if (fieldToUpdate.equals("source")){
 			if(model.fetchClass(newValue)!=null)
 				relExist.setSource(model.fetchClass(newValue));
 			//else return 2;
@@ -180,10 +177,15 @@ public class UMLEditor {
 	 * 
 	 * @param cls       | The class the method is being added to
 	 * @param fieldName | The name of the field
+	 * @throws Exception
 	 */
-	public void addField(ClassObject cls, String fieldName) {
-		Field fld = new Field(fieldName);
-		cls.addAttribute(fld);
+	public void addField(ClassObject cls, String fieldName) throws Exception {
+		if (cls.fieldNameUsed(fieldName)) {
+			throw new Exception ("Field " + fieldName + " is already in " + cls.getName());
+		} else {
+			Field fld = new Field(fieldName);
+			cls.addAttribute(fld);
+		}
 	}
 
 	/**
@@ -192,37 +194,86 @@ public class UMLEditor {
 	 * @param cls        | The class the method is being added to
 	 * @param methodName | The name of the method
 	 * @param paramList  | The parameter list the method will have
+	 * @throws Exception
 	 */
-	public void addMethod(ClassObject cls, String methodName, ArrayList<String> paramNameList) {
-		ArrayList<Parameter> paramList= new ArrayList<>();
-		Parameter param;
-		for (int i = 0; i < paramNameList.size(); i++) {
-			param = new Parameter(paramNameList.get(i));
-			paramList.add(param);
+	public void addMethod(ClassObject cls, String methodName, ArrayList<String> paramNameList) throws Exception {
+		if (cls.methodExists(methodName, paramNameList.size())) {
+			throw new Exception ("Method " + methodName + " with " + paramNameList.size() + " parameters already exists in " + cls.getName());
+		} else {
+			ArrayList<Parameter> paramList= new ArrayList<>();
+			Parameter param;
+			for (int i = 0; i < paramNameList.size(); i++) {
+				param = new Parameter(paramNameList.get(i));
+				paramList.add(param);
+			}
+			Method method = new Method(methodName, paramList);
+			cls.addAttribute(method);
 		}
-		Method method = new Method(methodName, paramList);
-		cls.addAttribute(method);
 	}
 
 	/**
-	 * Deletes fields or methods from the designated ClassObject
+	 * Deletes fields from the designated ClassObject
 	 * 
-	 * @param cls     | The class from which the field/method is to be deleted from
-	 * @param delAttr | The field/method to be removed
+	 * @param cls     	| The class from which the field/method is to be deleted from
+	 * @param fieldName | The field/method to be removed
+	 * @throws Exception
 	 */
-	public void deleteAttribute(ClassObject cls, AttributeInterface delAttr) {
-		cls.removeAttribute(delAttr);
+	public void deleteField(ClassObject cls, String fieldName) throws Exception {
+		if (!cls.fieldNameUsed(fieldName)) {
+			throw new Exception ("Class " + cls.getName() + " does not have a field named " + fieldName);
+		} else {
+			Field delField = cls.fetchField(fieldName);
+			cls.removeAttribute(delField);
+		}
+	}
+
+	/**
+	 * Deletes methods from the designated ClassObject
+	 * 
+	 * @param cls     	 | The class from which the method is to be deleted from
+	 * @param methodName | The method's name
+	 * @param paramArity | The number of params the method has
+	 * @throws Exception
+	 */
+	public void deleteMethod(ClassObject cls, String methodName, int paramArity) throws Exception {
+		if (!cls.methodExists(methodName, paramArity)) {
+			throw new Exception ("Class " + cls.getName() + " does not have a method with name " + methodName + " and parameter arity " + paramArity);
+		} else {
+			Method delMethod = cls.fetchMethod(methodName, paramArity);
+			cls.removeAttribute(delMethod);
+		}
 	}
 
 	/**
 	 * Renames fields or methods from the designated ClassObject
 	 * 
-	 * @param renameAttr | The filed/method being renamed
-	 * @param newName    | The new name for the field/method
+	 * @param cls		 | The class with the field
+	 * @param renameAttr | The field being renamed
+	 * @param newName    | The new name for the field
+	 * @throws Exception
 	 */
-	
-	public void renameAttribute(AttributeInterface renameAttr, String newName) {
-		renameAttr.renameAttribute(newName);
+	public void renameField(ClassObject cls, AttributeInterface renameAttr, String newName) throws Exception {
+		if (cls.fieldNameUsed(newName)) {
+			throw new Exception (newName + " is currently used by another field in the class");
+		} else {
+			renameAttr.renameAttribute(newName);
+		}
+	}
+
+	/**
+	 * Renames fields or methods from the designated ClassObject
+	 * 
+	 * @param cls		   | The class with the method
+	 * @param renameMethod | The method being renamed
+	 * @param newName      | The new name for the method
+	 * @throws Exception
+	 */
+	public void renameMethod(ClassObject cls, Method renameMethod, String newName) throws Exception {
+		if (cls.fieldNameUsed(newName)) {
+			throw new Exception (newName + " is currently used by another method in the class");
+		} else {
+			renameMethod.renameAttribute(newName);
+		}
 	}
 
 	/**

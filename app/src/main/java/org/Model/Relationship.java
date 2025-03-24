@@ -11,9 +11,6 @@ public class Relationship{
     private ClassObject source;
     private ClassObject destination;
 
-    // Optionally, the user can choose to store the name of the relationship
-    private String name;
-
     // Each relationship should have a unique ID that is assigned in our UMLModel class
     private final int ID;
 
@@ -22,32 +19,15 @@ public class Relationship{
     private Type type;
 
     /**
-     * Constructor for an unnamed relationship
+     * Constructor for a relationship
      * Creates a relationship between a source class and destination class
-     * @param ClassObject source    |   the source of the relationship
-     * @param ClassObject dest      |   the destination of this relationship
-     * @param Type newType          |   the type of this new relationship
-     */
-    public Relationship(ClassObject source, ClassObject dest, Type newType){
-        this.source = source;
-        this.destination = dest;
-        this.name = "";
-        this.ID = source.hashCode() + dest.hashCode();
-        this.type = newType;
-    }
-
-    /**
-     * Constructor for a named relationship
-     * Creates a relationship between a source class and destination class, and names it
-     * @param String name           |   the name given to this relationship
      * @param ClassObject source    |   the source of the relationship
      * @param ClassObject dest      |   the destination of this relationship
      * @param Type type             |   the type of this relationship
      */
-    public Relationship(String relationshipName, ClassObject source, ClassObject dest, Type newType){
+    public Relationship(ClassObject source, ClassObject dest, Type newType){
         this.source = source;
         this.destination = dest;
-        this.name = relationshipName;
         this.ID = source.hashCode() + dest.hashCode();
         this.type = newType;
     }
@@ -62,7 +42,6 @@ public class Relationship{
     public Relationship(ClassObject source, ClassObject dest){
         this.source = source;
         this.destination = dest;
-        this.name = "";
         this.ID = source.hashCode() + dest.hashCode();
         this.type = Type.REALIZATION;
     }
@@ -86,13 +65,6 @@ public class Relationship{
     public ClassObject getDestination()
         {return this.destination;}
     
-    /**
-     * Relationship.getName();
-     * Returns the name of this relationship (could be empty)
-     * @return String name
-     */
-    public String getName()
-        {return this.name;}
 
     /**
      * Relationship.getID();
@@ -125,13 +97,6 @@ public class Relationship{
     }
 
     // Mutator methods
-    /**
-     * Relationship.setName(newName);
-     * Sets this relationship's name to newName
-     * @param String name
-     */
-    public void setName(String newName)
-        {this.name = newName;}
     
     /**
      * Relationship.setSource(newSource);
