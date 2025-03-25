@@ -1,21 +1,14 @@
 package org.View;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import javax.swing.*;
+import javax.swing.border.Border;
 import org.Controller.GUIController;
 import org.Model.*;
 
-
 public class ClassBox extends JPanel {
-    private JTextField classNameField;
     private DefaultListModel<String> fieldModel;
     private JList<String> fieldsList;
     private DefaultListModel<String> methodModel;
@@ -27,128 +20,120 @@ public class ClassBox extends JPanel {
     private volatile int myX = 0;
     private volatile int myY = 0;
 
-    //Borders
+    // Transparent overlay panel to capture drag events
+    private JPanel dragOverlay;
+
+    // Borders
     private static final Border UNSELECTED_BORDER = BorderFactory.createCompoundBorder(
         BorderFactory.createLineBorder(Color.BLACK, 2),
         BorderFactory.createEmptyBorder(5, 5, 5, 5)
     );
-
     private static final Border SELECTED_BORDER = BorderFactory.createCompoundBorder(
         BorderFactory.createLineBorder(Color.RED, 3),
         BorderFactory.createEmptyBorder(5, 5, 5, 5)
     );
 
     public ClassBox(ClassObject classObject, GUIController controller) {
+        // Save references
+        this.classObject = classObject;
+        this.controller = controller;
 
-        addMouseListener(
-            new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) { }
+        // Create the overlay panel that will capture all mouse events
+        dragOverlay = new JPanel();
+        dragOverlay.setOpaque(false);
+        dragOverlay.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+
+        // Common mouse adapter for starting drag and handling clicks (selection)
+        MouseAdapter commonMouseAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 screenX = e.getXOnScreen();
                 screenY = e.getYOnScreen();
-                myX = getX();
-                myY = getY();
+                myX = ClassBox.this.getX();
+                myY = ClassBox.this.getY();
+                e.consume();
             }
             @Override
-            public void mouseReleased(MouseEvent e) { }
-            @Override
-            public void mouseEntered(MouseEvent e) { }
-            @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {
+                controller.selectClassBox(ClassBox.this);
+                e.consume();
             }
-        );
+        };
 
-        addMouseMotionListener(
-            new MouseMotionListener() {
+        // Drag listener for moving the box
+        MouseMotionListener dragListener = new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 int deltaX = e.getXOnScreen() - screenX;
                 int deltaY = e.getYOnScreen() - screenY;
-                setLocation(myX + deltaX, myY + deltaY);
-                // Request the parent container (the drawing panel) to repaint
+                ClassBox.this.setLocation(myX + deltaX, myY + deltaY);
                 getParent().repaint();
+                e.consume();
             }
             @Override
             public void mouseMoved(MouseEvent e) { }
-            }
-        );
+        };
 
-        this.classObject = classObject;
-        this.controller = controller;
-        setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
-        setBorder(UNSELECTED_BORDER);
-        setOpaque(true);
+        // Attach listeners to the overlay
+        dragOverlay.addMouseListener(commonMouseAdapter);
+        dragOverlay.addMouseMotionListener(dragListener);
 
-        //Selection button(will be on the top left corner)
-        JButton selectButton = new JButton("Class: ");
-        selectButton.setPreferredSize(new Dimension(50,20));
-        selectButton.setFocusable(false);
-        selectButton.setBorder(null);
-        selectButton.setOpaque(false);
-        selectButton.setContentAreaFilled(false);
-        selectButton.setToolTipText("Select this class");
+        // Create a panel to hold the original content
+        JPanel contentHolder = new JPanel(new BorderLayout());
+        contentHolder.setOpaque(false);
+        contentHolder.setBorder(UNSELECTED_BORDER);
 
-        selectButton.addActionListener(e -> {
-            controller.selectClassBox(this);
-        });
-
+        // Top panel for the class label
+        JLabel classLabel = new JLabel("Class: " + classObject.getName());
+        classLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        classLabel.setForeground(Color.BLACK);
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
         topPanel.setOpaque(false);
-        topPanel.add(selectButton);
+        topPanel.add(classLabel);
+        contentHolder.add(topPanel, BorderLayout.NORTH);
 
-        //Class Name Field
-        classNameField = new JTextField(classObject.getName());
-        classNameField.setHorizontalAlignment(JTextField.CENTER);
-        classNameField.setEditable(false);
-        
-        //Prevents text field from capturing mouse clicks
-        classNameField.setFocusable(false);
-        classNameField.setBorder(null);
-
-        topPanel.add(classNameField);
-        add(topPanel, BorderLayout.NORTH);
-
-        //name of the class will appear in the top part of the box
-        //add(classNameField, BorderLayout.NORTH);
-
-        //Field & Methods Panel
-        // fields
+        // Content panel for fields and methods lists
         JPanel contentPanel = new JPanel(new GridLayout(2, 1));
         contentPanel.setOpaque(false);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        //Fields
+        // Fields list inside a scroll pane
         fieldModel = new DefaultListModel<>();
         fieldsList = new JList<>(fieldModel);
         fieldsList.setFocusable(false);
         fieldsList.setBorder(BorderFactory.createTitledBorder("Fields"));
-        contentPanel.add(new JScrollPane(fieldsList));
-	for(AttributeInterface f: classObject.getFieldList())
-	     fieldModel.addElement(f.getName());
-        
+        JScrollPane fieldsScrollPane = new JScrollPane(fieldsList);
+        contentPanel.add(fieldsScrollPane);
+        for (AttributeInterface f : classObject.getFieldList()) {
+            fieldModel.addElement(f.getName());
+        }
 
-
-        // Methods
+        // Methods list inside a scroll pane
         methodModel = new DefaultListModel<>();
         methodsList = new JList<>(methodModel);
         methodsList.setFocusable(false);
         methodsList.setBorder(BorderFactory.createTitledBorder("Methods"));
-        contentPanel.add(new JScrollPane(methodsList));
-	for(AttributeInterface m: classObject.getMethodList())
-	    methodModel.addElement(displayMethod((Method)m));
+        JScrollPane methodsScrollPane = new JScrollPane(methodsList);
+        contentPanel.add(methodsScrollPane);
+        for (AttributeInterface m : classObject.getMethodList()) {
+            methodModel.addElement(displayMethod((Method) m));
+        }
 
-        add(contentPanel, BorderLayout.CENTER);
+        contentHolder.add(contentPanel, BorderLayout.CENTER);
+        contentHolder.setPreferredSize(new Dimension(250, 150));
+
+        // Use OverlayLayout so that the drag overlay sits on top of the content
+        setLayout(new OverlayLayout(this));
+        add(dragOverlay);   // top layer (captures mouse events)
+        add(contentHolder); // bottom layer (visible content)
+
         setPreferredSize(new Dimension(250, 150));
-
+        setOpaque(false);
     }
 
     public void updateMethodDisplay(Method m) {
         for (int i = 0; i < methodModel.getSize(); i++) {
             String display = methodModel.get(i);
-            
             if (display.startsWith(m.getName() + "(")) {
                 methodModel.set(i, displayMethod(m));
                 break;
@@ -156,14 +141,16 @@ public class ClassBox extends JPanel {
         }
     }
 
-    public void setSelected(boolean selected){
-        if(selected){
-            setBorder(SELECTED_BORDER);
-        }else{
-            setBorder(UNSELECTED_BORDER);
+    public void setSelected(boolean selected) {
+        // Assuming the contentHolder is the second component added,
+        // update its border to show selection
+        if (getComponentCount() > 1) {
+            Component c = getComponent(1);
+            if (c instanceof JComponent) {
+                ((JComponent)c).setBorder(selected ? SELECTED_BORDER : UNSELECTED_BORDER);
+            }
         }
     }
-    
 
     public String getClassName() {
         return classObject.getName();
@@ -171,7 +158,7 @@ public class ClassBox extends JPanel {
 
     public void setClassName(String newName) {
         controller.getEditor().renameClass(classObject, newName);
-        classNameField.setText(newName);
+        // Optionally update label text if stored
     }
 
     public void addField(String field) {
@@ -194,46 +181,36 @@ public class ClassBox extends JPanel {
         AttributeInterface field = classObject.fetchField(fs);
         controller.getEditor().renameAttribute(field, newName);
         int index = fieldModel.indexOf(fs);
-        if(index != -1){
+        if (index != -1) {
             fieldModel.set(index, newName);
         }
     }
 
     public void addMethod(String method, ArrayList<String> params) {
         controller.getEditor().addMethod(classObject, method, params);
-        // Optionally format the method signature
         Method mthd = classObject.fetchMethod(method, params.size());
-        
-        //String methodSignature = method + "(" + String.join(", ", params) + ")";
         methodModel.addElement(displayMethod(mthd));
     }
 
     public void removeMethod(String method) {
-        String [] parts = method.split(":"); //parts={String name, String arity}
+        String[] parts = method.split(":");
         Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
         controller.getEditor().deleteAttribute(classObject, mthd);
-        
         methodModel.removeElement(displayMethod(mthd));
-        //int index = methodModel.indexOf(displayMethod(mthd));
-        //methodModel.set(index, "Removed");
     }
 
     public void renameMethod(String method, String newName) {
-        
-        String [] parts = method.split(":"); //parts={String name, String arity}
+        String[] parts = method.split(":");
         Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
         int index = methodModel.indexOf(displayMethod(mthd));
         controller.getEditor().renameAttribute(mthd, newName);
-        //int index = methodModel.indexOf(displayMethod(classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]))));
         Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
-        if(index != -1){
-            //methodModel.set(index, displayMethod(classObject.fetchMethod(newName, Integer.parseInt(parts[1]))));
+        if (index != -1) {
             methodModel.set(index, displayMethod(renamedMethod));
-
         }
     }
 
-    public ClassObject getObjectFromBox(){
+    public ClassObject getObjectFromBox() {
         return this.classObject;
     }
 
@@ -241,23 +218,18 @@ public class ClassBox extends JPanel {
         return new Point(getX() + getWidth() / 2, getY() + getHeight() / 2);
     }
 
-    public String displayMethod(Method m){
-        /*
-        StringBuilder signature = new StringBuilder(methodName);
-            signature.append("(");
-            if (!params.isEmpty()) {
-                signature.append(String.join(", ", params));
-            }
-            signature.append(")");
-        return signature;
-        */
-       if (m.getParamList().size() == 0) {
-        return m.getName() + "()";
-       }
-        String sig = m.getName() + "(";
-        for (int i = 0; i < m.getParamList().size()-1; i++) {
-            sig += m.getParamList().get(i).getName() + ", ";
+    public String displayMethod(Method m) {
+        if (m.getParamList().isEmpty()) {
+            return m.getName() + "()";
         }
-        return sig + m.getParamList().get(m.getParamList().size()-1).getName() + ")";
+        StringBuilder sig = new StringBuilder(m.getName() + "(");
+        for (int i = 0; i < m.getParamList().size(); i++) {
+            sig.append(m.getParamList().get(i).getName());
+            if (i < m.getParamList().size() - 1) {
+                sig.append(", ");
+            }
+        }
+        sig.append(")");
+        return sig.toString();
     }
 }

@@ -1,18 +1,16 @@
 package org.Controller;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import org.View.GUIView;
-import org.View.ClassBox;
+import javax.swing.*;
 import org.FileManager;
 import org.Model.*;
 import org.Model.Relationship.Type;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import org.View.ClassBox;
+import org.View.GUIView;
 
 
 public class GUIController {
@@ -94,6 +92,8 @@ public class GUIController {
         view.getSaveButton().addActionListener(e -> saveDiagram());
         view.getLoadButton().addActionListener(e -> loadDiagram());
         
+        view.getExitButton().addActionListener(e -> exitDiagram());
+        view.getHelpButton().addActionListener(e -> view.getHelpButton());
 
         
     }
@@ -171,6 +171,8 @@ public class GUIController {
         classBoxes.add(classBox);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
+
+        System.out.println("Added class");
     }
 
     private void configureClassBoxMouseListener(ClassBox classBox){
@@ -953,13 +955,14 @@ private void changeParameterInMethod() {
 
     public void selectClassBox(ClassBox classBox) {
         if (selectedClassBox != null) {
-            selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
         }
 
         selectedClassBox = classBox;
         selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
         activeClass = classBox.getObjectFromBox();
     }
+
 
 
     // ==================== SAVE/LOAD MANAGEMENT ==================== //
@@ -1021,6 +1024,24 @@ private void changeParameterInMethod() {
     }
 
 
+    // ==================== HELP & EXIT ==================== //
+
+
+    private void exitDiagram() {
+        int choice = JOptionPane.showConfirmDialog(
+                null,                                     // Parent component (null centers the dialog)
+                "Do you want to save before exiting?",         // Message
+                "Confirm Exit",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (choice == JOptionPane.YES_OPTION) {
+            saveDiagram();
+            System.exit(0);  // Exits the application
+        }else if(choice == JOptionPane.NO_OPTION){
+            System.exit(0);
+        }
+    }
 
     // ==================== RELATIONSHIP CLASS ==================== //
     /**

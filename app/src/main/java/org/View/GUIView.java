@@ -2,6 +2,7 @@ package org.View;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.View.CustomDrawingPanel;
 
 public class GUIView extends JFrame {
@@ -34,6 +35,10 @@ public class GUIView extends JFrame {
     //Save/Load buttons
     private JButton saveButton;
     private JButton loadButton;
+
+    //Help and Exit Buttons
+    private JButton exitButton;
+    private JButton helpButton;
 
     private CustomDrawingPanel drawingPanel;
 
@@ -79,9 +84,11 @@ public class GUIView extends JFrame {
         saveButton = new JButton("Save");
         loadButton = new JButton("Load");
 
+        //Help/Exit Controls
+        exitButton = new JButton("Exit");
+        helpButton = new JButton("Help");
+    
 
-
-        
 
 
         toolPanel.add(addClassButton);
@@ -106,9 +113,62 @@ public class GUIView extends JFrame {
         toolPanel.add(new JSeparator());
         toolPanel.add(saveButton);
         toolPanel.add(loadButton);
+        toolPanel.add(new JSeparator());
+        toolPanel.add(exitButton);
+        toolPanel.add(helpButton);
 
         add(toolPanel, BorderLayout.WEST);
     }
+
+
+    private void helpPanel(){
+        
+        //Help Panel
+        JPanel panel = new JPanel(new BorderLayout());
+        CardLayout cardLayout = new CardLayout();
+        JPanel cardPanel = new JPanel(cardLayout);
+
+        //Define help steps as HTML string for formatting
+
+        String[] helpSteps = {
+            "<html><h2>Step 1:</h2><p>Clicj 'Add Class' to insert Class"
+        };
+
+        for(int i =0; i < helpSteps.length; i++){
+            JPanel stepPanel = new JPanel();
+            stepPanel.add(new JLabel(helpSteps[i]));
+            cardPanel.add(stepPanel, String.valueOf(i));
+        }
+
+        AtomicInteger currentIndex = new AtomicInteger(0);
+
+        //Navigation buttons for previous and Next
+        JButton prevButtons = new JButton("<- Previous");
+        JButton nextButtons = new JButton("Next ->");
+
+        prevButtons.addActionListener(e -> {
+            if(currentIndex.get() > 0){
+                currentIndex.decrementAndGet();
+                cardLayout.show(cardPanel, String.valueOf(currentIndex.get()));
+            }
+        });
+
+        nextButtons.addActionListener(e -> {
+            if(currentIndex.get()< helpSteps.length -1){
+                currentIndex.incrementAndGet();
+                cardLayout.show(cardPanel, String.valueOf(currentIndex));
+            }
+        });
+
+        JPanel navPanel = new JPanel();
+        navPanel.add(prevButtons);
+        navPanel.add(nextButtons);
+
+        add(cardPanel, BorderLayout.CENTER);
+        add(navPanel, BorderLayout.SOUTH);
+
+    }
+
 
     private void initDrawingPanel() {
         drawingPanel = new CustomDrawingPanel();
@@ -148,6 +208,8 @@ public class GUIView extends JFrame {
     public JButton getChangeParamButton() { return changeParameterButton; }
     public JButton getSaveButton(){return saveButton;}
     public JButton getLoadButton(){return loadButton;}
+    public JButton getExitButton(){return exitButton;}
+    public JButton getHelpButton(){return helpButton;}
 
     public CustomDrawingPanel getDrawingPanel() {
         return drawingPanel;
