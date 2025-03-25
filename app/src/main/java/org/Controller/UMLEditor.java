@@ -1,16 +1,17 @@
 package org.Controller;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.Model.Relationship;
-import org.Model.Relationship.Type;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
+import org.Model.Relationship;
+import org.Model.Relationship.Type;
+import org.Model.UMLModel;
 
 public class UMLEditor {
 	// The model that is being edited
@@ -196,14 +197,14 @@ public class UMLEditor {
 	 * @param paramList  | The parameter list the method will have
 	 * @throws Exception
 	 */
-	public void addMethod(ClassObject cls, String methodName, ArrayList<String> paramNameList) throws Exception {
+	public void addMethod(ClassObject cls, String methodName, LinkedHashMap<String, String> paramNameList) throws Exception {
 		if (cls.methodExists(methodName, paramNameList.size())) {
 			throw new Exception ("Method " + methodName + " with " + paramNameList.size() + " parameters already exists in " + cls.getName());
 		} else {
 			ArrayList<Parameter> paramList= new ArrayList<>();
 			Parameter param;
-			for (int i = 0; i < paramNameList.size(); i++) {
-				param = new Parameter(paramNameList.get(i));
+			for (Map.Entry<String, String> obj : paramNameList.entrySet()) {
+				param = new Parameter(obj.getKey(), obj.getValue());
 				paramList.add(param);
 			}
 			Method method = new Method(methodName, paramList);
@@ -282,8 +283,8 @@ public class UMLEditor {
 	 * @param parameterList | The list of parameters being added to the methods parameter list
 	 * @param currMethod    | the current Method of which new parameters are being added
 	 */
-	public void addParam(ArrayList<String> parameterList, Method currMethod) {
-		currMethod.addParameters(parameterList);
+	public void addParam(LinkedHashMap<String,String> parameterMap, Method currMethod) {
+		currMethod.addParameters(parameterMap);
 
 	}
 
@@ -311,7 +312,7 @@ public class UMLEditor {
 	 * @param activeMethod  | The method that will have all of its parameters replaced
 	 * @param parameterList | The list of new parameters that will replace the old list
 	 */
-	public void changeAllParams(Method activeMethod, ArrayList<String> parameterList) {
+	public void changeAllParams(Method activeMethod, LinkedHashMap<String, String> parameterList) {
 		activeMethod.removeAllParameters();
 		activeMethod.addParameters(parameterList);
 	}
@@ -322,21 +323,21 @@ public class UMLEditor {
 	 * @param oldParam            | The old parameter where the new list will be inserted
 	 * @param parameterStringList | The new parameter list set as a string to be added as parameter type
 	 */
-	public void changeParameter(Method activeMethod, Parameter oldParam, ArrayList<String> parameterStringList) {
+	public void changeParameter(Method activeMethod, Parameter oldParam, LinkedHashMap<String, String> parameterStringList) {
 		int index = activeMethod.getParamList().indexOf(oldParam);
 		ArrayList<Parameter> parameterParamList = new ArrayList<>();
         Parameter param;
-        for (int i = 0; i < parameterStringList.size(); i++) {
-            param = new Parameter(parameterStringList.get(i));
+        for (Map.Entry<String,String> obj : parameterStringList.entrySet()) {
+            param = new Parameter(obj.getKey(), obj.getValue());
             parameterParamList.add(param);
         }
 		activeMethod.getParamList().addAll(index, parameterParamList);
 		activeMethod.getParamList().remove(oldParam);
 	}
 	
-	public boolean nameAlrAdded(String paramName, ArrayList<String> buildParamNameList) {
-		for(int i = 0; i < buildParamNameList.size(); i++) {
-			if(paramName.equals(buildParamNameList.get(i))) {
+	public boolean nameAlrAdded(String paramName, LinkedHashMap<String, String> buildParamNameList) {
+		for(String name : buildParamNameList.keySet()) {
+			if(name.equals(paramName)) {
 				return true;
 			}
 		}
