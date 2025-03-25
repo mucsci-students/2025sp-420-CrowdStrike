@@ -349,6 +349,10 @@ public class GUIController {
     if (editChoice.equals("Source")) {
         for (ClassBox cb : classBoxes) {
             if (cb.getClassName().equals(newValue)) {
+                if (model.relationshipExist(newValue, selectedRel.getDestination().getClassName())) {
+                    view.displayErrorMessage("Relationship between " + newValue + " and " + selectedRel.getDestination().getClassName() + " already exists");
+                    return;
+                }
                 newSource = cb;
                 break;
             }
@@ -357,6 +361,10 @@ public class GUIController {
     else if (editChoice.equals("Destination")) {
         for (ClassBox cb : classBoxes) {
             if (cb.getClassName().equals(newValue)) {
+                if (model.relationshipExist(selectedRel.getSource().getClassName(), newValue)) {
+                    view.displayErrorMessage("Relationship between " + selectedRel.getSource().getClassName() + " and " + newValue + " already exists");
+                    return;
+                }
                 newDestination = cb;
                 break;
             }

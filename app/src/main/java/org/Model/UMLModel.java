@@ -70,40 +70,15 @@ public class UMLModel implements UMLModelInterface{
 		}
 		return true;
 	}
-    
-    /**
-     * Checks if a relationships exists
-     * @param source	| The source of the relationship
-     * @param dest		| Destination of the relationship
-     * @param type      | The type of the relationship 
-     * @return True if relationship exists, false otherwise
-     */
-    public Relationship relationshipExist(String source, String dest, Type type) {
-    	int index = 0;
-    	Relationship curRelationship;
-    	// Iterate through the array of relationships
-    	while (index < relationshipList.size()) {
-    		curRelationship = relationshipList.get(index);
-    		// Check if the current relationship is between source and dest
-    		if (curRelationship.getSource().getName().equals(source) && 
-                curRelationship.getDestination().getName().equals(dest) &&
-                curRelationship.getType().equals(type)) {
-    			// Relationship between source and dest already exists
-    			return curRelationship;
-    		}
-    		index++;
-    	}
-    	// Relationship between source and dest does not exist
-    	return null;
-    }
 
         /**
      * Checks if a relationships exists
      * @param source	| The source of the relationship
      * @param dest		| Destination of the relationship
      * @return True if relationship exists, false otherwise
+	 * @throws Exception
      */
-    public Relationship relationshipExist(String source, String dest) {
+    public Relationship fetchRelationship(String source, String dest) throws Exception {
     	int index = 0;
     	Relationship curRelationship;
     	// Iterate through the array of relationships
@@ -118,8 +93,23 @@ public class UMLModel implements UMLModelInterface{
     		index++;
     	}
     	// Relationship between source and dest does not exist
-    	return null;
+    	throw new Exception ("Relationship between " + source + " and " + dest + " does not exist");
     }
+
+	/**
+	 * Checks if a relationship exists
+	 * @param source	| The name of the soruce class
+	 * @param dest		| The name of the destination class
+	 * @return True if relationship exists, false otherwise
+	 */
+	public boolean relationshipExist(String source, String dest) {
+		try {
+			fetchRelationship(source, dest);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
 
        
     /**

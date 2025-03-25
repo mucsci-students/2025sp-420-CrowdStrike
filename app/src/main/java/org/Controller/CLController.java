@@ -138,58 +138,46 @@ public class CLController {
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
 	private void CL_addRelationship() {
-		// Temporarily move instantations to before try block so
-		// they are accessible later in function
-		String source = "";
-		String dest = "";
 		try {
 			view.show(model.listClassNames());
 			view.show("Enter the source class");
-			source = sc.nextLine();
+			String source = sc.nextLine();
 			model.fetchClass(source);
 			view.show(model.listClassNames());
 			view.show("Enter the destination class");
-			dest = sc.nextLine();
+			String dest = sc.nextLine();
 			model.fetchClass(dest);
+			if (!model.relationshipExist(source, dest)) {
+				// Relationship does not already exist
+				String typeint = "0";
+				Type type = null;
+				while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3") || typeint.equals("4"))) {
+					view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
+					typeint = sc.nextLine();
+					if (typeint.equals("1")) {
+						type = Type.AGGREGATION;
+					} else if (typeint.equals("2")) {
+						type = Type.COMPOSITION;
+					} else if (typeint.equals("3")) {
+						type = Type.INHERITANCE;
+					} else if (typeint.equals("4")) {
+						type = Type.REALIZATION;
+					} else if (typeint.equalsIgnoreCase("cancel")) {
+						return;
+					} else {
+						view.show("Invalid input! Try again (or 'cancel' the creation).");
+					}
+				}
+				if (type != null && editor.addRelationship(source, dest, type)) {
+					view.show(type + " Relationship successfully created from " + source + " to " + dest);
+				} else {
+					view.show("Relationship could not be created");
+				}
+			} else {
+				view.show("Relationship between " + source + " and " + dest + " already exists");
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-
-		if (model.relationshipExist(source, dest) != null) {
-			view.show("Error: A relationship already exists between " + source + " and " + dest + "! Aborting.");
-			return;
-		}
-
-		String typeint = "0";
-		Type type = null;
-		while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3") || typeint.equals("4"))) {
-			view.show(
-					"Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
-			typeint = sc.nextLine();
-			if (typeint.equals("1")) {
-				type = Type.AGGREGATION;
-			} else if (typeint.equals("2")) {
-				type = Type.COMPOSITION;
-			} else if (typeint.equals("3")) {
-				type = Type.INHERITANCE;
-			} else if (typeint.equals("4")) {
-				type = Type.REALIZATION;
-			} else if (typeint.equalsIgnoreCase("cancel")) {
-				return;
-			} else {
-				view.show("Invalid input! Try again (or 'cancel' the creation).");
-			}
-		}
-
-		try {
-		if (type != null && editor.addRelationship(source, dest, type)) {
-			view.show(type + " Relationship successfully created from " + source + " to " + dest);
-		} else {
-			view.show("Relationship could not be created");
-		}
-		} catch (Exception e) {
-			//Temp Try-Catch block
 		}
 	}
 
@@ -198,96 +186,98 @@ public class CLController {
 	 * Loops until the
 	 */
 	private void CL_editRelationship() {
-		String source = "";
-		String dest = "";
 		try {
 			view.show(model.listRelationships());
-			// Because we are listing relationships listing classes after feels redundant
-			view.show(model.listClassNames());
 			view.show("What is the source of the relationship are you changing?");
-			source = sc.nextLine();
+			String source = sc.nextLine();
 			model.fetchClass(source);
 			view.show(model.listClassNames());
 			view.show("What is the destination of the relationship are you changing?");
-			dest = sc.nextLine();
+			String dest = sc.nextLine();
 			model.fetchClass(dest);
+			if (model.relationshipExist(source, dest)) {
+				view.show("What property of the relationship are you changing?\n");
+				view.show("You can edit the 'source', 'destination', or 'type' of this relationship.");
+				String field = sc.nextLine().toLowerCase();
+				String value = null;
+				switch (field) {
+					case "source":
+						try {
+							view.show(model.listClassNames());
+							view.show("Which class do you want to name as the new source?");
+							value = sc.nextLine();
+							model.fetchClass(value);
+							// Need to check if Relationship w/ new source and current dest
+							// already exists and abort if yes
+							if (model.relationshipExist(value, dest)) {
+								view.show("Relationship between " + value + " and " + dest + " already exists");
+								return;
+							}
+						} catch (Exception e) {
+							view.show(e.getMessage());
+							return;
+						}
+						break;
+	
+					case "destination":
+						try {
+							view.show(model.listClassNames());
+							view.show("What class do you want to name as the new destination?");
+							value = sc.nextLine();
+							model.fetchClass(value);
+							// Need to check if Relationship w/ current source and new dest
+							// already exists and abort if yes
+							if (model.relationshipExist(source, value)) {
+								view.show("Relationship between " + source + " and " + value + " already exists");
+								return;
+							}
+						} catch (Exception e) {
+							view.show(e.getMessage());
+							return;
+						}
+						break;
+	
+					case "type":
+						String typeint = "0";
+						while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3")
+								|| typeint.equals("4"))) {
+							view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
+							typeint = sc.nextLine();
+							if (typeint.equals("1")) {
+								value = "AGGREGATION";
+							} else if (typeint.equals("2")) {
+								value = "COMPOSITION";
+							} else if (typeint.equals("3")) {
+								value = "INHERITANCE";
+							} else if (typeint.equals("4")) {
+								value = "REALIZATION";
+							} else if (typeint.equalsIgnoreCase("cancel")) {
+								view.show("Operation canceled by user. Aborting.");
+								return;
+							} else {
+								view.show("Invalid input! Try again (or 'cancel' the update).");
+							}
+						}
+						view.show("Relationship's type successfully set to " + value);
+						break;
+					default:
+						view.show("Unfortunately, we don't support changing the " + field
+								+ " of a relationship right now. Aborting.");
+						break;
+				}
+				try {
+					if (value != null) {
+						editor.editRelationship(source, dest, field, value);
+					}
+				} catch (Exception e) {
+					//Temp Try-Catch block
+				}
+			} else {
+				view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 			return;
-		}
-		
-		
-		if (model.relationshipExist(source, dest) != null) {
-			view.show("What property of the relationship are you changing?\n");
-			view.show("You can edit the 'source', 'destination', or 'type' of this relationship.");
-			String field = sc.nextLine().toLowerCase();
-			String value = null;
-			switch (field) {
-				case "source":
-					try {
-						view.show(model.listClassNames());
-						view.show("Which class do you want to name as the new source?");
-						value = sc.nextLine();
-						model.fetchClass(value);
-						// Need to check if Relationship w/ new source and current dest
-						// already exists and abort if yes
-					} catch (Exception e) {
-						view.show(e.getMessage());
-						return;
-					}
-					break;
-
-				case "destination":
-					try {
-						view.show(model.listClassNames());
-						view.show("What class do you want to name as the new destination?");
-						value = sc.nextLine();
-						model.fetchClass(value);
-						// Need to check if Relationship w/ current source and new dest
-						// already exists and abort if yes
-					} catch (Exception e) {
-						view.show(e.getMessage());
-						return;
-					}
-					break;
-
-				case "type":
-					String typeint = "0";
-					while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3")
-							|| typeint.equals("4"))) {
-						view.show(
-								"Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
-						typeint = sc.nextLine();
-						if (typeint.equals("1")) {
-							value = "AGGREGATION";
-						} else if (typeint.equals("2")) {
-							value = "COMPOSITION";
-						} else if (typeint.equals("3")) {
-							value = "INHERITANCE";
-						} else if (typeint.equals("4")) {
-							value = "REALIZATION";
-						} else if (typeint.equalsIgnoreCase("cancel")) {
-							view.show("Operation canceled by user. Aborting.");
-							return;
-						} else {
-							view.show("Invalid input! Try again (or 'cancel' the update).");
-						}
-					}
-					view.show("Relationship's type successfully set to " + value);
-					break;
-				default:
-					view.show("Unfortunately, we don't support changing the " + field
-							+ " of a relationship right now. Aborting.");
-					break;
-			}
-			try {
-			if (value != null)
-				editor.editRelationship(source, dest, field, value);
-			} catch (Exception e) {
-				//Temp Try-Catch block
-			}
-		} else {
-			view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
 		}
 	}
 
@@ -295,36 +285,19 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	private void CL_deleteRelationship() {
-		String source = "";
-		String dest = "";
 		try {
 			view.show(model.listRelationships());
-		} catch (Exception e) {
-			view.show(e.getMessage());
-			return;
-		}
-		try {
-			view.show(model.listClassNames());
 			view.show("What is the source of the relationship are you deleting?");
-			source = sc.nextLine();
+			String source = sc.nextLine();
 			model.fetchClass(source);
 			view.show(model.listClassNames());
 			view.show("What is the destination of the relationship are you deleting?");
-			dest = sc.nextLine();
+			String dest = sc.nextLine();
 			model.fetchClass(dest);
+			model.fetchRelationship(source, dest);
+			editor.deleteRelationship(source, dest);
 		} catch (Exception e) {
 			view.show(e.getMessage());
-			return;
-		}
-		
-		if (model.relationshipExist(source, dest) == null) {
-			view.show("Error: Relationship between " + source + " and " + dest + " does not exist! Aborting.");
-			return;
-		}
-		if (editor.deleteRelationship(source, dest)) {
-			view.show("Relationship between " + source + " and " + dest + " deleted.");
-		} else {
-			view.show("Relationship between " + source + " and " + dest + " could not be deleted.");
 		}
 	}
 
@@ -332,11 +305,10 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	private void CL_addField() {
-		String className = "";
 		try {
 			view.show(model.listClassNames());
 			view.show("What class would you like to add a field to?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the field?");
 			input = sc.nextLine();
@@ -351,11 +323,10 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteField() {
-		String className = "";
 		try {
 			view.show(model.listClassNames());
 			view.show("What class would you like to delete a field from?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to delete?");
@@ -372,11 +343,10 @@ public class CLController {
 	 * Returns whether or not the operation succeeds
 	 */
 	private void CL_renameField() {
-		String className = "";
 		try {
 			view.show(model.listClassNames());
 			view.show("What class do you want to rename a field from?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to rename?");
@@ -396,11 +366,10 @@ public class CLController {
 	 * or not
 	 */
 	private void CL_addMethod() {
-		String className = "";
 		try {
 			view.show(model.listClassNames());
 			view.show("What class would you like to add a method to?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the method?");
 			input = sc.nextLine();
@@ -456,18 +425,16 @@ public class CLController {
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
 	private void CL_deleteMethod() {
-		String className = "";
-		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
 			view.show("What class would you like to delete a method from?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("What is the name of the method you want to delete?");
 			input = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, input));
-			//int paramArity = -1;
+			int paramArity = -1;
 			view.show("How many parameters does " + input + " have?");
 			boolean validArity = false;
 			while (!validArity) {
@@ -496,18 +463,16 @@ public class CLController {
 	 * to Returns whether or not the operation succeeds
 	 */
 	private void CL_renameMethod() {
-		String className = "";
-		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
 			view.show("What class do you want to rename a method from?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("What is the name of the method you want to rename?");
 			input = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, input));
-			//int paramArity = -1;
+			int paramArity = -1;
 			view.show("How many parameters does " + input + " have?");
 			boolean validArity = false;
 			while (!validArity) {
@@ -540,19 +505,16 @@ public class CLController {
 	 * to the list of parameters attached to the method.
 	 */
 	private void CL_addParam() {
-		String className = "";
-		String methodName = "";
-		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
 			view.show("What class does the method you want to add the parameter to belong to?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Please type the name of the method you'd like to add parameters to:");
-			methodName = sc.nextLine();
+			String methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
-			//int paramArity = -1;
+			int paramArity = -1;
 			view.show("How many parameters does " + methodName + " have?");
 			boolean validArity = false;
 			while (!validArity) {
@@ -607,19 +569,16 @@ public class CLController {
 	 * the named parameter.
 	 */
 	private void CL_removeParam() {
-		String className = "";
-		String methodName = "";
-		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
 			view.show("What class does the method you want to remove the parameter from belong to?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-			methodName = sc.nextLine();
+			String methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
-			//int paramArity = -1;
+			int paramArity = -1;
 			view.show("How many parameters does " + methodName + " have?");
 			boolean validArity = false;
 			while (!validArity) {
@@ -650,19 +609,16 @@ public class CLController {
 	}
 
 	private void CL_removeAllParam() {
-		String className = "";
-		String methodName = "";
-		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
 			view.show("What class does the method you want to remove the parameter from belong to?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-			methodName = sc.nextLine();
+			String methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
-			//int paramArity = -1;
+			int paramArity = -1;
 			view.show("How many parameters does " + methodName + " have?");
 			boolean validArity = false;
 			while (!validArity) {
@@ -695,19 +651,16 @@ public class CLController {
 	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
 	 */
 	private void CL_changeParam() {
-		String className = "";
-		String methodName = "";
-		int paramArity = -1;
 		try {
 			view.show(model.listClassNames());
 			view.show("What class does the method you want to add the parameter to belong to?");
-			className = sc.nextLine();
+			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Please type the name of the method you'd like to add parameters to:");
-			methodName = sc.nextLine();
+			String methodName = sc.nextLine();
 			view.show(model.listMethodArities(activeClass, methodName));
-			//int paramArity = -1;
+			int paramArity = -1;
 			view.show("How many parameters does " + methodName + " have?");
 			boolean validArity = false;
 			while (!validArity) {
