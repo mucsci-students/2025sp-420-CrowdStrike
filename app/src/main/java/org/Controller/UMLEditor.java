@@ -11,12 +11,16 @@ import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
+import org.Model.UMLMemento;
 
 public class UMLEditor {
 	// The model that is being edited
 	private UMLModel model;
 	// Holds the class actively being worked on
 	private ClassObject activeClass;
+	// Memento object keeps track of previous states
+	private UMLMemento memento = new UMLMemento();
+
 
 	/**
 	 * Constructs an instance of the UMLEditor
@@ -26,6 +30,7 @@ public class UMLEditor {
 	public UMLEditor(UMLModel model) {
 		this.model = model;
 		activeClass = null;
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -342,4 +347,28 @@ public class UMLEditor {
 		}
 		return false;
 	}
+
+	/** Restores a previous state of the model using methods from the memento class
+	 * 
+	 */
+	public void undo() throws Exception {
+		// Get previous model or an exception that nothing can be undone
+		UMLModel prevModel = memento.undoState();
+
+		// Replace the current model with the previous one
+		this.model = prevModel;
+	}
+
+	/** Restores a state of the model prior to an undo operation using methods from the memento class
+	 * 
+	 */
+	public void redo() throws Exception {
+		// Get "next" model or an exception that nothing can be redone
+		UMLModel nextModel = memento.redoState();
+
+		// Replace the current model with the next one
+		this.model = nextModel;
+	}
+
+	
 }

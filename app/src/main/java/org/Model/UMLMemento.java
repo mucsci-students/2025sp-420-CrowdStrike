@@ -17,18 +17,11 @@ public class UMLMemento
      */
     public void saveState(UMLModel currentModel)
     {
-        try
-        {
-            // push current model onto undo's stack
-            //undoHistory.push(<CURRENT_STATE>);
+        // Push current model onto undo's stack
+        undoHistory.push(currentModel);
 
-            // clear redo stack since this is a "new" action
-            redoHistory.clear();
-        }
-        catch(Exception e)
-        {
-
-        }
+        // Clear redo stack since this is a "new" action
+        redoHistory.clear();
 
     }
 
@@ -37,25 +30,16 @@ public class UMLMemento
      */
     public UMLModel undoState() throws Exception
     {
-        try
-        {
-            if(undoHistory.isEmpty())
-                {throw new Exception ("Error: There is nothing to undo!");}
+        if(undoHistory.isEmpty())
+            {throw new Exception ("Error: There is nothing to undo!");}
 
-            // The most recent state is simply the top of the undo stack
-            UMLModel state = undoHistory.pop();
+        // The most recent state is simply the top of the undo stack
+        UMLModel state = undoHistory.pop();
 
-            // Since something is being undone, we should remember how to possibly redo it 
-            //redoHistory.push(<CURRENT_STATE>)
+        // Since something is being undone, we should remember how to possibly redo it 
+        redoHistory.push(state);
 
-            return state;
-
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-
+        return state;
     }
 
     /**
@@ -63,25 +47,16 @@ public class UMLMemento
      */
     public UMLModel redoState() throws Exception
     {
-        try
-        {
-            if(redoHistory.isEmpty())
-                {throw new Exception ("Error: There is nothing to redo!");}
+        if(redoHistory.isEmpty())
+            {throw new Exception ("Error: There is nothing to redo!");}
 
-            // The most recent undo that we could redo is at the top of the redo stack (courtesy of undoState())
-            UMLModel state = redoHistory.pop();
+        // The most recent undo that we could redo is at the top of the redo stack (courtesy of undoState())
+        UMLModel state = redoHistory.pop();
 
-            // Since something is being redone, we should remember how to possibly undo it 
-            //undoHistory.push(<CURRENT_STATE>);
+        // Since something is being redone, we should remember how to possibly undo it 
+        undoHistory.push(state);
 
-            return state;
-
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-
+        return state;
     }
 
 }

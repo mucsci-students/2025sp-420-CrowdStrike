@@ -737,6 +737,25 @@ public class CLController {
 		}
 	}
 
+	private void CL_undo(){
+		try {
+		editor.undo();
+		view.show("The last action was undone.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+		
+	}
+
+	private void CL_redo(){
+		try {
+		editor.redo();
+		view.show("The last undone action was redone.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+	}
+
 	private void save() {
 		view.show("Where would you like to save:");
 		String path = sc.nextLine();
@@ -865,6 +884,14 @@ public class CLController {
 				case "changeparameter":
 				case "cp":
 					CL_changeParam();
+					break;
+				case "undo":
+				case "u":
+					CL_undo();
+					break;
+				case "redo":
+				case "r":
+					CL_redo();
 					break;
 				default:
 					view.show("Command not recognized, please try something else");
