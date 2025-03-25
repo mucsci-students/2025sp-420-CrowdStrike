@@ -8,6 +8,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    jacoco
 }
 
 repositories {
@@ -39,7 +40,12 @@ application {
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
 }
 
 tasks.named<JavaExec>("run") {
