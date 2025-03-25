@@ -1,6 +1,8 @@
 package org;
 import org.View.CLView;
+import org.View.GUIView;
 import org.Controller.CLController;
+import org.Controller.GUIController;
 import org.Controller.UMLEditor;
 import org.Model.UMLModel;
 /**
@@ -16,8 +18,14 @@ class UMLClassEditorApp {
     public static void main(String[] args) {
         UMLModel model = new UMLModel();
         UMLEditor editor = new UMLEditor(model);
+        if(args.length != 0 && args[0].equals("--cli")){
         CLView view = new CLView();
         CLController controller = new CLController(model, editor, view);
         controller.init();
+        } else {
+        GUIView view = new GUIView();
+        GUIController controller = new GUIController(model, editor, view);
+        controller.initController();
+        }
     }
 }
