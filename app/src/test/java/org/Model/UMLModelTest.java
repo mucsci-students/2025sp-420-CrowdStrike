@@ -60,15 +60,10 @@ public class UMLModelTest {
 
 	@Test
 	public void relationshipExist() {
-		assertNotNull(m.relationshipExist("foo", "bar"));
-		assertNotNull(m.relationshipExist("foo", "bar", Type.INHERITANCE));
+		assertTrue(m.relationshipExist("foo", "bar"));
 
-		assertNull(m.relationshipExist("bizz", "bazz"));
-		assertNull(m.relationshipExist("foo", "bazz"));
-
-		assertNull(m.relationshipExist("bizz", "bar", Type.INHERITANCE));
-		assertNull(m.relationshipExist("foo", "bazz", Type.INHERITANCE));
-		assertNull(m.relationshipExist("foo", "bar", Type.AGGREGATION));
+		assertFalse(m.relationshipExist("bizz", "bazz"));
+		assertFalse(m.relationshipExist("foo", "bazz"));
 	}
 
 	@Test
