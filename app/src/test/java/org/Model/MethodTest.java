@@ -68,6 +68,7 @@ public class MethodTest {
 		assertFalse(m.getParamList().contains(h));
 
 		assertThrows(java.lang.IllegalArgumentException.class, () -> m.removeParameter("foo"));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.removeParameter(""));
 
 		m.removeAllParameters();
 		assertEquals(m.getParamList(), new ArrayList<>());
@@ -76,6 +77,7 @@ public class MethodTest {
 	@Test
 	public void equals() {
 		assertTrue(m.equals(new Method("foo", p)));
+
 		assertFalse(m.equals(new Method("foo2", p)));
 		assertFalse(m.equals(new Method("foo", new ArrayList<>())));
 	}
@@ -87,6 +89,7 @@ public class MethodTest {
 		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", null));
 		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", " "));
 		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("missing name", "zzz"));
+
 		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz"));
 		assertDoesNotThrow(() -> m.fetchParameter("zbuz"));
 	}
