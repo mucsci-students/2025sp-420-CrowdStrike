@@ -1,6 +1,5 @@
 package org.Model;
 import java.util.ArrayList;
-import org.Model.Relationship.Type;
 
 
 public class UMLModel implements UMLModelInterface{
@@ -297,9 +296,9 @@ public class UMLModel implements UMLModelInterface{
 	private String listParams(Method mthd) {
 		String str = "(";
 		if (mthd.getParamList().size() > 0) {
-			str = str + mthd.getParamList().get(0).getName();
+			str = str + mthd.getParamList().get(0).getName() + ": " + mthd.getParamList().get(0).getType();
 			for (int i = 1; i < mthd.getParamList().size(); i++) {
-				str = str + ", " + mthd.getParamList().get(i).getName();
+				str = str + ", " + mthd.getParamList().get(i).getName() + ": " + mthd.getParamList().get(0).getType();
 			}
 		}
 		return str = str + ")";

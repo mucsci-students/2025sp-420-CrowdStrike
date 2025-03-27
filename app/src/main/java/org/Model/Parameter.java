@@ -13,6 +13,9 @@ public class Parameter {
 	public String getName() {
 		return name;
 	}
+	public String getType(){
+		return type;
+	}
 
 	public String setType(){
 		return type;
