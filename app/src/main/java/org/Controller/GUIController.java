@@ -91,6 +91,9 @@ public class GUIController {
         view.getDeleteParamButton().addActionListener(e -> deleteParameterFromMethod());
         view.getChangeParamButton().addActionListener(e -> changeParameterInMethod());
 
+        view.getUndoButton().addActionListener(e -> undo());
+        view.getRedoButton().addActionListener(e -> redo());
+
         view.getSaveButton().addActionListener(e -> saveDiagram());
         view.getLoadButton().addActionListener(e -> loadDiagram());
         
@@ -1065,6 +1068,30 @@ private void changeParameterInMethod() {
 
     public UMLEditor getEditor(){
         return this.editor;
+    }
+
+    public void undo(){
+        try{
+        editor.undo();
+		this.model = editor.getModel();
+        view.getDrawingPanel().revalidate();
+        view.getDrawingPanel().repaint();
+        } catch(Exception e){
+        JOptionPane.showMessageDialog(view, "Nothing to undo!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+        }
+    }
+
+    public void redo(){
+        try{		
+        editor.undo();
+		this.model = editor.getModel();
+        view.getDrawingPanel().revalidate();
+        view.getDrawingPanel().repaint();
+        } catch(Exception e){
+        JOptionPane.showMessageDialog(view, "Nothing to redo!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+        }
     }
 
 

@@ -1,6 +1,12 @@
 package org.Model;
 import java.util.ArrayList;
 import org.Model.Relationship.Type;
+import java.util.Stack;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 public class UMLModel implements UMLModelInterface{
@@ -369,4 +375,169 @@ public class UMLModel implements UMLModelInterface{
 			return true;
 		}
 	}
+
+	    /**
+     * Method A: Creates a deep copy of the model by converting it into a String 
+     * and then reconstructing a model from that string
+     *
+     * @param model the current UMLModel
+     * @return a deep copy of the provided UMLModel
+     */
+    public UMLModel deepCopy() {
+        String modelString = modelToString(this);  
+        return stringToModel(modelString);
+		//Gson g = new Gson();
+		//String j = g.toJson(this);
+		//return g.fromJson(j,UMLModel.class);            
+    }
+
+    /**
+     * Translates the UMLModel into its JSON string representation.
+     */
+    private String modelToString(UMLModel model) {
+        StringBuilder json = new StringBuilder();
+        json.append("{");
+
+        
+        json.append("\"classes\": [");
+        ArrayList<ClassObject> classes = model.getClassList();
+        for (int i = 0; i < classes.size(); i++) {
+            ClassObject co = classes.get(i);
+            json.append("{\"name\": \"").append(co.getName()).append("\",");
+            // Serialize fields
+            json.append("\"fields\": [");
+            ArrayList<AttributeInterface> fields = co.getFieldList();
+            for (int j = 0; j < fields.size(); j++) {
+                AttributeInterface field = fields.get(j);
+                json.append("{\"name\": \"").append(field.getName()).append("\"}");
+                if (j < fields.size() - 1) {
+                    json.append(",");
+                }
+            }
+            json.append("],");
+			
+            json.append("\"methods\": [");
+            ArrayList<AttributeInterface> methods = co.getMethodList();
+            for (int j = 0; j < methods.size(); j++) {
+                Method m = (Method) methods.get(j);
+                json.append("{\"name\": \"").append(m.getName()).append("\",");
+                json.append("\"params\": [");
+                ArrayList<Parameter> params = m.getParamList();
+                for (int k = 0; k < params.size(); k++) {
+                    Parameter p = params.get(k);
+                    json.append("{\"name\": \"").append(p.getName()).append("\"}");
+                    if (k < params.size() - 1) {
+                        json.append(",");
+                    }
+                }
+                json.append("]}");
+                if (j < methods.size() - 1) {
+                    json.append(",");
+                }
+            }
+            json.append("]}");
+            if (i < classes.size() - 1) {
+                json.append(",");
+            }
+        }
+        json.append("],");
+
+        // Serialize relationships
+        json.append("\"relationships\": [");
+        ArrayList<Relationship> rels = model.getRelationshipList();
+        for (int i = 0; i < rels.size(); i++) {
+            Relationship r = rels.get(i);
+            json.append("{\"source\": \"").append(r.getSource().getName()).append("\",");
+            json.append("\"destination\": \"").append(r.getDestination().getName()).append("\",");
+            json.append("\"type\": \"").append(r.getTypeString()).append("\"}");
+            if (i < rels.size() - 1) {
+                json.append(",");
+            }
+        }
+        json.append("]");
+
+        json.append("}");
+        return json.toString();
+    }
+
+    /**
+     * Reconstructs a UMLModel from its JSON string representation.
+     *
+     */
+    private UMLModel stringToModel(String s) {
+        UMLModel model = new UMLModel();
+        JsonElement modelJson = JsonParser.parseString(s);
+        JsonObject modelObject = modelJson.getAsJsonObject();
+
+        // Deserialize classes
+        JsonArray classes = modelObject.get("classes").getAsJsonArray();
+        for (JsonElement e : classes) {
+            JsonObject classObj = e.getAsJsonObject();
+            ClassObject co = new ClassObject(classObj.get("name").getAsString());
+
+            // Deserialize fields
+            JsonArray fields = classObj.get("fields").getAsJsonArray();
+            for (JsonElement fe : fields) {
+                JsonObject fieldObj = fe.getAsJsonObject();
+                co.getFieldList().add(new Field(fieldObj.get("name").getAsString()));
+            }
+
+            // Deserialize methods and their parameters
+            JsonArray methods = classObj.get("methods").getAsJsonArray();
+            for (JsonElement me : methods) {
+                JsonObject methodObj = me.getAsJsonObject();
+                ArrayList<Parameter> params = new ArrayList<>();
+                JsonArray paramArr = methodObj.get("params").getAsJsonArray();
+                for (JsonElement pe : paramArr) {
+                    JsonObject paramObj = pe.getAsJsonObject();
+                    params.add(new Parameter(paramObj.get("name").getAsString()));
+                }
+                Method method = new Method(methodObj.get("name").getAsString(), params);
+                co.getMethodList().add(method);
+            }
+            model.getClassList().add(co);
+        }
+
+        // Deserialize relationships
+        JsonArray relationships = modelObject.get("relationships").getAsJsonArray();
+        for (JsonElement re : relationships) {
+            JsonObject relObj = re.getAsJsonObject();
+            String source = relObj.get("source").getAsString();
+            String destination = relObj.get("destination").getAsString();
+            String typeStr = relObj.get("type").getAsString();
+
+            Relationship.Type relType = null;
+            switch(typeStr) {
+                case "Aggregation":
+                    relType = Relationship.Type.AGGREGATION;
+                    break;
+                case "Composition":
+                    relType = Relationship.Type.COMPOSITION;
+                    break;
+                case "Inheritance":
+                    relType = Relationship.Type.INHERITANCE;
+                    break;
+                case "Realization":
+                    relType = Relationship.Type.REALIZATION;
+                    break;
+            }
+
+            // Find the corresponding ClassObjects
+            ClassObject src = null, dest = null;
+            for (ClassObject c : model.getClassList()) {
+                if (c.getName().equals(source)) {
+                    src = c;
+                }
+                if (c.getName().equals(destination)) {
+                    dest = c;
+                }
+            }
+            if (src != null && dest != null) {
+                Relationship rel = new Relationship(src, dest, relType);
+                model.getRelationshipList().add(rel);
+            }
+        }
+        return model;
+    }
+
 }

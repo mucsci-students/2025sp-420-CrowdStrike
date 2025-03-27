@@ -2,15 +2,18 @@ package org.Model;
 import java.util.Stack;
 
 
+
 public class UMLMemento
 {
 
     // Each operation should be tied to its own stack for ease of use
     private final Stack<UMLModel> undoHistory = new Stack<>();
     private final Stack<UMLModel> redoHistory = new Stack<>();
+    
+    private UMLModel currentState;
 
     /**
-     * Gets a snapshot of the entire model and saves it as a "state"
+     * Updates the current snapshot of the model
      * 
      * Called after every operation
      * @return nothing
@@ -18,28 +21,30 @@ public class UMLMemento
     public void saveState(UMLModel currentModel)
     {
         // Push current model onto undo's stack
-        undoHistory.push(currentModel);
+        currentState = currentModel.deepCopy();
+        undoHistory.push(currentState);
 
         // Clear redo stack since this is a "new" action
         redoHistory.clear();
 
     }
 
+
     /**
      *
      */
     public UMLModel undoState() throws Exception
     {
-        if(undoHistory.isEmpty())
+        if(undoHistory.size()==1)
             {throw new Exception ("Error: There is nothing to undo!");}
 
         // The most recent state is simply the top of the undo stack
-        UMLModel state = undoHistory.pop();
+        currentState = undoHistory.pop();
 
         // Since something is being undone, we should remember how to possibly redo it 
-        redoHistory.push(state);
+        redoHistory.push(currentState.deepCopy());
 
-        return state;
+        return undoHistory.peek().deepCopy();
     }
 
     /**
@@ -51,12 +56,12 @@ public class UMLMemento
             {throw new Exception ("Error: There is nothing to redo!");}
 
         // The most recent undo that we could redo is at the top of the redo stack (courtesy of undoState())
-        UMLModel state = redoHistory.pop();
+        currentState = redoHistory.pop();
 
         // Since something is being redone, we should remember how to possibly undo it 
-        undoHistory.push(state);
+        undoHistory.push(currentState.deepCopy());
 
-        return state;
+        return currentState;
     }
 
 }

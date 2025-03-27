@@ -740,6 +740,7 @@ public class CLController {
 	private void CL_undo(){
 		try {
 		editor.undo();
+		this.model = editor.getModel();
 		view.show("The last action was undone.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -750,6 +751,7 @@ public class CLController {
 	private void CL_redo(){
 		try {
 		editor.redo();
+		this.model = editor.getModel();
 		view.show("The last undone action was redone.");
 		} catch (Exception e) {
 			view.show(e.getMessage());

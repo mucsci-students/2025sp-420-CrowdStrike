@@ -48,7 +48,7 @@ public class UMLEditor {
 	public void addClass(String newClassName) {
 		ClassObject newClass = new ClassObject(newClassName);
 		model.getClassList().add(newClass);
-
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -82,6 +82,7 @@ public class UMLEditor {
 			}
 			model.getClassList().remove(activeClass);
 			resetActiveClass();
+			memento.saveState(this.model);
 			return true;
 		}
 		return false;
@@ -95,6 +96,7 @@ public class UMLEditor {
 	 */
 	public void renameClass(ClassObject renameClass, String newName) {
 		renameClass.setName(newName);
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -116,6 +118,7 @@ public class UMLEditor {
 						// Create new Relationship
 						Relationship newRel = new Relationship(sourceClass, destClass, type);
 						model.getRelationshipList().add(newRel);
+						memento.saveState(this.model);
 						return true;
 					}
 			// Adding relationship failed
@@ -138,6 +141,7 @@ public class UMLEditor {
 			if (relExist != null) {
 				// Relationship does exist
 				model.getRelationshipList().remove(relExist);
+				memento.saveState(this.model);
 				return true;
 			}
 		} catch (Exception e) {
@@ -172,6 +176,7 @@ public class UMLEditor {
 					relExist.setType(Type.REALIZATION);
 				}
 			}
+			memento.saveState(this.model);
 		} catch (Exception e) {
 		}
 	}
@@ -190,6 +195,7 @@ public class UMLEditor {
 		} else {
 			Field fld = new Field(fieldName);
 			cls.addAttribute(fld);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -213,6 +219,7 @@ public class UMLEditor {
 			}
 			Method method = new Method(methodName, paramList);
 			cls.addAttribute(method);
+			memento.saveState(model);
 		}
 	}
 
@@ -229,6 +236,7 @@ public class UMLEditor {
 		} else {
 			Field delField = cls.fetchField(fieldName);
 			cls.removeAttribute(delField);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -246,6 +254,7 @@ public class UMLEditor {
 		} else {
 			Method delMethod = cls.fetchMethod(methodName, paramArity);
 			cls.removeAttribute(delMethod);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -262,6 +271,7 @@ public class UMLEditor {
 			throw new Exception (newName + " is currently used by another field in the class");
 		} else {
 			renameAttr.renameAttribute(newName);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -278,6 +288,7 @@ public class UMLEditor {
 			throw new Exception (newName + " is currently used by another method in the class");
 		} else {
 			renameMethod.renameAttribute(newName);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -289,7 +300,7 @@ public class UMLEditor {
 	 */
 	public void addParam(ArrayList<String> parameterList, Method currMethod) {
 		currMethod.addParameters(parameterList);
-
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -299,6 +310,7 @@ public class UMLEditor {
 	 */
 	public void removeAllParams(Method activeMethod) {
 		activeMethod.removeAllParameters();
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -309,6 +321,7 @@ public class UMLEditor {
 	 */
 	public void removeParam(Method activeMethod, Parameter param) {
 		activeMethod.removeParameter(param);
+		memento.saveState(this.model);
 	}
 	/**
 	 * Changes all the parameters of a method by replacing it with a new list
@@ -319,6 +332,7 @@ public class UMLEditor {
 	public void changeAllParams(Method activeMethod, ArrayList<String> parameterList) {
 		activeMethod.removeAllParameters();
 		activeMethod.addParameters(parameterList);
+		memento.saveState(this.model);
 	}
 	/**
 	 * Changes a parameter in a method with a new list of parameters
@@ -337,6 +351,7 @@ public class UMLEditor {
         }
 		activeMethod.getParamList().addAll(index, parameterParamList);
 		activeMethod.getParamList().remove(oldParam);
+		memento.saveState(this.model);
 	}
 	
 	public boolean nameAlrAdded(String paramName, ArrayList<String> buildParamNameList) {
@@ -353,10 +368,9 @@ public class UMLEditor {
 	 */
 	public void undo() throws Exception {
 		// Get previous model or an exception that nothing can be undone
-		UMLModel prevModel = memento.undoState();
-
 		// Replace the current model with the previous one
-		this.model = prevModel;
+		UMLModel prevState = memento.undoState();
+		this.model = prevState;
 	}
 
 	/** Restores a state of the model prior to an undo operation using methods from the memento class
@@ -364,11 +378,12 @@ public class UMLEditor {
 	 */
 	public void redo() throws Exception {
 		// Get "next" model or an exception that nothing can be redone
-		UMLModel nextModel = memento.redoState();
-
 		// Replace the current model with the next one
-		this.model = nextModel;
+		UMLModel nextState = memento.redoState();
+		this.model = nextState;
 	}
 
+	public UMLModel getModel()
+	{return this.model;}
 	
 }
