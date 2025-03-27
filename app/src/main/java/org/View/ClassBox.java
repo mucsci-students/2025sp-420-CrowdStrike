@@ -41,7 +41,7 @@ public class ClassBox extends JPanel {
         // Create the overlay panel that will capture all mouse events
         dragOverlay = new JPanel();
         dragOverlay.setOpaque(false);
-        dragOverlay.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+        //dragOverlay.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 
         // Common mouse adapter for starting drag and handling clicks (selection)
         MouseAdapter commonMouseAdapter = new MouseAdapter() {
@@ -51,13 +51,14 @@ public class ClassBox extends JPanel {
                 screenY = e.getYOnScreen();
                 myX = ClassBox.this.getX();
                 myY = ClassBox.this.getY();
-                e.consume();
-            }
-            @Override
-            public void mouseClicked(MouseEvent e) {
                 controller.selectClassBox(ClassBox.this);
                 e.consume();
             }
+            //@Override
+            //public void mouseClicked(MouseEvent e) {
+            //    controller.selectClassBox(ClassBox.this);
+            //    e.consume();
+            //}
         };
 
         // Drag listener for moving the box
