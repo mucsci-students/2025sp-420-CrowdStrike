@@ -23,6 +23,7 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.code.gson:gson:2.12.1")
+    implementation("info.picocli:picocli:4.7.6")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
