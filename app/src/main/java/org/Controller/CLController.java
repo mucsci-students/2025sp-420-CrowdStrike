@@ -1,5 +1,9 @@
 package org.Controller;
 
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.AutoComplete;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -51,6 +55,7 @@ public class CLController {
 	/**
 	 * Checks if any classes exist before printing them
 	 */
+	//@CommandLine.Command(name = "listclasses", aliases = ("lcs"), description = "List all classes")
 	private void CL_listClasses() {
 		if (model.getClassList().size() != 0) {
 			view.show(model.listClasses());
@@ -62,6 +67,7 @@ public class CLController {
 	/**
 	 * Gets the class to be listed and tells user if action failed
 	 */
+	//@CommandLine.Command(name = "listclass", aliases = ("lc"), description = "List info for one class")
 	private void CL_listClassInfo() {
 		try {
 			view.show(model.listClassNames());
@@ -77,6 +83,7 @@ public class CLController {
 	/**
 	 * Checks if any relationships exist before printing them
 	 */
+	//@CommandLine.Command(name = "listrelationships", aliases = ("lr"), description = "List all relationships")
 	private void CL_listRelationships() {
 		try {
 			view.show(model.listRelationships());
@@ -88,6 +95,7 @@ public class CLController {
 	/**
 	 * Gets name of new class from user and displays if it was added successfully
 	 */
+	//@CommandLine.Command(name = "addclass", aliases = ("ac"), description = "Add a new class")
 	private void CL_addClass() {
 		try {
 			view.show("Enter the new class' name: ");
@@ -103,6 +111,7 @@ public class CLController {
 	/**
 	 * Gets class info from user and displays if class was deleted
 	 */
+	//@CommandLine.Command(name = "delete class", aliases = ("dc"), description = "Delete a class")
 	private void CL_deleteClass() {
 		try {
 			view.show(model.listClassNames());
@@ -118,6 +127,7 @@ public class CLController {
 	/**
 	 * Gets class info from user and displays if class was renamed
 	 */
+	//@CommandLine.Command(name = "renameclass", aliases = ("rc"), description = "Rename a class")
 	private void CL_renameClass() {
 		try {
 			view.show(model.listClassNames());
@@ -770,6 +780,7 @@ public class CLController {
 		while (loop) {
 			// Print the basePrompt asking for next command
 			view.show(basePrompt);
+
 			// Read user input
 			if (!sc.hasNextLine())
 				continue;
