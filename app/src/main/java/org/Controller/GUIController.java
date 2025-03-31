@@ -1039,30 +1039,37 @@ private void changeParameterInMethod() {
 
                 model = fileManager.load(path.trim());
 		editor = new UMLEditor(model);
-		classBoxes.clear();
-		relationships.clear();
+		refreshClassBox(model);
+		JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+	    }
+	    catch (Exception e) {
+		    JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    }
+    }
 
-		for(ClassObject c:model.getClassList())
-		    addClass(c);
+    private void refreshClassBox(UMLModel model){
+	classBoxes.clear();
+	relationships.clear();
+	view.getDrawingPanel().removeAll();
+	for(ClassObject c:model.getClassList())
+	    addClass(c);
 
-		for(Relationship r: model.getRelationshipList()){
-		    ClassBox s = null;
-		    ClassBox d = null;
-		    String sn,dn;
-		    sn = r.getSource().getName();
-		    dn = r.getDestination().getName();
-		    for(ClassBox b: classBoxes){
-			s = b.getClassName().equals(sn) ? b : s;
-			d = b.getClassName().equals(dn) ? b : d;
-		    }
-		    String type = r.getTypeString();
-		    relationships.add(new GUIRelationship(s, d, type));
-		    view.getDrawingPanel().addRelationship(s, d, type);
-		    JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-		}
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+	for(Relationship r: model.getRelationshipList()){
+	    ClassBox s = null;
+	    ClassBox d = null;
+	    String sn,dn;
+	    sn = r.getSource().getName();
+	    dn = r.getDestination().getName();
+	    for(ClassBox b: classBoxes){
+		s = b.getClassName().equals(sn) ? b : s;
+		d = b.getClassName().equals(dn) ? b : d;
+	    }
+	    String type = r.getTypeString();
+	    relationships.add(new GUIRelationship(s, d, type));
+	    view.getDrawingPanel().addRelationship(s, d, type);
+	    view.getDrawingPanel().revalidate();
+	    view.getDrawingPanel().repaint();
+	}
     }
     
 
@@ -1073,7 +1080,8 @@ private void changeParameterInMethod() {
     public void undo(){
         try{
         editor.undo();
-		this.model = editor.getModel();
+	this.model = editor.getModel();
+	refreshClassBox(model);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
         } catch(Exception e){
@@ -1085,7 +1093,8 @@ private void changeParameterInMethod() {
     public void redo(){
         try{		
         editor.undo();
-		this.model = editor.getModel();
+	this.model = editor.getModel();
+	refreshClassBox(model);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
         } catch(Exception e){
@@ -1115,8 +1124,4 @@ private void changeParameterInMethod() {
         public ClassBox getDestination() { return destination; }
         public String getType() { return type; }
     }
-
-    
-
-
 }
