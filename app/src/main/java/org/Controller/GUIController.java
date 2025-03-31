@@ -1092,7 +1092,7 @@ private void changeParameterInMethod() {
 
     public void redo(){
         try{		
-        editor.undo();
+        editor.redo();
 	this.model = editor.getModel();
 	refreshClassBox(model);
         view.getDrawingPanel().revalidate();
