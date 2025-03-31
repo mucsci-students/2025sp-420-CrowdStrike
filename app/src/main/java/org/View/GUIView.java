@@ -1,9 +1,8 @@
 package org.View;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.View.CustomDrawingPanel;
+import javax.swing.*;
 
 public class GUIView extends JFrame {
     private JButton addClassButton;

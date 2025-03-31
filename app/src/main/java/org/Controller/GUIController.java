@@ -19,11 +19,11 @@ public class GUIController {
     private UMLEditor editor;
     ClassObject activeClass = null;
 
-    private GUIView view;
+    private final GUIView view;
     private List<ClassBox> classBoxes = new ArrayList<>();
     private List<GUIRelationship> relationships = new ArrayList<>();
     private ClassBox selectedClassBox = null;
-    private boolean addRelationshipMode = false;
+    //private boolean addRelationshipMode = false;
     private ClassBox selectedDestination = null;
     private ClassBox selectedSource = null;
 
@@ -60,18 +60,7 @@ public class GUIController {
         view.getDeleteClassButton().addActionListener(e -> deleteSelectedClass());
         view.getRenameClassButton().addActionListener(e -> renameSelectedClass());
 
-        view.getAddRelationshipButton().addActionListener(e -> {
-            if (classBoxes.size() < 2) {
-                JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            addRelationshipMode = view.getAddRelationshipButton().isSelected();
-            if (addRelationshipMode) {
-                JOptionPane.showMessageDialog(view, "Click on a source class, then a destination class.");
-            } else {
-                resetRelationshipSelection();
-            }
-        });
+        view.getAddRelationshipButton().addActionListener(e -> createRelationshipDialog());
 
         view.getEditRelationshipButton().addActionListener(e -> editRelationship());
 
@@ -189,11 +178,6 @@ public class GUIController {
             public void mousePressed(MouseEvent e) {
                 //selectClassBox(classBox);
                 
-                if (addRelationshipMode) {
-                    handleRelationshipSelection(classBox);
-                } else {
-                    selectClassBox(classBox);
-                }
 
                 e.consume();
             }
@@ -233,26 +217,7 @@ public class GUIController {
         view.getDrawingPanel().repaint();
     }
     
-    // ==================== RELATIONSHIP HANDLING ==================== //
-     /**
-     * Handles selecting source and destination for a relationship.
-     */
-    
-    private void handleRelationshipSelection(ClassBox classBox) {
-        if (selectedSource == null) {
-            selectedSource = classBox;
-            selectedSource.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
-        } else {
-            selectedDestination = classBox;
-            if (selectedSource == selectedDestination) {
-                JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!", "Error", JOptionPane.ERROR_MESSAGE);
-                resetRelationshipSelection();
-                return;
-            }
-
-            createRelationship(selectedSource, selectedDestination);
-        }
-    }
+    //Code for handle relationship selection
 
     private Type relationshipTypeToEnum(String t){
 	Type relationshipType = null;
@@ -274,32 +239,83 @@ public class GUIController {
     }
 
     /**
-     * Creates a new relationship between two selected classes.
-     */
-    private void createRelationship(ClassBox source, ClassBox destination) {
-        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
-        String type = (String) JOptionPane.showInputDialog(view, "Select Relationship Type:", "Relationship Type",
-                JOptionPane.QUESTION_MESSAGE, null, types, types[0]);
-
-        if (type == null) {
-            resetRelationshipSelection();
+ * Presents a dialog with drop-downs to select the source class, destination class,
+ * and relationship type. Creates the relationship if valid.
+ */
+private void createRelationshipDialog() {
+    if (classBoxes.size() < 2) {
+        JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.", 
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
+    
+    // Source selection
+    panel.add(new JLabel("Source:"));
+    JComboBox<String> sourceCombo = new JComboBox<>();
+    for (ClassBox cb : classBoxes) {
+        sourceCombo.addItem(cb.getClassName());
+    }
+    panel.add(sourceCombo);
+    
+    // Destination selection
+    panel.add(new JLabel("Destination:"));
+    JComboBox<String> destinationCombo = new JComboBox<>();
+    for (ClassBox cb : classBoxes) {
+        destinationCombo.addItem(cb.getClassName());
+    }
+    panel.add(destinationCombo);
+    
+    // Relationship type selection
+    panel.add(new JLabel("Relationship Type:"));
+    String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
+    JComboBox<String> typeCombo = new JComboBox<>(types);
+    panel.add(typeCombo);
+    
+    int result = JOptionPane.showConfirmDialog(view, panel, "Create Relationship",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+    
+    if (result == JOptionPane.OK_OPTION) {
+        String sourceName = (String) sourceCombo.getSelectedItem();
+        String destinationName = (String) destinationCombo.getSelectedItem();
+        String relationshipType = (String) typeCombo.getSelectedItem();
+        
+        // Ensure source and destination are different
+        if (sourceName.equals(destinationName)) {
+            JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!", 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        GUIRelationship relationship = new GUIRelationship(source, destination, type);
-        relationships.add(relationship);
+        
+        // Find the corresponding ClassBox objects
+        ClassBox sourceBox = null;
+        ClassBox destinationBox = null;
+        for (ClassBox cb : classBoxes) {
+            if (cb.getClassName().equals(sourceName)) {
+                sourceBox = cb;
+            }
+            if (cb.getClassName().equals(destinationName)) {
+                destinationBox = cb;
+            }
+        }
+        
+        // Update the model via editor and the view
         try {
-            editor.addRelationship(selectedSource.getClassName(), selectedDestination.getClassName(),relationshipTypeToEnum(type));
+            editor.addRelationship(sourceName, destinationName, relationshipTypeToEnum(relationshipType));
         } catch (Exception e) {
             view.displayErrorMessage(e.getMessage());
+            
             return;
         }
-	
-
-        view.getDrawingPanel().addRelationship(source, destination, type);
-        resetRelationshipSelection();
-
+        
+        // Create and store the new relationship
+        GUIRelationship relationship = new GUIRelationship(sourceBox, destinationBox, relationshipType);
+        relationships.add(relationship);
+        view.getDrawingPanel().addRelationship(sourceBox, destinationBox, relationshipType);
+        view.getDrawingPanel().repaint();
     }
+}
 
     private void editRelationship() {
     // Check if there are any relationships to edit
@@ -441,16 +457,7 @@ public class GUIController {
         view.getDrawingPanel().repaint();
     }
 
-    /**
-     * Removes all relationships connected to a deleted class.
-     */
-    private void resetRelationshipSelection() {
-        if (selectedSource != null) selectedSource.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        selectedSource = null;
-        selectedDestination = null;
-        addRelationshipMode = false;
-        view.getAddRelationshipButton().setSelected(false);
-    }
+    //Code for reset Relationship
 
 
     //================= FIELD ==============================
