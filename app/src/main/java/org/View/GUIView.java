@@ -172,7 +172,7 @@ public class GUIView extends JFrame {
     private void initDrawingPanel() {
         drawingPanel = new CustomDrawingPanel();
         drawingPanel.setLayout(null);
-        drawingPanel.setBackground(Color.WHITE);
+        drawingPanel.setBackground(new Color(240, 240, 240));
         add(drawingPanel, BorderLayout.CENTER);
     }
 

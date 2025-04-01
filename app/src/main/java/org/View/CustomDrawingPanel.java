@@ -1,9 +1,9 @@
 package org.View;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
 
 public class CustomDrawingPanel extends JPanel {
     // Relationship now stores references to ClassBox objects
@@ -71,11 +71,11 @@ public class CustomDrawingPanel extends JPanel {
             if (rel.type.equals("Aggregation")) {
                 g.setColor(Color.RED);
             } else if (rel.type.equals("Composition")) {
-                g.setColor(Color.GREEN);
+                g.setColor(new Color(0, 128, 0));
             } else if (rel.type.equals("Inheritance")) {
                 g.setColor(Color.BLUE);
             } else if (rel.type.equals("Realization")) {
-                g.setColor(Color.YELLOW);
+                g.setColor(new Color(255, 140, 0));
             } else {
                 g.setColor(Color.BLACK);
             }
