@@ -34,6 +34,12 @@ public class CustomDrawingPanel extends JPanel {
         repaint();
     }
 
+    // Removes every relationship taking no parameters
+    public void removeAllRelationships(){
+        relationships.clear();
+        repaint();
+    }
+
     /**
      * Computes the closest edge point of the classbox
      *

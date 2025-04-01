@@ -1039,7 +1039,7 @@ private void changeParameterInMethod() {
 
                 model = fileManager.load(path.trim());
 		editor = new UMLEditor(model);
-		refreshClassBox(model);
+		refreshClassBoxes(model);
 		JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 	    }
 	    catch (Exception e) {
@@ -1047,10 +1047,16 @@ private void changeParameterInMethod() {
 	    }
     }
 
-    private void refreshClassBox(UMLModel model){
+    /**
+     * Updates the classbox and relationship according to the model
+     */
+    private void refreshClassBoxes(UMLModel model){
+    // Remove classes and relationships from the controller
 	classBoxes.clear();
 	relationships.clear();
+    // And also remove them from the view
 	view.getDrawingPanel().removeAll();
+    view.getDrawingPanel().removeAllRelationships();
 	for(ClassObject c:model.getClassList())
 	    addClass(c);
 
@@ -1080,8 +1086,8 @@ private void changeParameterInMethod() {
     public void undo(){
         try{
         editor.undo();
-	this.model = editor.getModel();
-	refreshClassBox(model);
+	    this.model = editor.getModel();
+	    refreshClassBoxes(model);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
         } catch(Exception e){
@@ -1093,8 +1099,8 @@ private void changeParameterInMethod() {
     public void redo(){
         try{		
         editor.redo();
-	this.model = editor.getModel();
-	refreshClassBox(model);
+	    this.model = editor.getModel();
+	    refreshClassBoxes(model);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
         } catch(Exception e){
