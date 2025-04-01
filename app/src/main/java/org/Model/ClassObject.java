@@ -26,6 +26,24 @@ public class ClassObject implements ClassObjectInterface {
 		attrMap.put("Field", fieldList);
 		attrMap.put("Method", methodList);
 	}
+
+    public ClassObject(ClassObject o){
+	this.name = o.name;
+	attrMap = new LinkedHashMap<>();
+	ArrayList<AttributeInterface> fieldList = new ArrayList<>();
+	ArrayList<AttributeInterface> methodList = new ArrayList<>();
+
+	attrMap.put("Field", fieldList);
+	attrMap.put("Method", methodList);
+
+	for(AttributeInterface f: o.attrMap.get("Field"))
+	    attrMap.get("Field").add(new Field(f.getName()));
+
+	for(AttributeInterface m: o.attrMap.get("Method")){
+	    Method mo = (Method) m;
+	    attrMap.get("Method").add(new Method(m.getName(),mo.getParamList()));
+	}
+    }
 	
 	/**
 	 * Gets the name of a class object
