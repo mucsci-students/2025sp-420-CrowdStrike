@@ -24,6 +24,10 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.code.gson:gson:2.12.1")
+    implementation("info.picocli:picocli:4.7.6")
+    implementation("info.picocli:picocli-shell-jline3:4.7.6")
+    implementation("org.jline:jline-terminal:3.16.0")
+    implementation("org.jline:jline-reader:3.16.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
