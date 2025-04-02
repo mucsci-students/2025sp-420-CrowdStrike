@@ -4,14 +4,15 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 import org.FileManager;
 import org.Model.*;
 import org.Model.Relationship.Type;
 import org.View.ClassBox;
 import org.View.GUIView;
-
 
 public class GUIController {
 
@@ -27,34 +28,30 @@ public class GUIController {
     private ClassBox selectedDestination = null;
     private ClassBox selectedSource = null;
 
-    
-    
-
     /**
-	 * Constructor for GUI
-	 * @param view | Contains methods that will paint the Panel of the Diagram
-	 */
+     * Constructor for GUI
+     *
+     * @param view | Contains methods that will paint the Panel of the Diagram
+     */
     public GUIController(UMLModel model, UMLEditor editor, GUIView view) {
         this.view = view;
         this.model = model;
-		this.editor = editor;
+        this.editor = editor;
     }
 
     // ==================== INITIALIZATION ==================== //
-
     /**
-	 * Checks if buttons were pressed
-	 */
+     * Checks if buttons were pressed
+     */
     public void initController() {
         initButtonActions();
         view.showGUI();
     }
 
     // ==================== EVENT HANDLERS ==================== //
-
     /**
-	 * assigns actions to buttons in the GUI
-	 */
+     * assigns actions to buttons in the GUI
+     */
     private void initButtonActions() {
         view.getAddClassButton().addActionListener(e -> promptForClassName());
         view.getDeleteClassButton().addActionListener(e -> deleteSelectedClass());
@@ -80,15 +77,14 @@ public class GUIController {
 
         view.getSaveButton().addActionListener(e -> saveDiagram());
         view.getLoadButton().addActionListener(e -> loadDiagram());
-        
+
         view.getExitButton().addActionListener(e -> exitDiagram());
         view.getHelpButton().addActionListener(e -> view.getHelpButton());
 
-        
     }
 
     // ==================== ADD CLASS ==================== //
-     /**
+    /**
      * Prompts user for a class name and creates a new class if valid.
      */
     private void promptForClassName() {
@@ -98,22 +94,21 @@ public class GUIController {
         try {
             model.isValidClassName(className);
             className = className.trim();
-        
+
             editor.addClass(className);
             activeClass = model.fetchClass(className);
-            addClass(activeClass);  
+            addClass(activeClass);
         } catch (Exception e) {
             view.displayErrorMessage(e.getMessage());
         }
     }
 
-
     /**
      * Renames the currently selected class.
      */
-    private void renameSelectedClass(){
-        if(selectedClassBox == null){
-            JOptionPane.showMessageDialog(view, "No class selected","Error", JOptionPane.ERROR_MESSAGE);
+    private void renameSelectedClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "No class selected", "Error", JOptionPane.ERROR_MESSAGE);
             /*
              * Switch the command to display errors to the one below
              * view.displayErrorMessage("No class selected");
@@ -123,14 +118,14 @@ public class GUIController {
 
         String newClassName = JOptionPane.showInputDialog(view, "Enter New ClassName:", selectedClassBox.getClassName());
 
-        if(newClassName == null || newClassName.trim().isEmpty()){
+        if (newClassName == null || newClassName.trim().isEmpty()) {
             return;
         }
 
         newClassName = newClassName.trim();
 
-        for (ClassBox box: classBoxes){
-            if(box != selectedClassBox && box.getClassName().equalsIgnoreCase(newClassName)){
+        for (ClassBox box : classBoxes) {
+            if (box != selectedClassBox && box.getClassName().equalsIgnoreCase(newClassName)) {
                 JOptionPane.showMessageDialog(view, "Class name already exist!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -144,13 +139,13 @@ public class GUIController {
         //  classObject.setName(newClassName);
         //}
         //TODO
-
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
     }
 
     /**
      * Creates and positions a new class box in the diagram.
+     *
      * @param className The name of the new class
      */
     private void addClass(ClassObject newClass) {
@@ -172,12 +167,11 @@ public class GUIController {
         System.out.println("Added class");
     }
 
-    private void configureClassBoxMouseListener(ClassBox classBox){
+    private void configureClassBoxMouseListener(ClassBox classBox) {
         classBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 //selectClassBox(classBox);
-                
 
                 e.consume();
             }
@@ -185,9 +179,9 @@ public class GUIController {
     }
 
     // ==================== DELETE CLASS (ON CLICK + BUTTON) ==================== //
-
-     /**
+    /**
      * Deletes the currently selected class box.
+     * 
      */
     private void deleteSelectedClass() {
         if (selectedClassBox == null) {
@@ -208,7 +202,7 @@ public class GUIController {
             view.displayErrorMessage(e.getMessage());
             return;
         }
-	
+
         classBoxes.remove(selectedClassBox);
         removeRelationships(selectedClassBox);
 
@@ -216,200 +210,205 @@ public class GUIController {
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
     }
-    
-    //Code for handle relationship selection
 
-    private Type relationshipTypeToEnum(String t){
-	Type relationshipType = null;
-	switch (t) {
-	case "Aggregation":
-	    relationshipType = Type.AGGREGATION;
-	    break;
-	case "Composition":
-	    relationshipType = Type.COMPOSITION;
-	    break;
-	case "Inheritance":
-	    relationshipType = Type.INHERITANCE;
-	    break;
-	case "Realization":
-	    relationshipType = Type.REALIZATION;
-	    break;
-	}
-	return relationshipType;
+    //Code for handle relationship selection
+    private Type relationshipTypeToEnum(String t) {
+        Type relationshipType = null;
+        switch (t) {
+            case "Aggregation":
+                relationshipType = Type.AGGREGATION;
+                break;
+            case "Composition":
+                relationshipType = Type.COMPOSITION;
+                break;
+            case "Inheritance":
+                relationshipType = Type.INHERITANCE;
+                break;
+            case "Realization":
+                relationshipType = Type.REALIZATION;
+                break;
+        }
+        return relationshipType;
     }
 
     /**
- * Presents a dialog with drop-downs to select the source class, destination class,
- * and relationship type. Creates the relationship if valid.
- */
-private void createRelationshipDialog() {
-    if (classBoxes.size() < 2) {
-        JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.", 
-                                      "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
-    
-    // Source selection
-    panel.add(new JLabel("Source:"));
-    JComboBox<String> sourceCombo = new JComboBox<>();
-    for (ClassBox cb : classBoxes) {
-        sourceCombo.addItem(cb.getClassName());
-    }
-    panel.add(sourceCombo);
-    
-    // Destination selection
-    panel.add(new JLabel("Destination:"));
-    JComboBox<String> destinationCombo = new JComboBox<>();
-    for (ClassBox cb : classBoxes) {
-        destinationCombo.addItem(cb.getClassName());
-    }
-    panel.add(destinationCombo);
-    
-    // Relationship type selection
-    panel.add(new JLabel("Relationship Type:"));
-    String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
-    JComboBox<String> typeCombo = new JComboBox<>(types);
-    panel.add(typeCombo);
-    
-    int result = JOptionPane.showConfirmDialog(view, panel, "Create Relationship",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-    
-    if (result == JOptionPane.OK_OPTION) {
-        String sourceName = (String) sourceCombo.getSelectedItem();
-        String destinationName = (String) destinationCombo.getSelectedItem();
-        String relationshipType = (String) typeCombo.getSelectedItem();
-        
-        // Ensure source and destination are different
-        if (sourceName.equals(destinationName)) {
-            JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!", 
-                                          "Error", JOptionPane.ERROR_MESSAGE);
+     * Presents a dialog with drop-downs to select the source class, destination
+     * class, and relationship type. Creates the relationship if valid.
+     */
+    private void createRelationshipDialog() {
+        if (classBoxes.size() < 2) {
+            JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        // Find the corresponding ClassBox objects
-        ClassBox sourceBox = null;
-        ClassBox destinationBox = null;
+
+        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
+
+        // Source selection
+        panel.add(new JLabel("Source:"));
+        JComboBox<String> sourceCombo = new JComboBox<>();
         for (ClassBox cb : classBoxes) {
-            if (cb.getClassName().equals(sourceName)) {
-                sourceBox = cb;
-            }
-            if (cb.getClassName().equals(destinationName)) {
-                destinationBox = cb;
-            }
+            sourceCombo.addItem(cb.getClassName());
         }
-        
-        // Update the model via editor and the view
-        try {
-            editor.addRelationship(sourceName, destinationName, relationshipTypeToEnum(relationshipType));
-        } catch (Exception e) {
-            view.displayErrorMessage(e.getMessage());
-            
-            return;
+        panel.add(sourceCombo);
+
+        // Destination selection
+        panel.add(new JLabel("Destination:"));
+        JComboBox<String> destinationCombo = new JComboBox<>();
+        for (ClassBox cb : classBoxes) {
+            destinationCombo.addItem(cb.getClassName());
         }
-        
-        // Create and store the new relationship
-        GUIRelationship relationship = new GUIRelationship(sourceBox, destinationBox, relationshipType);
-        relationships.add(relationship);
-        view.getDrawingPanel().addRelationship(sourceBox, destinationBox, relationshipType);
-        view.getDrawingPanel().repaint();
+        panel.add(destinationCombo);
+
+        // Relationship type selection
+        panel.add(new JLabel("Relationship Type:"));
+        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
+        JComboBox<String> typeCombo = new JComboBox<>(types);
+        panel.add(typeCombo);
+
+        int result = JOptionPane.showConfirmDialog(view, panel, "Create Relationship",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String sourceName = (String) sourceCombo.getSelectedItem();
+            String destinationName = (String) destinationCombo.getSelectedItem();
+            String relationshipType = (String) typeCombo.getSelectedItem();
+
+            // Ensure source and destination are different
+            if (sourceName.equals(destinationName)) {
+                JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Find the corresponding ClassBox objects
+            ClassBox sourceBox = null;
+            ClassBox destinationBox = null;
+            for (ClassBox cb : classBoxes) {
+                if (cb.getClassName().equals(sourceName)) {
+                    sourceBox = cb;
+                }
+                if (cb.getClassName().equals(destinationName)) {
+                    destinationBox = cb;
+                }
+            }
+
+            // Update the model via editor and the view
+            try {
+                editor.addRelationship(sourceName, destinationName, relationshipTypeToEnum(relationshipType));
+            } catch (Exception e) {
+                view.displayErrorMessage(e.getMessage());
+
+                return;
+            }
+
+            // Create and store the new relationship
+            GUIRelationship relationship = new GUIRelationship(sourceBox, destinationBox, relationshipType);
+            relationships.add(relationship);
+            view.getDrawingPanel().addRelationship(sourceBox, destinationBox, relationshipType);
+            view.getDrawingPanel().repaint();
+        }
     }
-}
 
     private void editRelationship() {
-    // Check if there are any relationships to edit
-    if (relationships.isEmpty()) {
-        JOptionPane.showMessageDialog(view, "No relationships to edit!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+        // Check if there are any relationships to edit
+        if (relationships.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No relationships to edit!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-    // Select the relationship to edit
-    JComboBox<String> relDropdown = new JComboBox<>();
-    for (GUIRelationship rel : relationships) {
-        String relString = rel.getSource().getObjectFromBox().getName() + " -> " + rel.getDestination().getObjectFromBox().getName();
-        relDropdown.addItem(relString);
-    }
-    int result = JOptionPane.showConfirmDialog(view, relDropdown, "Select Relationship to Edit", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    int selectedIndex = relDropdown.getSelectedIndex();
-    if (selectedIndex < 0) return;
-    GUIRelationship selectedRel = relationships.get(selectedIndex);
-    
-    // Choose which aspect to edit: source, dest, type
-    String[] editOptions = {"Source", "Destination", "Type"};
-    JComboBox<String> editOptionDropdown = new JComboBox<>(editOptions);
-    result = JOptionPane.showConfirmDialog(view, editOptionDropdown, "Select element to edit", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    String editChoice = (String) editOptionDropdown.getSelectedItem();
-    
-    // Provide a final selection for the new value based on the element chosen
-    JComboBox<String> newValueDropdown;
-    if (editChoice.equals("Type")) {
-        String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
-        newValueDropdown = new JComboBox<>(types);
-    } else { // For "Source" or "Destination", list available classes
-        newValueDropdown = new JComboBox<>();
-        for (ClassBox cb : classBoxes) {
-            newValueDropdown.addItem(cb.getClassName());
+        // Select the relationship to edit
+        JComboBox<String> relDropdown = new JComboBox<>();
+        for (GUIRelationship rel : relationships) {
+            String relString = rel.getSource().getObjectFromBox().getName() + " -> " + rel.getDestination().getObjectFromBox().getName();
+            relDropdown.addItem(relString);
         }
-    }
-    result = JOptionPane.showConfirmDialog(view, newValueDropdown, "Select new " + editChoice, JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    String newValue = (String) newValueDropdown.getSelectedItem();
-    
-    // Determine the updated relationship details; initialize with current values.
-    ClassBox newSource = selectedRel.getSource();
-    ClassBox newDestination = selectedRel.getDestination();
-    String newType = selectedRel.getType();
-    
-    if (editChoice.equals("Source")) {
-        for (ClassBox cb : classBoxes) {
-            if (cb.getClassName().equals(newValue)) {
-                if (model.relationshipExist(newValue, selectedRel.getDestination().getClassName())) {
-                    view.displayErrorMessage("Relationship between " + newValue + " and " + selectedRel.getDestination().getClassName() + " already exists");
-                    return;
-                }
-                newSource = cb;
-                break;
+        int result = JOptionPane.showConfirmDialog(view, relDropdown, "Select Relationship to Edit", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        int selectedIndex = relDropdown.getSelectedIndex();
+        if (selectedIndex < 0) {
+            return;
+        }
+        GUIRelationship selectedRel = relationships.get(selectedIndex);
+
+        // Choose which aspect to edit: source, dest, type
+        String[] editOptions = {"Source", "Destination", "Type"};
+        JComboBox<String> editOptionDropdown = new JComboBox<>(editOptions);
+        result = JOptionPane.showConfirmDialog(view, editOptionDropdown, "Select element to edit", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+        String editChoice = (String) editOptionDropdown.getSelectedItem();
+
+        // Provide a final selection for the new value based on the element chosen
+        JComboBox<String> newValueDropdown;
+        if (editChoice.equals("Type")) {
+            String[] types = {"Aggregation", "Composition", "Inheritance", "Realization"};
+            newValueDropdown = new JComboBox<>(types);
+        } else { // For "Source" or "Destination", list available classes
+            newValueDropdown = new JComboBox<>();
+            for (ClassBox cb : classBoxes) {
+                newValueDropdown.addItem(cb.getClassName());
             }
         }
-    } 
-    else if (editChoice.equals("Destination")) {
-        for (ClassBox cb : classBoxes) {
-            if (cb.getClassName().equals(newValue)) {
-                if (model.relationshipExist(selectedRel.getSource().getClassName(), newValue)) {
-                    view.displayErrorMessage("Relationship between " + selectedRel.getSource().getClassName() + " and " + newValue + " already exists");
-                    return;
-                }
-                newDestination = cb;
-                break;
-            }
+        result = JOptionPane.showConfirmDialog(view, newValueDropdown, "Select new " + editChoice, JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
         }
-    } 
-    else if (editChoice.equals("Type")) {
-        newType = newValue;
-    }
-    
-    // ABOVE: Getting relevant info
-    // BELOW: Updating the model and view
-    relationships.remove(selectedRel);
-    view.getDrawingPanel().removeRelationship(selectedRel.getSource(), selectedRel.getDestination());
-    editor.deleteRelationship(selectedRel.getSource().getClassName(), selectedRel.getDestination().getClassName());
-    
-    // Create an updated relationship
-    GUIRelationship updatedRel = new GUIRelationship(newSource, newDestination, newType);
-    relationships.add(updatedRel);
-    try {
-        editor.addRelationship(newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
-    } catch (Exception e) {
-        view.displayErrorMessage(e.getMessage());
-        return;
-    }
-    
-    view.getDrawingPanel().addRelationship(newSource, newDestination, newType);
-    view.getDrawingPanel().repaint();
+        String newValue = (String) newValueDropdown.getSelectedItem();
+
+        // Determine the updated relationship details; initialize with current values.
+        ClassBox newSource = selectedRel.getSource();
+        ClassBox newDestination = selectedRel.getDestination();
+        String newType = selectedRel.getType();
+
+        if (editChoice.equals("Source")) {
+            for (ClassBox cb : classBoxes) {
+                if (cb.getClassName().equals(newValue)) {
+                    if (model.relationshipExist(newValue, selectedRel.getDestination().getClassName())) {
+                        view.displayErrorMessage("Relationship between " + newValue + " and " + selectedRel.getDestination().getClassName() + " already exists");
+                        return;
+                    }
+                    newSource = cb;
+                    break;
+                }
+            }
+        } else if (editChoice.equals("Destination")) {
+            for (ClassBox cb : classBoxes) {
+                if (cb.getClassName().equals(newValue)) {
+                    if (model.relationshipExist(selectedRel.getSource().getClassName(), newValue)) {
+                        view.displayErrorMessage("Relationship between " + selectedRel.getSource().getClassName() + " and " + newValue + " already exists");
+                        return;
+                    }
+                    newDestination = cb;
+                    break;
+                }
+            }
+        } else if (editChoice.equals("Type")) {
+            newType = newValue;
+        }
+
+        // ABOVE: Getting relevant info
+        // BELOW: Updating the model and view
+        relationships.remove(selectedRel);
+        view.getDrawingPanel().removeRelationship(selectedRel.getSource(), selectedRel.getDestination());
+        editor.deleteRelationship(selectedRel.getSource().getClassName(), selectedRel.getDestination().getClassName());
+
+        // Create an updated relationship
+        GUIRelationship updatedRel = new GUIRelationship(newSource, newDestination, newType);
+        relationships.add(updatedRel);
+        try {
+            editor.addRelationship(newSource.getClassName(), newDestination.getClassName(), relationshipTypeToEnum(newType));
+        } catch (Exception e) {
+            view.displayErrorMessage(e.getMessage());
+            return;
+        }
+
+        view.getDrawingPanel().addRelationship(newSource, newDestination, newType);
+        view.getDrawingPanel().repaint();
     }
 
     /**
@@ -421,7 +420,7 @@ private void createRelationshipDialog() {
             return;
         }
         JComboBox<String> relDropdown = new JComboBox<>();
-        for(int index = 0; index<relationships.size(); index++){
+        for (int index = 0; index < relationships.size(); index++) {
             relDropdown.addItem(relationships.get(index).getSource().getObjectFromBox().getName() + " -> " + relationships.get(index).getDestination().getObjectFromBox().getName());
         }
         int result = JOptionPane.showConfirmDialog(view, relDropdown, "Select Relationship to Delete", JOptionPane.OK_CANCEL_OPTION);
@@ -431,15 +430,14 @@ private void createRelationshipDialog() {
             GUIRelationship toRemove = relationships.get(relDropdown.getSelectedIndex());
             if (selectedRel != null) {
                 relationships.remove(toRemove);
-	            editor.deleteRelationship(toRemove.getSource().getClassName(),toRemove.getDestination().getClassName());
+                editor.deleteRelationship(toRemove.getSource().getClassName(), toRemove.getDestination().getClassName());
                 view.getDrawingPanel().removeRelationship(toRemove.getSource(), toRemove.getDestination());
                 view.getDrawingPanel().repaint();
-            }
-            else{
+            } else {
                 JOptionPane.showMessageDialog(view, "No relationship in model between those classes!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+                return;
             }
-        }   
+        }
     }
 
     private void removeRelationships(ClassBox classBox) {
@@ -458,10 +456,7 @@ private void createRelationshipDialog() {
     }
 
     //Code for reset Relationship
-
-
     //================= FIELD ==============================
-
     private void addFieldToClass() {
         if (selectedClassBox == null) {
             JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -470,22 +465,18 @@ private void createRelationshipDialog() {
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setPreferredSize(new Dimension(400,300));//Increase dialog size
+        panel.setPreferredSize(new Dimension(400, 300));//Increase dialog size
 
         List<JTextField> fieldInputs = new ArrayList<>();
         JButton addFieldButton = new JButton("+");
-        
-        
 
         // Initial Field Input
         //JTextField fieldInput = new JTextField();
         //fieldInputs.add(fieldInput);
-
         JLabel label = new JLabel("Enter Field Name:");
         JTextField fieldInput = new JTextField();
         fieldInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldInput.getPreferredSize().height));//limits height
         fieldInputs.add(fieldInput);
-
 
         //panel.add(new JLabel("Enter Field Name:"));
         panel.add(label);
@@ -530,7 +521,7 @@ private void createRelationshipDialog() {
             return;
         }
         JComboBox<String> fieldDropdown = new JComboBox<>();
-        for(int index = 0; index<activeClass.getFieldList().size(); index++){
+        for (int index = 0; index < activeClass.getFieldList().size(); index++) {
             fieldDropdown.addItem(activeClass.getFieldList().get(index).getName());
         }
         int result = JOptionPane.showConfirmDialog(view, fieldDropdown, "Select Field to Delete", JOptionPane.OK_CANCEL_OPTION);
@@ -553,14 +544,13 @@ private void createRelationshipDialog() {
             return;
         }
 
-
         if (activeClass.getFieldList().isEmpty()) {
             JOptionPane.showMessageDialog(view, "No fields to rename!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         JComboBox<String> fieldDropdown = new JComboBox<>();
-        for(int index = 0; index<activeClass.getFieldList().size(); index++){
+        for (int index = 0; index < activeClass.getFieldList().size(); index++) {
             fieldDropdown.addItem(activeClass.getFieldList().get(index).getName());
         }
         JTextField newFieldNameInput = new JTextField();
@@ -582,106 +572,110 @@ private void createRelationshipDialog() {
         }
     }
 //================= METHODS ==============================
-   
-   //Helper method for addMethods()
-   private JPanel createMethodEntryPanel() {
-    JPanel entryPanel = new JPanel();
-    entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
-    entryPanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.GRAY),
-            BorderFactory.createEmptyBorder(5, 5, 5, 5)
-    ));
-    
-    // Method name input
-    JLabel label = new JLabel("Enter Method Name:");
-    JTextField methodInput = new JTextField();
-    methodInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, methodInput.getPreferredSize().height));
-    entryPanel.add(label);
-    entryPanel.add(methodInput);
-    
-    // Parameter inputs section
-    JLabel paramLabel = new JLabel("Parameters:");
-    entryPanel.add(paramLabel);
-    JPanel paramPanel = new JPanel();
-    paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
-    entryPanel.add(paramPanel);
-    
-    // Button to add parameter fields
-    JButton addParamButton = new JButton("Add Parameter");
-    addParamButton.addActionListener(e -> {
-        JLabel newParamLabel = new JLabel("Parameter:");
-        JTextField paramField = new JTextField();
-        paramField.setMaximumSize(new Dimension(Integer.MAX_VALUE, paramField.getPreferredSize().height));
-        paramPanel.add(newParamLabel);
-        paramPanel.add(paramField);
-        paramPanel.revalidate();
-        paramPanel.repaint();
-    });
-    entryPanel.add(addParamButton);
-    
-    // Store the method input field and parameter panel for later retrieval using client properties.
-    //this is swing method
-    entryPanel.putClientProperty("methodInput", methodInput);
-    entryPanel.putClientProperty("paramPanel", paramPanel);
-    
-    return entryPanel;
-}
 
-private void addMethodToClass() {
-    if (selectedClassBox == null) {
-        JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+    //Helper method for addMethods()
+    private JPanel createMethodEntryPanel() {
+        JPanel entryPanel = new JPanel();
+        entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
+        entryPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+
+        // Method name input
+        JLabel label = new JLabel("Enter Method Name:");
+        JTextField methodInput = new JTextField();
+        methodInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, methodInput.getPreferredSize().height));
+        entryPanel.add(label);
+        entryPanel.add(methodInput);
+
+        // Parameter inputs section
+        JLabel paramLabel = new JLabel("Parameters:");
+        entryPanel.add(paramLabel);
+        JPanel paramPanel = new JPanel();
+        paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
+        entryPanel.add(paramPanel);
+
+        // Button to add parameter fields
+        JButton addParamButton = new JButton("Add Parameter");
+        addParamButton.addActionListener(e -> {
+            JLabel newParamLabel = new JLabel("Parameter:");
+            JTextField paramField = new JTextField();
+            paramField.setMaximumSize(new Dimension(Integer.MAX_VALUE, paramField.getPreferredSize().height));
+            paramPanel.add(newParamLabel);
+            paramPanel.add(paramField);
+            paramPanel.revalidate();
+            paramPanel.repaint();
+        });
+        entryPanel.add(addParamButton);
+
+        // Store the method input field and parameter panel for later retrieval using client properties.
+        //this is swing method
+        entryPanel.putClientProperty("methodInput", methodInput);
+        entryPanel.putClientProperty("paramPanel", paramPanel);
+
+        return entryPanel;
     }
-    
-    // Create the container panel for method entries.
-    JPanel methodpanel = new JPanel();
-    methodpanel.setLayout(new BoxLayout(methodpanel, BoxLayout.Y_AXIS));
-    methodpanel.setPreferredSize(new Dimension(400, 300));
-    
-    // List to hold each method entry panel.
-    List<JPanel> methodEntryPanels = new ArrayList<>();
-    
-    // Add an initial method entry panel.
-    JPanel entry = createMethodEntryPanel();
-    methodEntryPanels.add(entry);
-    methodpanel.add(entry);
-    
-    // Button to add additional method entry panels.
-    JButton addMethodButton = new JButton("Add another method");
-    addMethodButton.addActionListener(e -> {
-        JPanel newEntry = createMethodEntryPanel();
-        methodEntryPanels.add(newEntry);
-        methodpanel.add(newEntry);
-        methodpanel.revalidate();
-        methodpanel.repaint();
-    });
-    methodpanel.add(addMethodButton);
-    
-    int result = JOptionPane.showConfirmDialog(view, methodpanel, "Add Methods", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-    if (result == JOptionPane.OK_OPTION) {
-        // Process each method entry panel.
-        for (JPanel entryPanel : methodEntryPanels) {
-            // Retrieve the method name from the client property.
-            JTextField methodInput = (JTextField) entryPanel.getClientProperty("methodInput");
-            if (methodInput == null) continue;
-            String methodName = methodInput.getText().trim();
-            if (methodName.isEmpty()) continue;
-            
-            // Retrieve the parameter panel and extract all parameter names.
-            JPanel paramPanel = (JPanel) entryPanel.getClientProperty("paramPanel");
-            ArrayList<String> params = new ArrayList<>();
-            if (paramPanel != null) {
-                for (Component comp : paramPanel.getComponents()) {
-                    if (comp instanceof JTextField) {
-                        String param = ((JTextField) comp).getText().trim();
-                        if (!param.isEmpty()) {
-                            params.add(param);
+
+    private void addMethodToClass() {
+        if (selectedClassBox == null) {
+            JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Create the container panel for method entries.
+        JPanel methodpanel = new JPanel();
+        methodpanel.setLayout(new BoxLayout(methodpanel, BoxLayout.Y_AXIS));
+        methodpanel.setPreferredSize(new Dimension(400, 300));
+
+        // List to hold each method entry panel.
+        List<JPanel> methodEntryPanels = new ArrayList<>();
+
+        // Add an initial method entry panel.
+        JPanel entry = createMethodEntryPanel();
+        methodEntryPanels.add(entry);
+        methodpanel.add(entry);
+
+        // Button to add additional method entry panels.
+        JButton addMethodButton = new JButton("Add another method");
+        addMethodButton.addActionListener(e -> {
+            JPanel newEntry = createMethodEntryPanel();
+            methodEntryPanels.add(newEntry);
+            methodpanel.add(newEntry);
+            methodpanel.revalidate();
+            methodpanel.repaint();
+        });
+        methodpanel.add(addMethodButton);
+
+        int result = JOptionPane.showConfirmDialog(view, methodpanel, "Add Methods", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            // Process each method entry panel.
+            for (JPanel entryPanel : methodEntryPanels) {
+                // Retrieve the method name from the client property.
+                JTextField methodInput = (JTextField) entryPanel.getClientProperty("methodInput");
+                if (methodInput == null) {
+                    continue;
+                }
+                String methodName = methodInput.getText().trim();
+                if (methodName.isEmpty()) {
+                    continue;
+                }
+
+                // Retrieve the parameter panel and extract all parameter names.
+                JPanel paramPanel = (JPanel) entryPanel.getClientProperty("paramPanel");
+                ArrayList<String> params = new ArrayList<>();
+                if (paramPanel != null) {
+                    for (Component comp : paramPanel.getComponents()) {
+                        if (comp instanceof JTextField) {
+                            String param = ((JTextField) comp).getText().trim();
+                            if (!param.isEmpty()) {
+                                params.add(param);
+                            }
                         }
                     }
                 }
-            }
-            
-            /*
+
+                /*
             // Format the method signature as "methodName(param1, param2, ...)".
             StringBuilder signature = new StringBuilder(methodName);
             signature.append("(");
@@ -689,9 +683,8 @@ private void addMethodToClass() {
                 signature.append(String.join(", ", params));
             }
             signature.append(")");
-            */
-            
-            /*
+                 */
+ /*
             try {
                 // Only add the method if it doesn't already exist.
                 AttributeInterface method = activeClass.fetchMethod(methodName, params.size());
@@ -701,14 +694,14 @@ private void addMethodToClass() {
             } catch (Exception e) {
                 view.displayErrorMessage(e.getMessage());
             }
-            */
-            if (!methodName.isEmpty() && !activeClass.methodExists(methodName, params.size())) {
-                selectedClassBox.addMethod(methodName, params);
+                 */
+                if (!methodName.isEmpty() && !activeClass.methodExists(methodName, params.size())) {
+                    selectedClassBox.addMethod(methodName, params);
+                }
             }
+            view.getDrawingPanel().repaint();
         }
-        view.getDrawingPanel().repaint();
     }
-}
 
     private void deleteMethodFromClass() {
         if (selectedClassBox == null) {
@@ -723,17 +716,22 @@ private void addMethodToClass() {
         }
 
         JComboBox<String> methodDropdown = new JComboBox<>();
-            for(int index = 0; index<activeClass.getMethodList().size(); index++){
-                Method m = (Method)activeClass.getMethodList().get(index);
-                String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
-                methodDropdown.addItem(str);
-            }
+        Map<String, String> displayString = new HashMap<>();
 
+        for (int index = 0; index < activeClass.getMethodList().size(); index++) {
+            Method m = (Method) activeClass.getMethodList().get(index);
+            String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
+            String strdisplay = selectedClassBox.displayMethod(m);
+            methodDropdown.addItem(strdisplay);
+            displayString.put(strdisplay, str);
+        }
 
         int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method to Delete", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
-            String selectedMethod = (String)methodDropdown.getSelectedItem();
+            String displaySelectedMethod = (String) methodDropdown.getSelectedItem();//displaymethod
+            String selectedMethod = displayString.get(displaySelectedMethod);
+
             if (selectedMethod != null) {
                 //String parts = selectedMethod.getName() + ":" + selectedMethod.getParamList.size();
                 selectedClassBox.removeMethod(selectedMethod);
@@ -754,11 +752,17 @@ private void addMethodToClass() {
         }
 
         JComboBox<String> methodDropdown = new JComboBox<>();
-            for(int index = 0; index<activeClass.getMethodList().size(); index++){
-                Method m = (Method)activeClass.getMethodList().get(index);
-                String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
-                methodDropdown.addItem(str);
-            }
+        Map<String, String> displayString = new HashMap<>();
+
+        for (int index = 0; index < activeClass.getMethodList().size(); index++) {
+            Method m = (Method) activeClass.getMethodList().get(index);
+
+            String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();//a():1
+            String strdisplay = selectedClassBox.displayMethod(m);//a(a, a, a)
+            methodDropdown.addItem(strdisplay);
+            displayString.put(strdisplay, str);
+        }
+
         JTextField newMethodNameInput = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -769,10 +773,11 @@ private void addMethodToClass() {
 
         int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            String oldName = (String)methodDropdown.getSelectedItem();
+            String displayChoice = (String) methodDropdown.getSelectedItem();
+            String oldName = displayString.get(displayChoice);
             String newName = newMethodNameInput.getText().trim();
 
-            if (!newName.isEmpty()) {
+            if (!newName.isEmpty() && oldName != null) {
                 selectedClassBox.renameMethod(oldName, newName);
             }
         }
@@ -780,200 +785,223 @@ private void addMethodToClass() {
 
 // ======================= PARAMETERS =============================== //
     /**
- * Prompts the user to select a method from the active class and then enter a new parameter name.
- * The new parameter is added to the selected method.
- */
-private void addParameterToMethod() {
-    if (activeClass == null) {
-        JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
-    if (methodList.isEmpty()) {
-        JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    // First, select the method.
-    JComboBox<String> methodDropdown = new JComboBox<>();
-    for (AttributeInterface ai : methodList) {
-        Method m = (Method) ai;
-        methodDropdown.addItem(m.getName());
-    }
-    int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String selectedMethodName = (String) methodDropdown.getSelectedItem();
-    Method selectedMethod = null;
-    for (AttributeInterface ai : methodList) {
-        Method m = (Method) ai;
-        if (m.getName().equals(selectedMethodName)) {
-            selectedMethod = m;
-            break;
+     * Prompts the user to select a method from the active class and then enter
+     * a new parameter name. The new parameter is added to the selected method.
+     */
+    private void addParameterToMethod() {
+        if (activeClass == null) {
+            JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    }
-    if (selectedMethod == null) return;
-    
-    // Then, prompt for the new parameter name.
-    JTextField paramField = new JTextField();
-    result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String newParamName = paramField.getText().trim();
-    if (newParamName.isEmpty()) return;
-    
-    // Update the method with the new parameter.
-    selectedMethod.addParameter(newParamName);
-    // Optionally, update the model via editor, e.g., editor.addParameter(selectedMethod.getName(), newParamName);
 
-    selectedClassBox.updateMethodDisplay(selectedMethod);
-
-    selectedClassBox.revalidate();
-    selectedClassBox.repaint();
-    view.getDrawingPanel().repaint();
-}
-
-/**
- * Prompts the user to select a method and then one of its parameters for deletion.
- */
-private void deleteParameterFromMethod() {
-    if (activeClass == null) {
-        JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
-    if (methodList.isEmpty()) {
-        JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    // First, select the method.
-    JComboBox<String> methodDropdown = new JComboBox<>();
-    for (AttributeInterface ai : methodList) {
-        Method m = (Method) ai;
-        methodDropdown.addItem(m.getName());
-    }
-    int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String selectedMethodName = (String) methodDropdown.getSelectedItem();
-    Method selectedMethod = null;
-    for (AttributeInterface ai : methodList) {
-        Method m = (Method) ai;
-        if (m.getName().equals(selectedMethodName)) {
-            selectedMethod = m;
-            break;
+        ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
+        if (methodList.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    }
-    if (selectedMethod == null) return;
-    
-    // Ensure the selected method has parameters.
-    if (selectedMethod.getParamList().isEmpty()) {
-        JOptionPane.showMessageDialog(view, "No parameters available in the selected method!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    // Next, select the parameter to delete.
-    JComboBox<String> paramDropdown = new JComboBox<>();
-    for (Parameter param : selectedMethod.getParamList()) {
-        paramDropdown.addItem(param.getName());
-    }
-    result = JOptionPane.showConfirmDialog(view, paramDropdown, "Select Parameter to Delete", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String selectedParamName = (String) paramDropdown.getSelectedItem();
-    // Remove the parameter from the method.
-    selectedMethod.removeParameter(selectedParamName);
 
-    selectedClassBox.updateMethodDisplay(selectedMethod);
-    // Optionally, update the model via editor, e.g., editor.deleteParameter(selectedMethod.getName(), selectedParamName);
-    selectedClassBox.revalidate();
-    selectedClassBox.repaint();
-    view.getDrawingPanel().repaint();
-}
-
-/**
- * Prompts the user to select a method and then one of its parameters,
- * and finally allows entry of a new parameter name to update the selected parameter.
- */
-private void changeParameterInMethod() {
-    if (activeClass == null) {
-        JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
-    if (methodList.isEmpty()) {
-        JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    // First, select the method.
-    JComboBox<String> methodDropdown = new JComboBox<>();
-    for (AttributeInterface ai : methodList) {
-        Method m = (Method) ai;
-        methodDropdown.addItem(m.getName());
-    }
-    int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String selectedMethodName = (String) methodDropdown.getSelectedItem();
-    Method selectedMethod = null;
-    for (AttributeInterface ai : methodList) {
-        Method m = (Method) ai;
-        if (m.getName().equals(selectedMethodName)) {
-            selectedMethod = m;
-            break;
+        // First, select the method.
+        JComboBox<String> methodDropdown = new JComboBox<>();
+        for (AttributeInterface ai : methodList) {
+            Method m = (Method) ai;
+            methodDropdown.addItem(m.getName());
         }
-    }
-    if (selectedMethod == null) return;
-    
-    // Ensure the selected method has parameters to edit.
-    if (selectedMethod.getParamList().isEmpty()) {
-        JOptionPane.showMessageDialog(view, "No parameters available in the selected method!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    // Next, select the parameter to change.
-    JComboBox<String> paramDropdown = new JComboBox<>();
-    for (Parameter param : selectedMethod.getParamList()) {
-        paramDropdown.addItem(param.getName());
-    }
-    result = JOptionPane.showConfirmDialog(view, paramDropdown, "Select Parameter to Edit", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String oldParamName = (String) paramDropdown.getSelectedItem();
-    
-    // Prompt for the new parameter name.
-    JTextField paramField = new JTextField(oldParamName);
-    result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String newParamName = paramField.getText().trim();
-    if (newParamName.isEmpty()) return;
-    
-    // Update the parameter.
-    selectedMethod.updateParameter(oldParamName, newParamName);
+        int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
 
-    selectedClassBox.updateMethodDisplay(selectedMethod);
-    // Optionally, update the model via editor, e.g., editor.changeParameter(selectedMethod.getName(), oldParamName, newParamName);
-    selectedClassBox.revalidate();
-    selectedClassBox.repaint();
-    view.getDrawingPanel().repaint();
-}
+        String selectedMethodName = (String) methodDropdown.getSelectedItem();
+        Method selectedMethod = null;
+        for (AttributeInterface ai : methodList) {
+            Method m = (Method) ai;
+            if (m.getName().equals(selectedMethodName)) {
+                selectedMethod = m;
+                break;
+            }
+        }
+        if (selectedMethod == null) {
+            return;
+        }
 
+        // Then, prompt for the new parameter name.
+        JTextField paramField = new JTextField();
+        result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String newParamName = paramField.getText().trim();
+        if (newParamName.isEmpty()) {
+            return;
+        }
+
+        // Update the method with the new parameter.
+        selectedMethod.addParameter(newParamName);
+        // Optionally, update the model via editor, e.g., editor.addParameter(selectedMethod.getName(), newParamName);
+
+        selectedClassBox.updateMethodDisplay(selectedMethod);
+
+        selectedClassBox.revalidate();
+        selectedClassBox.repaint();
+        view.getDrawingPanel().repaint();
+    }
+
+    /**
+     * Prompts the user to select a method and then one of its parameters for
+     * deletion.
+     */
+    private void deleteParameterFromMethod() {
+        if (activeClass == null) {
+            JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
+        if (methodList.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // First, select the method.
+        JComboBox<String> methodDropdown = new JComboBox<>();
+        for (AttributeInterface ai : methodList) {
+            Method m = (Method) ai;
+            methodDropdown.addItem(m.getName());
+        }
+        int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String selectedMethodName = (String) methodDropdown.getSelectedItem();
+        Method selectedMethod = null;
+        for (AttributeInterface ai : methodList) {
+            Method m = (Method) ai;
+            if (m.getName().equals(selectedMethodName)) {
+                selectedMethod = m;
+                break;
+            }
+        }
+        if (selectedMethod == null) {
+            return;
+        }
+
+        // Ensure the selected method has parameters.
+        if (selectedMethod.getParamList().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No parameters available in the selected method!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Next, select the parameter to delete.
+        JComboBox<String> paramDropdown = new JComboBox<>();
+        for (Parameter param : selectedMethod.getParamList()) {
+            paramDropdown.addItem(param.getName());
+        }
+        result = JOptionPane.showConfirmDialog(view, paramDropdown, "Select Parameter to Delete", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String selectedParamName = (String) paramDropdown.getSelectedItem();
+        // Remove the parameter from the method.
+        selectedMethod.removeParameter(selectedParamName);
+
+        selectedClassBox.updateMethodDisplay(selectedMethod);
+        // Optionally, update the model via editor, e.g., editor.deleteParameter(selectedMethod.getName(), selectedParamName);
+        selectedClassBox.revalidate();
+        selectedClassBox.repaint();
+        view.getDrawingPanel().repaint();
+    }
+
+    /**
+     * Prompts the user to select a method and then one of its parameters, and
+     * finally allows entry of a new parameter name to update the selected
+     * parameter.
+     */
+    private void changeParameterInMethod() {
+        if (activeClass == null) {
+            JOptionPane.showMessageDialog(view, "Select a class first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ArrayList<AttributeInterface> methodList = activeClass.getMethodList();
+        if (methodList.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No methods available in the selected class!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // First, select the method.
+        JComboBox<String> methodDropdown = new JComboBox<>();
+        for (AttributeInterface ai : methodList) {
+            Method m = (Method) ai;
+            methodDropdown.addItem(m.getName());
+        }
+        int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String selectedMethodName = (String) methodDropdown.getSelectedItem();
+        Method selectedMethod = null;
+        for (AttributeInterface ai : methodList) {
+            Method m = (Method) ai;
+            if (m.getName().equals(selectedMethodName)) {
+                selectedMethod = m;
+                break;
+            }
+        }
+        if (selectedMethod == null) {
+            return;
+        }
+
+        // Ensure the selected method has parameters to edit.
+        if (selectedMethod.getParamList().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No parameters available in the selected method!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Next, select the parameter to change.
+        JComboBox<String> paramDropdown = new JComboBox<>();
+        for (Parameter param : selectedMethod.getParamList()) {
+            paramDropdown.addItem(param.getName());
+        }
+        result = JOptionPane.showConfirmDialog(view, paramDropdown, "Select Parameter to Edit", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String oldParamName = (String) paramDropdown.getSelectedItem();
+
+        // Prompt for the new parameter name.
+        JTextField paramField = new JTextField(oldParamName);
+        result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String newParamName = paramField.getText().trim();
+        if (newParamName.isEmpty()) {
+            return;
+        }
+
+        // Update the parameter.
+        selectedMethod.updateParameter(oldParamName, newParamName);
+
+        selectedClassBox.updateMethodDisplay(selectedMethod);
+        // Optionally, update the model via editor, e.g., editor.changeParameter(selectedMethod.getName(), oldParamName, newParamName);
+        selectedClassBox.revalidate();
+        selectedClassBox.repaint();
+        view.getDrawingPanel().repaint();
+    }
 
     //
-
     // ==================== GRID POSITIONING ==================== //
     /**
      * Determines the next position for a new class box based on a grid layout.
      * NOTE:
      */
     private Point getNextGridPosition() {
-
 
         int numBoxes = classBoxes.size();
         int boxWidth = 150;
@@ -983,19 +1011,20 @@ private void changeParameterInMethod() {
         int panelHeight = view.getDrawingPanel().getHeight();
 
         int maxCols = (panelWidth - padding) / (boxWidth + padding);
-        if (maxCols == 0){maxCols = 1;}
+        if (maxCols == 0) {
+            maxCols = 1;
+        }
 
         int gridCol = numBoxes % maxCols;
-        int gridRow = numBoxes/ maxCols;
+        int gridRow = numBoxes / maxCols;
 
         //get x and y to center the grid
-
-        int totalGridWidth = (maxCols *(boxWidth + padding)) - padding; // 
+        int totalGridWidth = (maxCols * (boxWidth + padding)) - padding; // 
 
         int startX = (panelWidth - totalGridWidth) / 2; //so its placed in the center
 
         int totalGridHeight = ((numBoxes / maxCols + 1) * (boxHeight - padding)) - padding;
-        
+
         int startY = (panelHeight - totalGridHeight) / 2;
 
         int x = startX + gridCol * (boxWidth + padding);
@@ -1007,6 +1036,9 @@ private void changeParameterInMethod() {
 
     // ==================== CLASS SELECTION ==================== //
 
+    /**
+     * 
+     */
     public void selectClassBox(ClassBox classBox) {
         if (selectedClassBox != null) {
             selectedClassBox.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
@@ -1017,74 +1049,73 @@ private void changeParameterInMethod() {
         activeClass = classBox.getObjectFromBox();
     }
 
-
-
     // ==================== SAVE/LOAD MANAGEMENT ==================== //
     private void saveDiagram() {
         String path = JOptionPane.showInputDialog(view, "Where would you like to save:");
-            try {
-                FileManager fileManager = new FileManager();
-                fileManager.save(path.trim(), model);
-                JOptionPane.showMessageDialog(view, "Diagram saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+        try {
+            FileManager fileManager = new FileManager();
+            fileManager.save(path.trim(), model);
+            JOptionPane.showMessageDialog(view, "Diagram saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
+    /*
+     * This method is called whenever view.getLoadButton is pressed.
+     * Saves the model
+     */
     private void loadDiagram() {
         String path = JOptionPane.showInputDialog(view, "Where would you like to load from:");
-            try {
-                FileManager fileManager = new FileManager();
+        try {
+            FileManager fileManager = new FileManager();
 
-		for(ClassBox cb: classBoxes){
-		    view.getDrawingPanel().remove(cb);
-		    removeRelationships(cb);
-		}
-
-		view.getDrawingPanel().revalidate();
-		view.getDrawingPanel().repaint();
-
-                model = fileManager.load(path.trim());
-		editor = new UMLEditor(model);
-		classBoxes.clear();
-		relationships.clear();
-
-		for(ClassObject c:model.getClassList())
-		    addClass(c);
-
-		for(Relationship r: model.getRelationshipList()){
-		    ClassBox s = null;
-		    ClassBox d = null;
-		    String sn,dn;
-		    sn = r.getSource().getName();
-		    dn = r.getDestination().getName();
-		    for(ClassBox b: classBoxes){
-			s = b.getClassName().equals(sn) ? b : s;
-			d = b.getClassName().equals(dn) ? b : d;
-		    }
-		    String type = r.getTypeString();
-		    relationships.add(new GUIRelationship(s, d, type));
-		    view.getDrawingPanel().addRelationship(s, d, type);
-		    JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-		}
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            for (ClassBox cb : classBoxes) {
+                view.getDrawingPanel().remove(cb);
+                removeRelationships(cb);
             }
-    }
-    
 
-    public UMLEditor getEditor(){
+            view.getDrawingPanel().revalidate();
+            view.getDrawingPanel().repaint();
+
+            model = fileManager.load(path.trim());
+            editor = new UMLEditor(model);
+            classBoxes.clear();
+            relationships.clear();
+
+            for (ClassObject c : model.getClassList()) {
+                addClass(c);
+            }
+
+            for (Relationship r : model.getRelationshipList()) {
+                ClassBox s = null;
+                ClassBox d = null;
+                String sn, dn;
+                sn = r.getSource().getName();
+                dn = r.getDestination().getName();
+                for (ClassBox b : classBoxes) {
+                    s = b.getClassName().equals(sn) ? b : s;
+                    d = b.getClassName().equals(dn) ? b : d;
+                }
+                String type = r.getTypeString();
+                relationships.add(new GUIRelationship(s, d, type));
+                view.getDrawingPanel().addRelationship(s, d, type);
+                JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public UMLEditor getEditor() {
         return this.editor;
     }
 
-
     // ==================== HELP & EXIT ==================== //
-
-
     private void exitDiagram() {
         int choice = JOptionPane.showConfirmDialog(
-                null,                                     // Parent component (null centers the dialog)
-                "Do you want to save before exiting?",         // Message
+                null, // Parent component (null centers the dialog)
+                "Do you want to save before exiting?", // Message
                 "Confirm Exit",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE
@@ -1092,7 +1123,7 @@ private void changeParameterInMethod() {
         if (choice == JOptionPane.YES_OPTION) {
             saveDiagram();
             System.exit(0);  // Exits the application
-        }else if(choice == JOptionPane.NO_OPTION){
+        } else if (choice == JOptionPane.NO_OPTION) {
             System.exit(0);
         }
     }
@@ -1102,6 +1133,7 @@ private void changeParameterInMethod() {
      * Defines a relationship between two class boxes.
      */
     private static class GUIRelationship {
+
         private final ClassBox source;
         private final ClassBox destination;
         private final String type;
@@ -1112,12 +1144,17 @@ private void changeParameterInMethod() {
             this.type = type;
         }
 
-        public ClassBox getSource() { return source; }
-        public ClassBox getDestination() { return destination; }
-        public String getType() { return type; }
+        public ClassBox getSource() {
+            return source;
+        }
+
+        public ClassBox getDestination() {
+            return destination;
+        }
+
+        public String getType() {
+            return type;
+        }
     }
-
-    
-
 
 }

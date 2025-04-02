@@ -61,6 +61,7 @@ public class ClassBox extends JLayeredPane {
         topPanel.add(classLabel);
         contentHolder.add(topPanel, BorderLayout.NORTH);
         
+
         // Panel for fields and methods lists
         JPanel contentPanel = new JPanel(new GridLayout(2, 1));
         contentPanel.setOpaque(false);
@@ -140,33 +141,35 @@ public class ClassBox extends JLayeredPane {
         dragOverlay.setBounds(0, 0, pref.width, pref.height);
     }
     
-    // Calculate preferred size based on the contained components,
-    // but ensure a minimum default size of 300 x 150.
     @Override
     public Dimension getPreferredSize() {
-        int padding = 20;
+        int padding = 35;
         Dimension classLabelSize = classLabel.getPreferredSize();
         Dimension fieldsSize = fieldsScrollPane.getPreferredSize();
         Dimension methodsSize = methodsScrollPane.getPreferredSize();
+
         int totalWidth = Math.max(classLabelSize.width, Math.max(fieldsSize.width, methodsSize.width)) + padding;
         int totalHeight = classLabelSize.height + fieldsSize.height + methodsSize.height + padding;
+
         Dimension dynamicPref = new Dimension(totalWidth, totalHeight);
-        Dimension defaultSize = new Dimension(150, 150);
+        Dimension defaultSize = new Dimension(175, 175);
+
         int finalWidth = Math.max(dynamicPref.width, defaultSize.width);
         int finalHeight = Math.max(dynamicPref.height, defaultSize.height);
+
         return new Dimension(finalWidth, finalHeight);
     }
     
     // Adjust the fields scroll pane size based on its JList
     private void updateFieldsScrollPaneSize() {
         Dimension listPref = fieldsList.getPreferredSize();
-        fieldsScrollPane.setPreferredSize(new Dimension(listPref.width + 10, listPref.height + 10));
+        fieldsScrollPane.setPreferredSize(new Dimension(listPref.width + 35, listPref.height + 35));
     }
     
     // Adjust the methods scroll pane size based on its JList
     private void updateMethodsScrollPaneSize() {
         Dimension listPref = methodsList.getPreferredSize();
-        methodsScrollPane.setPreferredSize(new Dimension(listPref.width + 10, listPref.height + 10));
+        methodsScrollPane.setPreferredSize(new Dimension(listPref.width + 35, listPref.height + 35));
     }
     
     public void updateMethodDisplay(Method m) {
@@ -276,11 +279,13 @@ public class ClassBox extends JLayeredPane {
             String[] parts = method.split(":"); // parts = {name, arity}
             Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
             int index = methodModel.indexOf(displayMethod(mthd));
+            //UMLeditor code
             controller.getEditor().renameMethod(classObject, mthd, newName);
             Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
             if (index != -1) {
                 methodModel.set(index, displayMethod(renamedMethod));
             }
+            //size is updated
             updateMethodsScrollPaneSize();
             revalidate();
             repaint();
