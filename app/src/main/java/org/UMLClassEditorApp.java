@@ -1,7 +1,5 @@
 package org;
 
-import org.Controller.NewController;
-
 import org.View.CLView;
 import org.View.GUIView;
 import org.Controller.CLController;
