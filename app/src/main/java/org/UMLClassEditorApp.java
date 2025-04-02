@@ -23,13 +23,14 @@ class UMLClassEditorApp {
         UMLEditor editor = new UMLEditor(model);
         if(args.length != 0 && args[0].equals("--cli")) {
             CLView view = new CLView();
-            //CLController controller = new CLController(model, editor, view);
-            NewController controller = new NewController(model, editor, view);
+            CLController controller = new CLController(model, editor, view);
+            //NewController controller = new NewController(model, editor, view);
             controller.init();
         } else {
             GUIView view = new GUIView();
             GUIController controller = new GUIController(model, editor, view);
             controller.initController();
         }
+        
     }
 }

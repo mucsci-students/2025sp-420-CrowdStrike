@@ -3,6 +3,14 @@ package org.Controller;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.AutoComplete;
+import picocli.AutoComplete.GenerateCompletion;
+
+import picocli.shell.jline3.PicocliJLineCompleter;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -20,6 +28,8 @@ import org.View.CLView;
 
 // Checks validity of action then calls function in
 // editor to carry out change
+@Command(name = "CLController", mixinStandardHelpOptions = true, version = "CLController 1.0",
+		description = "CLI Controller for UML Editor")
 public class CLController {
 
 	private UMLModel model;
@@ -35,7 +45,7 @@ public class CLController {
 	// Create a global class that can be used and passed into editor
 	ClassObject activeClass = null;
 	// Prompt to be displayed at beginning of every loop
-	private final String basePrompt = "Please type your command(Help for list of commands): ";
+	private final String basePrompt = "Please type your command(Commands for list of commands): ";
 
 	/**
 	 * Constructs an instance of the CLController
@@ -53,9 +63,18 @@ public class CLController {
 	}
 
 	/**
+	 * Prints help list
+	 */
+	@Command(name = "commands", aliases = {"com"}, description = "Prints help list")
+	private void CL_Help() {
+		view.showHelp();
+		//view.show(basePrompt);
+	}
+
+	/**
 	 * Checks if any classes exist before printing them
 	 */
-	//@CommandLine.Command(name = "listclasses", aliases = ("lcs"), description = "List all classes")
+	@Command(name = "listclasses", aliases = ("lcs"), description = "List all classes")
 	private void CL_listClasses() {
 		if (model.getClassList().size() != 0) {
 			view.show(model.listClasses());
@@ -67,7 +86,7 @@ public class CLController {
 	/**
 	 * Gets the class to be listed and tells user if action failed
 	 */
-	//@CommandLine.Command(name = "listclass", aliases = ("lc"), description = "List info for one class")
+	@Command(name = "listclass", aliases = ("lc"), description = "List info for one class")
 	private void CL_listClassInfo() {
 		try {
 			view.show(model.listClassNames());
@@ -83,7 +102,7 @@ public class CLController {
 	/**
 	 * Checks if any relationships exist before printing them
 	 */
-	//@CommandLine.Command(name = "listrelationships", aliases = ("lr"), description = "List all relationships")
+	@Command(name = "listrelationships", aliases = ("lr"), description = "List all relationships")
 	private void CL_listRelationships() {
 		try {
 			view.show(model.listRelationships());
@@ -95,7 +114,7 @@ public class CLController {
 	/**
 	 * Gets name of new class from user and displays if it was added successfully
 	 */
-	//@CommandLine.Command(name = "addclass", aliases = ("ac"), description = "Add a new class")
+	@Command(name = "addclass", aliases = ("ac"), description = "Add a new class")
 	private void CL_addClass() {
 		try {
 			view.show("Enter the new class' name: ");
@@ -111,7 +130,7 @@ public class CLController {
 	/**
 	 * Gets class info from user and displays if class was deleted
 	 */
-	//@CommandLine.Command(name = "delete class", aliases = ("dc"), description = "Delete a class")
+	@Command(name = "delete class", aliases = ("dc"), description = "Delete a class")
 	private void CL_deleteClass() {
 		try {
 			view.show(model.listClassNames());
@@ -127,7 +146,7 @@ public class CLController {
 	/**
 	 * Gets class info from user and displays if class was renamed
 	 */
-	//@CommandLine.Command(name = "renameclass", aliases = ("rc"), description = "Rename a class")
+	@Command(name = "renameclass", aliases = ("rc"), description = "Rename a class")
 	private void CL_renameClass() {
 		try {
 			view.show(model.listClassNames());
@@ -147,6 +166,7 @@ public class CLController {
 	/**
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
+	@Command(name = "addrelationship", aliases = ("ar"), description = "Add relationship between classes")
 	private void CL_addRelationship() {
 		try {
 			view.show(model.listClassNames());
@@ -195,6 +215,7 @@ public class CLController {
 	 * Enables the editing of existing relationships from the CLI editor
 	 * Loops until the
 	 */
+	@Command(name = "editrelationship", aliases = ("er"), description = "Edits a relationship")
 	private void CL_editRelationship() {
 		try {
 			view.show(model.listRelationships());
@@ -294,6 +315,7 @@ public class CLController {
 	/**
 	 * Gets relationship info from user and returns if it was deleted
 	 */
+	@Command(name = "deleterelationship", aliases = ("dr"), description = "Deletes a relationship")
 	private void CL_deleteRelationship() {
 		try {
 			view.show(model.listRelationships());
@@ -314,6 +336,7 @@ public class CLController {
 	/**
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
+	@Command(name = "addfield", aliases = ("af"), description = "Adds a field")
 	private void CL_addField() {
 		try {
 			view.show(model.listClassNames());
@@ -332,6 +355,7 @@ public class CLController {
 	/**
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
+	@Command(name = "deletefield", aliases = ("df"), description = "Delete a field")
 	private void CL_deleteField() {
 		try {
 			view.show(model.listClassNames());
@@ -352,6 +376,7 @@ public class CLController {
 	 * Gets class and field info from user as well as what they want to rename it to
 	 * Returns whether or not the operation succeeds
 	 */
+	@Command(name = "renamefield", aliases = ("rf"), description = "Renames a field")
 	private void CL_renameField() {
 		try {
 			view.show(model.listClassNames());
@@ -375,6 +400,7 @@ public class CLController {
 	 * Gets class, method, and parameters from user and returns if action succeeded
 	 * or not
 	 */
+	@Command(name = "addmethod", aliases = ("am"), description = "Adds a method")
 	private void CL_addMethod() {
 		try {
 			view.show(model.listClassNames());
@@ -434,6 +460,7 @@ public class CLController {
 	/**
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
+	@Command(name = "deletemethod", aliases = ("dm"), description = "Deletes a method")
 	private void CL_deleteMethod() {
 		try {
 			view.show(model.listClassNames());
@@ -472,6 +499,7 @@ public class CLController {
 	 * Gets class and method info from user as well as what they want to rename it
 	 * to Returns whether or not the operation succeeds
 	 */
+	@Command(name = "renamemethod", aliases = ("rm"), description = "Renames a method")
 	private void CL_renameMethod() {
 		try {
 			view.show(model.listClassNames());
@@ -514,6 +542,7 @@ public class CLController {
 	 * add
 	 * to the list of parameters attached to the method.
 	 */
+	@Command(name = "addparameter", aliases = ("ap"), description = "Adds a parameter")
 	private void CL_addParam() {
 		try {
 			view.show(model.listClassNames());
@@ -578,6 +607,7 @@ public class CLController {
 	 * would like to remove. If all every parameter is deleted, otherwise its just
 	 * the named parameter.
 	 */
+	@Command(name = "removeparameter", aliases = ("rp"), description = "Removes a parameter")
 	private void CL_removeParam() {
 		try {
 			view.show(model.listClassNames());
@@ -618,6 +648,7 @@ public class CLController {
 		}
 	}
 
+	@Command(name = "removeallparameters", aliases = ("rap"), description = "Removes all parameters")
 	private void CL_removeAllParam() {
 		try {
 			view.show(model.listClassNames());
@@ -660,6 +691,7 @@ public class CLController {
 	 * if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
 	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
 	 */
+	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one or all params")
 	private void CL_changeParam() {
 		try {
 			view.show(model.listClassNames());
@@ -747,6 +779,7 @@ public class CLController {
 		}
 	}
 
+	@Command(name = "save", description = "Saves model")
 	private void save() {
 		view.show("Where would you like to save:");
 		String path = sc.nextLine();
@@ -758,6 +791,7 @@ public class CLController {
 		}
 	}
 
+	@Command(name = "load", description = "Loads a saved model")
 	private void load() {
 		view.show("Where would you like to load from:");
 		String path = sc.nextLine();
@@ -774,118 +808,30 @@ public class CLController {
 	 * Initializes the controller that allows user to interact with UML software
 	 */
 	public void init() {
-		// Value that is always true unless exit command is given
-		boolean loop = true;
+		try {
+			Terminal terminal = TerminalBuilder.builder().system(true).build();
+			CommandLine cmd = new CommandLine(this);
+			Completer completer = new PicocliJLineCompleter(cmd.getCommandSpec());
+			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build();
 
-		while (loop) {
-			// Print the basePrompt asking for next command
-			view.show(basePrompt);
+			while ((input = reader.readLine(basePrompt)) != null) {
+				if (input.equalsIgnoreCase("exit") || input.equalsIgnoreCase("q")) {
+					break;
+				}
 
-			// Read user input
-			if (!sc.hasNextLine())
-				continue;
-			input = sc.nextLine();
-
-			switch (input.toLowerCase().replaceAll("\\s", "")) {
-				case "help":
-				case "h":
-					view.showHelp();
-					break;
-				case "save":
-					save();
-					break;
-				case "load":
-					load();
-					break;
-				case "exit":
-				case "q":
-					loop = false;
-					break;
-				case "listclasses":
-				case "lcs":
-					CL_listClasses();
-					break;
-				case "listclass":
-				case "lc":
-					CL_listClassInfo();
-					break;
-				case "listrelationships":
-				case "lr":
-					CL_listRelationships();
-					break;
-				case "addclass":
-				case "ac":
-					CL_addClass();
-					break;
-				case "deleteclass":
-				case "dc":
-					CL_deleteClass();
-					break;
-				case "renameclass":
-				case "rc":
-					CL_renameClass();
-					break;
-				case "addrelationship":
-				case "ar":
-					CL_addRelationship();
-					break;
-				case "deleterelationship":
-				case "dr":
-					CL_deleteRelationship();
-					break;
-				case "editrelationship":
-				case "er":
-					CL_editRelationship();
-					break;
-				case "addfield":
-				case "af":
-					CL_addField();
-					break;
-				case "deletefield":
-				case "df":
-					CL_deleteField();
-					break;
-				case "renamefield":
-				case "rf":
-					CL_renameField();
-					break;
-				case "addmethod":
-				case "am":
-					CL_addMethod();
-					break;
-				case "deletemethod":
-				case "dm":
-					CL_deleteMethod();
-					break;
-				case "renamemethod":
-				case "rm":
-					CL_renameMethod();
-					break;
-				case "addparameter":
-				case "ap":
-					CL_addParam();
-					break;
-				case "removeparameter":
-				case "rp":
-					CL_removeParam();
-					break;
-				case "removeallparameters":
-				case "rap":
-					CL_removeAllParam();
-					break;
-				case "changeparameter":
-				case "cp":
-					CL_changeParam();
-					break;
-				default:
-					view.show("Command not recognized, please try something else");
-					break;
+				try {
+					cmd.execute(input.replaceAll("\\s", ""));
+				} catch (CommandLine.ParameterException ex) {
+					System.err.println(ex.getMessage());
+					ex.getCommandLine().usage(System.err);
+				} catch (Exception ex) {
+					System.err.println("An unexpected error occurred: " + ex.getMessage());
+					ex.printStackTrace();
+				}
+				view.show("");
 			}
-			// Reset Variables
-			input = "";
-			activeClass = null;
-			// Skip a line to break up user actions in the command line
-			view.show("");
+		} catch (Exception e) {
+			view.show(e.getMessage());
 		}
 	}
 }
