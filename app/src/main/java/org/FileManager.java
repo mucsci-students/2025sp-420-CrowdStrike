@@ -222,7 +222,7 @@ public class FileManager {
 	}
 
 	private String ParamToJson(Parameter param) {
-		return String.format("{ \"name\": \"%s\", \"%s\"}", param.getName(), param.getType());
+		return String.format("{ \"name\": \"%s\", \"type\": \"%s\"}", param.getName(), param.getType());
 	}
 
 	private String relationshipToJson(Relationship relationship) {
