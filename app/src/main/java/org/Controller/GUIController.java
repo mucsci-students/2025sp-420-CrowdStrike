@@ -1,18 +1,35 @@
 package org.Controller;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.List;
-import org.View.GUIView;
-import org.View.ClassBox;
-import org.FileManager;
-import org.Model.*;
-import org.Model.Relationship.Type;
-
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.FileManager;
+import org.Model.AttributeInterface;
+import org.Model.ClassObject;
+import org.Model.Method;
+import org.Model.Parameter;
+import org.Model.Relationship;
+import org.Model.Relationship.Type;
+import org.Model.UMLModel;
+import org.View.ClassBox;
+import org.View.GUIView;
 
 
 public class GUIController {
@@ -660,13 +677,14 @@ private void addMethodToClass() {
             
             // Retrieve the parameter panel and extract all parameter names.
             JPanel paramPanel = (JPanel) entryPanel.getClientProperty("paramPanel");
-            ArrayList<String> params = new ArrayList<>();
+            LinkedHashMap<String, String> params = new LinkedHashMap<>();
             if (paramPanel != null) {
                 for (Component comp : paramPanel.getComponents()) {
                     if (comp instanceof JTextField) {
-                        String param = ((JTextField) comp).getText().trim();
-                        if (!param.isEmpty()) {
-                            params.add(param);
+                        String paramName = ((JTextField) comp).getText().trim();
+                        String paramType = ((JTextField) comp).getText().trim();
+                        if (!paramName.isEmpty()) {
+                            params.put(paramName, paramType);
                         }
                     }
                 }
@@ -806,23 +824,34 @@ private void addParameterToMethod() {
     }
     if (selectedMethod == null) return;
     
-    // Then, prompt for the new parameter name.
-    JTextField paramField = new JTextField();
-    result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
-    if (result != JOptionPane.OK_OPTION) return;
-    
-    String newParamName = paramField.getText().trim();
-    if (newParamName.isEmpty()) return;
-    
-    // Update the method with the new parameter.
-    selectedMethod.addParameter(newParamName);
-    // Optionally, update the model via editor, e.g., editor.addParameter(selectedMethod.getName(), newParamName);
+    JTextField paramNameInput = new JTextField();
+    JTextField paramTypeInput = new JTextField();
 
+    JPanel paramPanel = new JPanel(new GridLayout(0, 1));
+    paramPanel.add(new JLabel("Type the name of the Parameter:"));
+    paramPanel.add(paramNameInput);
+    paramPanel.add(new JLabel("Type the parameter type:")); 
+    paramPanel.add(paramTypeInput);
+
+    int res = JOptionPane.showConfirmDialog(view, paramPanel, "Add Parameter", JOptionPane.OK_CANCEL_OPTION);
+    if(res == JOptionPane.OK_OPTION){
+        String paramName = paramNameInput.getText().trim();
+        String paramType = paramTypeInput.getText().trim();
+
+        if(!paramName.isEmpty()) {
+            if(paramType.isEmpty()){
+                selectedMethod.addParameter(paramName, "Void");
+            }
+            
+            selectedMethod.addParameter(paramName, paramType);
+        }
+        
     selectedClassBox.updateMethodDisplay(selectedMethod);
 
     selectedClassBox.revalidate();
     selectedClassBox.repaint();
     view.getDrawingPanel().repaint();
+    }
 }
 
 /**

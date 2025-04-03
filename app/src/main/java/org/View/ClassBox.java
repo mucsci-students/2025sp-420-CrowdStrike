@@ -286,9 +286,9 @@ public class ClassBox extends JPanel {
        }
         String sig = m.getName() + "(";
         for (int i = 0; i < m.getParamList().size()-1; i++) {
-            sig += m.getParamList().get(i).getName() + ", ";
+            sig += m.getParamList().get(i).getName() + ": " + m.getParamList().get(i).getType() + ", ";
         }
-        return sig + m.getParamList().get(m.getParamList().size()-1).getName() + ")";
+        return sig + m.getParamList().get(m.getParamList().size()-1).getName() + ": " + m.getParamList().get(m.getParamList().size()-1).getType() + ")";
     }
 
     /**
