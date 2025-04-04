@@ -64,7 +64,7 @@ public class GUIController {
 
         view.getAddRelationshipButton().addActionListener(e -> {
             if (classBoxes.size() < 1) {
-                JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(view, "At least one class is required to add a relationship.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             addRelationshipMode = view.getAddRelationshipButton().isSelected();
