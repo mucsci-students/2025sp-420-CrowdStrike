@@ -143,19 +143,23 @@ public class ClassBox extends JLayeredPane {
     
     @Override
     public Dimension getPreferredSize() {
-        int padding = 35;
+        int widthPadding = 35;
+        int heightPadding = Math.max(fieldsList.getModel().getSize(), methodsList.getModel().getSize()) * 15 + 35;
         Dimension classLabelSize = classLabel.getPreferredSize();
         Dimension fieldsSize = fieldsScrollPane.getPreferredSize();
         Dimension methodsSize = methodsScrollPane.getPreferredSize();
+        
 
-        int totalWidth = Math.max(classLabelSize.width, Math.max(fieldsSize.width, methodsSize.width)) + padding;
-        int totalHeight = classLabelSize.height + fieldsSize.height + methodsSize.height + padding;
+        int totalWidth = Math.max(classLabelSize.width, Math.max(fieldsSize.width, methodsSize.width)) + widthPadding;
+        int totalHeight = classLabelSize.height + fieldsSize.height + methodsSize.height + heightPadding;
 
         Dimension dynamicPref = new Dimension(totalWidth, totalHeight);
         Dimension defaultSize = new Dimension(175, 175);
+        //Dimension defaultSize = new Dimension(175, 50);
 
         int finalWidth = Math.max(dynamicPref.width, defaultSize.width);
         int finalHeight = Math.max(dynamicPref.height, defaultSize.height);
+        //int finalHeight = dynamicPref.height + defaultSize.height;
 
         return new Dimension(finalWidth, finalHeight);
     }
