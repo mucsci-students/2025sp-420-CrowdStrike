@@ -298,7 +298,7 @@ public class UMLModel implements UMLModelInterface{
 		if (mthd.getParamList().size() > 0) {
 			str = str + mthd.getParamList().get(0).getName() + ": " + mthd.getParamList().get(0).getType();
 			for (int i = 1; i < mthd.getParamList().size(); i++) {
-				str = str + ", " + mthd.getParamList().get(i).getName() + ": " + mthd.getParamList().get(0).getType();
+				str = str + ", " + mthd.getParamList().get(i).getName() + ": " + mthd.getParamList().get(i).getType();
 			}
 		}
 		return str = str + ")";

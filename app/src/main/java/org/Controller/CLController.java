@@ -375,7 +375,7 @@ public class CLController {
 			LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
 			view.show("Type the name then type of a parameter you'd like to add to this new method (enter to skip)");
 			String paramName = sc.nextLine().replaceAll("\\s", "");
-			String type = sc.nextLine().replaceAll("\\s", "");
+			String type;
 
 			boolean empty_input = paramName.equalsIgnoreCase("");
 			while (!empty_input) {
@@ -384,8 +384,8 @@ public class CLController {
 					break;
 				} else {
 					boolean exist = false;
-					for (int i = 0; i < paramList.size(); i++) {
-						if (paramName.equals(paramList.get(i))) {
+					for (String str : paramList.keySet()) {
+						if (paramName.equals(str)) {
 							// Parameter name has already been added
 							exist = true;
 							break;
@@ -396,6 +396,13 @@ public class CLController {
 					if (exist) {
 						view.show("Parameter " + paramName + " has already been added");
 					} else {
+						view.show("Enter the parameter's type");
+						type = sc.nextLine().replaceAll("\\s", "");
+						if (type.isEmpty()) {
+							// Will restart loop which will immediately come back to this point b/c paramName is still stored
+							view.show("Parameters must have a type, please try again");
+							continue;
+						}
 						paramList.put(paramName, type);
 						view.show("Parameter " + paramName + " added to method " + input);
 					}
@@ -408,11 +415,16 @@ public class CLController {
 			if (paramList.size() == 0) {
 				view.show("Method " + input + "() successfully added to class " + className);
 			} else {
+				int i = 0;
 				String message = "Method " + input + "(";
-				for (int i = 0; i < paramList.size() - 1; i++) {
-					message += paramList.get(i) + ", ";
+				for (String str : paramList.keySet()) {
+					message += str;
+					if (i < paramList.size() - 1) {
+						message += ", ";
+					}
+					i++;
 				}
-				message += paramList.get(paramList.size() - 1) + ")";
+				message += ")";
 				message += " successfully added to class " + className;
 				view.show(message);
 			}
