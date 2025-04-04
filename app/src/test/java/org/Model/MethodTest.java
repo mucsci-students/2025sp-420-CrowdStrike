@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Method;
@@ -17,7 +18,7 @@ public class MethodTest {
     UMLModel testModel = new UMLModel();
     UMLEditor testEditor = new UMLEditor(testModel);
     ClassObject class1;
-    ArrayList<String> emptyConstructList;
+    LinkedHashMap<String, String> emptyConstructMap;
     Method mthd;
 
     @BeforeEach
@@ -25,8 +26,8 @@ public class MethodTest {
         try {
             testEditor.addClass("class1");
             class1 = testModel.fetchClass("class1");
-            emptyConstructList = new ArrayList<>();
-            testEditor.addMethod(class1, "method1", emptyConstructList);
+            emptyConstructMap = new LinkedHashMap<>();
+            testEditor.addMethod(class1, "method1", emptyConstructMap);
             mthd = class1.fetchMethod("method1", 0);
         } catch (Exception e) {
         }
@@ -71,35 +72,30 @@ public class MethodTest {
     @Test
     public void testAddParametersOne() {
         String paramName = "param1";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName);
-        mthd.addParameters(newList);
+        String paramType = "int";
+        LinkedHashMap<String, String> newMap = new LinkedHashMap<>();
+        newMap.put(paramName, paramType);
+        mthd.addParameters(newMap);
         assertEquals(mthd.getParamList().size(), 1, "mthd should have a list containing 'param1'");
     }
 
     @Test
     public void testAddParameters() {
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName1);
-        newList.add(paramName2);
-        newList.add(paramName3);
-        mthd.addParameters(newList);
+        LinkedHashMap<String, String> newMap = new LinkedHashMap<>();
+        newMap.put("param1", "int");
+        newMap.put("param2", "String");
+        newMap.put("param3", "boolean");
+        mthd.addParameters(newMap);
         assertEquals(mthd.getParamList().size(), 3, "mthd should have a list containing ['param1', 'param2', 'param3']");
     }
 
     @Test
     public void testRemoveAllParameter() {
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName1);
-        newList.add(paramName2);
-        newList.add(paramName3);
-        mthd.addParameters(newList);
+        LinkedHashMap<String, String> newMap = new LinkedHashMap<>();
+        newMap.put("param1", "int");
+        newMap.put("param2", "String");
+        newMap.put("param3", "boolean");
+        mthd.addParameters(newMap);
         mthd.removeAllParameters();
         assertEquals(mthd.getParamList().size(), 0, "mthd should have an empty list");
     }
@@ -107,14 +103,11 @@ public class MethodTest {
     @Test
     public void testRemoveParameter() {
         try {
-            String paramName1 = "param1";
-            String paramName2 = "param2";
-            String paramName3 = "param3";
-            ArrayList<String> newList = new ArrayList<>();
-            newList.add(paramName1);
-            newList.add(paramName2);
-            newList.add(paramName3);
-            mthd.addParameters(newList);
+            LinkedHashMap<String, String> newMap = new LinkedHashMap<>();
+            newMap.put("param1", "int");
+            newMap.put("param2", "String");
+            newMap.put("param3", "boolean");
+            mthd.addParameters(newMap);
             Parameter param = mthd.fetchParameter("param2");
             mthd.removeParameter(param);
             assertEquals(mthd.getParamList().size(), 2, "mthd should have a list containing ['param1', 'param3']");
@@ -126,8 +119,8 @@ public class MethodTest {
     @Test
     public void testEqualsDifNames() {
         try {
-            testEditor.addMethod(class1, "method1", emptyConstructList);
-            testEditor.addMethod(class1, "method2", emptyConstructList);
+            testEditor.addMethod(class1, "method1", emptyConstructMap);
+            testEditor.addMethod(class1, "method2", emptyConstructMap);
             Method mthd1 = class1.fetchMethod("method1", 0);
             Method mthd2 = class1.fetchMethod("method2", 0);
             assertEquals(mthd1.equals(mthd2), false, "mthd1 should not equal mthd2 because they have different names");
@@ -138,15 +131,12 @@ public class MethodTest {
     @Test
     public void testEqualsDifLists() {
         try {
-            testEditor.addMethod(class1, "method1", emptyConstructList);
-            String paramName1 = "param1";
-            String paramName2 = "param2";
-            String paramName3 = "param3";
-            ArrayList<String> paramList2 = new ArrayList<>();
-            paramList2.add(paramName1);
-            paramList2.add(paramName2);
-            paramList2.add(paramName3);
-            testEditor.addMethod(class1, "method1", paramList2);
+            testEditor.addMethod(class1, "method1", emptyConstructMap);
+            LinkedHashMap<String, String> paramMap2 = new LinkedHashMap<>();
+            paramMap2.put("param1", "int");
+            paramMap2.put("param2", "String");
+            paramMap2.put("param3", "boolean");
+            testEditor.addMethod(class1, "method1", paramMap2);
             Method mthd1 = class1.fetchMethod("method1", 0);
             Method mthd2 = class1.fetchMethod("method1", 3);
             assertEquals(mthd1.equals(mthd2), false, "mthd1 should not equal mthd2 because they have different paramLists");
@@ -158,14 +148,11 @@ public class MethodTest {
     @Test
     public void testFetchParameter() {
         try {
-            String paramName1 = "param1";
-            String paramName2 = "param2";
-            String paramName3 = "param3";
-            ArrayList<String> newList = new ArrayList<>();
-            newList.add(paramName1);
-            newList.add(paramName2);
-            newList.add(paramName3);
-            mthd.addParameters(newList);
+            LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
+            paramMap.put("param1", "int");
+            paramMap.put("param2", "String");
+            paramMap.put("param3", "boolean");
+            mthd.addParameters(paramMap);
             assertEquals(mthd.fetchParameter("param2").getName(), "param2", "fetchParameter should return param3");
         } catch (Exception e) {
         }
