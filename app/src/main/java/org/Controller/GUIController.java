@@ -529,6 +529,33 @@ public class GUIController {
 
     //================= FIELD ==============================
     /**
+     * Creates a panel to enter field info on
+     */
+    private JPanel createFieldEntryPanel() {
+        // Main panel with vertical layout for method entry.
+        JPanel entryPanel = new JPanel();
+        entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
+        entryPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+
+        // Create and add a label and text field for the method name.
+        JLabel fieldNameLabel = new JLabel("Enter Field Name:");
+        fieldNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JTextField fieldNameField = new JTextField();
+        fieldNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldNameField.getPreferredSize().height));
+        entryPanel.add(fieldNameLabel);
+        entryPanel.add(fieldNameField);
+
+        // Store important components as client properties for later retrieval.
+        entryPanel.putClientProperty("fieldNameField", fieldNameField);
+
+        return entryPanel;
+    }
+
+
+    /**
      * Opens a dialog to add one or more fields to the selected class. Supports
      * dynamic addition of input fields.
      */
@@ -538,48 +565,58 @@ public class GUIController {
             return;
         }
 
-        // Create a panel with a vertical layout to hold field inputs.
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setPreferredSize(new Dimension(400, 300)); // Increase dialog size
+        // Create a main panel for the method entry dialog.
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        // Create the method entry panel.
+        JPanel entryPanel = createFieldEntryPanel();
+        mainPanel.add(entryPanel, BorderLayout.CENTER);
 
-        // List to store the dynamic text fields for field names.
-        List<JTextField> fieldInputs = new ArrayList<>();
-        JButton addFieldButton = new JButton("+");
+        // Create a panel for buttons: "Add another method" and "Done".
+        JPanel buttonPanel = new JPanel();
+        JButton addAnotherButton = new JButton("Add another field");
+        JButton doneButton = new JButton("Done");
+        buttonPanel.add(addAnotherButton);
+        buttonPanel.add(doneButton);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Create the initial field input with a label.
-        JLabel label = new JLabel("Enter Field Name:");
-        JTextField fieldInput = new JTextField();
-        fieldInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldInput.getPreferredSize().height)); // limits height
-        fieldInputs.add(fieldInput);
+        // Create and configure a modal dialog to host the method entry panel.
+        JDialog dialog = new JDialog((Frame) null, "Add Fields", true);
+        dialog.getContentPane().add(mainPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(view);
+        dialog.setSize(250, 150);
 
-        panel.add(label);
-        panel.add(fieldInput);
-        panel.add(addFieldButton);
+        dialog.setMinimumSize(new Dimension(250, 150)); // sets a minimum size
 
-        // Add more input fields dynamically when the "+" button is pressed.
-        addFieldButton.addActionListener(e -> {
-            JLabel newLabel = new JLabel("Enter Field Name:");
-            JTextField newFieldInput = new JTextField();
-            newFieldInput.setMaximumSize(new Dimension(Integer.MAX_VALUE, newFieldInput.getPreferredSize().height));
-            fieldInputs.add(newFieldInput);
-            panel.add(newLabel);
-            panel.add(newFieldInput);
-            panel.revalidate();
-            panel.repaint();
-        });
-
-        // Display the dialog for field entry.
-        int result = JOptionPane.showConfirmDialog(view, panel, "Add Fields", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            // For each entered field, add it to the class if it is not empty or duplicate.
-            for (JTextField input : fieldInputs) {
-                String fieldName = input.getText().trim();
-                if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName)) {
+        // Action for "Add another method" button: process current input and clear fields.
+        addAnotherButton.addActionListener(e -> {
+            JTextField fieldNameField = (JTextField) entryPanel.getClientProperty("fieldNameField");
+            @SuppressWarnings("unchecked")
+            String fieldName = fieldNameField.getText().trim();
+            if (!fieldName.isEmpty()) {
+                // Only add the method if it does not already exist.
+                if (!activeClass.fieldNameUsed(fieldName)) {
                     selectedClassBox.addField(fieldName);
                 }
             }
-        }
+            // Reset the input fields for the next method.
+            fieldNameField.setText("");
+        });
+
+        // "Done" button processes any remaining input and closes the dialog.
+        doneButton.addActionListener(e -> {
+            JTextField fieldNameField = (JTextField) entryPanel.getClientProperty("fieldNameField");
+            @SuppressWarnings("unchecked")
+            String fieldName = fieldNameField.getText().trim();
+            if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName)) {
+                selectedClassBox.addField(fieldName);
+            }
+            dialog.dispose();
+            view.getDrawingPanel().repaint();
+        });
+
+        // Display the dialog.
+        dialog.setVisible(true);
     }
 
     /**
