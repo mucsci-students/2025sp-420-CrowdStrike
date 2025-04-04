@@ -328,6 +328,11 @@ public class GUIController {
             String sourceName = (String) sourceCombo.getSelectedItem();
             String destinationName = (String) destinationCombo.getSelectedItem();
             String relationshipType = (String) typeCombo.getSelectedItem();
+
+            if (model.relationshipExist(sourceName, destinationName)) {
+                view.displayErrorMessage("Relationship between " + sourceName + " and " + destinationName + " already exists");
+                return;
+            }
             
 
             // Find the corresponding ClassBox objects for the selected source and destination.
