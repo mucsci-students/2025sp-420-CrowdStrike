@@ -77,7 +77,9 @@ public class GUIController {
         view.getDeleteClassButton().addActionListener(e -> deleteSelectedClass());
         view.getRenameClassButton().addActionListener(e -> renameSelectedClass());
 
+
         view.getAddRelationshipButton().addActionListener(e -> createRelationshipDialog());
+
 
         view.getEditRelationshipButton().addActionListener(e -> editRelationship());
 
@@ -275,6 +277,7 @@ public class GUIController {
             case "Realization":
                 relationshipType = Type.REALIZATION;
                 break;
+
         }
         return relationshipType;
     }

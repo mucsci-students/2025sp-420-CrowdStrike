@@ -8,6 +8,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    jacoco
 }
 
 repositories {
@@ -23,6 +24,10 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.code.gson:gson:2.12.1")
+    implementation("info.picocli:picocli:4.7.6")
+    implementation("info.picocli:picocli-shell-jline3:4.7.6")
+    implementation("org.jline:jline-terminal:3.16.0")
+    implementation("org.jline:jline-reader:3.16.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -39,7 +44,12 @@ application {
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
 }
 
 tasks.named<JavaExec>("run") {
