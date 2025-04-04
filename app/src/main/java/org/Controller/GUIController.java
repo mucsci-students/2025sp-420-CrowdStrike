@@ -287,9 +287,9 @@ public class GUIController {
      * class, and relationship type. Creates the relationship if valid.
      */
     private void createRelationshipDialog() {
-        // Ensure there are at least two classes to form a relationship.
-        if (classBoxes.size() < 2) {
-            JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.",
+        // Ensure there is at least one class to form a relationship.
+        if (classBoxes.size() < 1) {
+            JOptionPane.showMessageDialog(view, "At least one class is required to add a relationship.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -328,13 +328,7 @@ public class GUIController {
             String sourceName = (String) sourceCombo.getSelectedItem();
             String destinationName = (String) destinationCombo.getSelectedItem();
             String relationshipType = (String) typeCombo.getSelectedItem();
-
-            // Ensure source and destination are not the same.
-            if (sourceName.equals(destinationName)) {
-                JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            
 
             // Find the corresponding ClassBox objects for the selected source and destination.
             ClassBox sourceBox = null;
