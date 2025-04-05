@@ -757,11 +757,10 @@ public class CLController {
 			boolean changeParamReadded = false;
 			String paramName = "";
 			String type = "";
-			view.show("Type the name then type of a parameter you'd like to add to the new list. (enter to stop):");
+			view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
 			while (loop) {
 				// Loops for adding
 				paramName = sc.nextLine().replaceAll("\\s", "");
-				type = sc.nextLine().replaceAll("\\s", "");
 				if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
 					loop = false;
 				} else {
@@ -784,6 +783,13 @@ public class CLController {
 						view.show("This parameter has already been added.");
 						view.show("Please type the name then type of the next parameter:");
 						continue;
+					}
+					view.show("Enter the parameter's type");
+					type = sc.nextLine().replaceAll("\\s", "");
+					if(type.equals("")) {
+						view.show("Parameters must have a type");
+						view.show("Please type the name of the next parameter:");
+						continue;					
 					}
 					parameterList.put(paramName, type);
 				}

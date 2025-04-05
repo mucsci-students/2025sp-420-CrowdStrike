@@ -214,7 +214,7 @@ public class UMLModel implements UMLModelInterface{
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "Available CLasses:\n- " + classList.get(0).getName();
+    	String finalString = "Available Classes:\n- " + classList.get(0).getName();
     	ClassObject curClass;
     	while (index < classList.size()) {
     		curClass = classList.get(index);
