@@ -603,9 +603,10 @@ public class CLController {
 						view.show("Please type the name of the next parameter:");
 						continue;
 					}
+					view.show("Enter the parameter's type");
 					typeInput = sc.nextLine().replaceAll("\\s", "");
-					if(typeInput != "") {
-						view.show("This parameter must have a type.");
+					if(typeInput.equals("")) {
+						view.show("Parameters must have a type");
 						view.show("Please type the name of the next parameter:");
 						continue;					
 					}
@@ -614,7 +615,7 @@ public class CLController {
 				view.show("Please type the name of the next parameter:");
 			}
 			editor.addParam(parameterList, activeMethod);
-			view.show("The parameter(s) were added");
+			view.show("The parameter(s) were added to " + activeMethod.getName());
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
