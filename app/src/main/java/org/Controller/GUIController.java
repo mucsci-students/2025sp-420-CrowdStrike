@@ -169,7 +169,13 @@ public class GUIController {
      */
     private void addClass(ClassObject newClass) {
         ClassBox classBox = new ClassBox(newClass, this);
-        Point position = getNextGridPosition();
+        Point position = newClass.getPosition();
+        
+        //System.out.println("position of " + newClass.getName() + ": (" + position.x + ", " + position.y + ")\n"); // Debug
+        if(position.x == -1 || position.y == -1){
+            position = getNextGridPosition();
+        }
+
         classBox.setBounds(position.x, position.y, 150, 200);
 
         classBox.setOpaque(true);

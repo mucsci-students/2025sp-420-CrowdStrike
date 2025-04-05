@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.function.Function;
 import java.util.ArrayList;
 import java.lang.StringBuilder;
+import java.awt.Point;
 
 import org.Model.UMLModel;
 import org.Model.ClassObject;
@@ -135,6 +136,8 @@ public class FileManager {
 			throw new InvalidObjectException("Missing fields in class object");
 		if (!classJson.has("methods") && classJson.get("methods").isJsonArray())
 			throw new InvalidObjectException("Missing methods in class object");
+		if (!classJson.has("position"))
+			throw new InvalidObjectException("Missing position in class object");
 
 		classObject = new ClassObject(classJson.get("name").getAsString());
 		tmp = classJson.get("fields").getAsJsonArray();
@@ -142,6 +145,9 @@ public class FileManager {
 
 		tmp = classJson.get("methods").getAsJsonArray();
 		addMethods(tmp, classObject.getMethodList());
+		
+		JsonObject tmp2 = classJson.get("position").getAsJsonObject();
+		addPosition(tmp2, classObject);
 
 		return classObject;
 	}
@@ -188,6 +194,13 @@ public class FileManager {
 		}
 	}
 
+	private void addPosition(JsonObject json, ClassObject cls){
+		int x = Integer.parseInt(json.get("x").getAsString());
+		int y = Integer.parseInt(json.get("y").getAsString());
+		if(cls.getPosition()!=null)
+			cls.setPosition(x,y);
+	}
+
 	private <T> String jsonCommas(String begin, String end, ArrayList<T> data, Function<T, String> convert) {
 		StringBuilder ret = new StringBuilder(begin);
 		boolean first = true;
@@ -204,7 +217,8 @@ public class FileManager {
 	private String classToJson(ClassObject classobj) {
 		StringBuilder ret = new StringBuilder("{\"name\": \"" + classobj.getName() + "\",");
 		ret.append(jsonCommas("\"fields\": [", "],", classobj.getFieldList(), this::FieldsToJson));
-		ret.append(jsonCommas("\"methods\": [", "]", classobj.getMethodList(), this::MethodsToJson));
+		ret.append(jsonCommas("\"methods\": [", "],", classobj.getMethodList(), this::MethodsToJson));
+		ret.append(PositionToJson(classobj.getPosition()));
 		ret.append("}");
 		return ret.toString();
 	}
@@ -230,5 +244,12 @@ public class FileManager {
 				relationship.getSource().getName(),
 				relationship.getDestination().getName(),
 				relationship.getTypeString());
+	}
+
+	private String PositionToJson(Point position) {
+		StringBuilder ret = new StringBuilder(String.format("\"position\": { \"x\": %d , \"y\": %d }", position.x, position.y));
+		return ret.toString();
+		
+		//return String.format("\"position\": { \"x\": %d , \"y\": %d }", position.x, position.y);
 	}
 }

@@ -39,6 +39,10 @@ public class ClassBox extends JPanel {
     );
 
     public ClassBox(ClassObject classObject, GUIController controller) {
+        myX = classObject.getPosition().x;
+        myY = classObject.getPosition().y;
+        
+        setLocation(myX, myY);
 
         addMouseListener(
             new MouseListener() {
@@ -67,6 +71,7 @@ public class ClassBox extends JPanel {
                 int deltaX = e.getXOnScreen() - screenX;
                 int deltaY = e.getYOnScreen() - screenY;
                 setLocation(myX + deltaX, myY + deltaY);
+                classObject.setPosition(myX + deltaX, myY + deltaY);
                 // Request the parent container (the drawing panel) to repaint
                 getParent().repaint();
             }
