@@ -40,8 +40,8 @@ public class GUIController {
     private ClassBox selectedClassBox = null;
     //private boolean addRelationshipMode = false;
     // These fields could be used for relationship selection (currently not fully implemented).
-    private ClassBox selectedDestination = null;
-    private ClassBox selectedSource = null;
+    
+    
 
     /**
      * Constructor for GUIController. Initializes the controller with the given
@@ -101,7 +101,13 @@ public class GUIController {
         view.getLoadButton().addActionListener(e -> loadDiagram());
 
         view.getExitButton().addActionListener(e -> exitDiagram());
-        view.getHelpButton().addActionListener(e -> view.getHelpButton());
+        view.getHelpButton().addActionListener(e -> {
+            JDialog helpDialog = new JDialog(view, "Help", true);
+            helpDialog.getContentPane().add(view.helpPanel());
+            helpDialog.setSize(500, 400);
+            helpDialog.setLocationRelativeTo(view);
+            helpDialog.setVisible(true);
+            });
     }
 
     // ==================== ADD CLASS ==================== //
