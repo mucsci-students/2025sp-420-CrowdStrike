@@ -1,10 +1,27 @@
 package org.View;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.util.LinkedHashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.Border;
+
 import org.Controller.GUIController;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
@@ -253,7 +270,7 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void addMethod(String method, ArrayList<String> params) {
+    public void addMethod(String method, LinkedHashMap<String, String> params) {
         try {
             controller.getEditor().addMethod(classObject, method, params);
             Method mthd = classObject.fetchMethod(method, params.size());
@@ -314,7 +331,7 @@ public class ClassBox extends JLayeredPane {
         }
         StringBuilder sig = new StringBuilder(m.getName() + "(");
         for (int i = 0; i < m.getParamList().size(); i++) {
-            sig.append(m.getParamList().get(i).getName());
+            sig.append(m.getParamList().get(i).getName() + ": " + m.getParamList().get(i).getType());
             if (i < m.getParamList().size() - 1) {
                 sig.append(", ");
             }

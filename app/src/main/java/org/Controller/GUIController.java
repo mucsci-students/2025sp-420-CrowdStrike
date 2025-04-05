@@ -1,6 +1,12 @@
 package org.Controller;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -8,9 +14,21 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.*;
+import java.util.stream.Collectors;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
 import org.FileManager;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
@@ -18,6 +36,7 @@ import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
+import org.Model.UMLModel;
 import org.View.ClassBox;
 import org.View.GUIView;
 
@@ -744,20 +763,26 @@ public class GUIController {
         newParamPanel.setLayout(new BoxLayout(newParamPanel, BoxLayout.X_AXIS));
         JLabel paramLabel = new JLabel("Parameter: ");
         JTextField newParamField = new JTextField();
+        JLabel paramTypeLabel = new JLabel("Type: ");
+        JTextField newParamTypeField = new JTextField();
         newParamField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamField.getPreferredSize().height));
         JButton addParamButton = new JButton("Add Parameter");
         newParamPanel.add(paramLabel);
         newParamPanel.add(newParamField);
+        newParamPanel.add(paramTypeLabel);
+        newParamPanel.add(newParamTypeField);
         newParamPanel.add(addParamButton);
         entryPanel.add(newParamPanel);
 
+
         // List to store confirmed parameters for the method.
-        ArrayList<String> confirmedParams = new ArrayList<>();
+        LinkedHashMap<String, String> confirmedParams = new LinkedHashMap<>();
 
         // Helper function to update the signature preview dynamically.
         Runnable updatePreview = () -> {
             String methodName = methodNameField.getText().trim();
-            String paramsString = String.join(", ", confirmedParams);
+            //*** ? ***
+            String paramsString = confirmedParams.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue()).collect(Collectors.joining(", "));
             if (methodName.isEmpty() && paramsString.isEmpty()) {
                 signaturePreviewLabel.setText("Method: ");
             } else {
@@ -786,11 +811,13 @@ public class GUIController {
         // When "Add Parameter" is pressed, add the parameter if it is valid and update the preview.
         addParamButton.addActionListener(e -> {
             String param = newParamField.getText().trim();
-            if (!param.isEmpty() && !confirmedParams.contains(param)) {
-                confirmedParams.add(param);
+            String paramType = newParamTypeField.getText().trim();
+            if (!param.isEmpty() && !confirmedParams.containsKey(param)) {
+                confirmedParams.put(param, paramType);
                 newParamField.setText(""); // Clear the field for the next parameter.
+                newParamTypeField.setText("");
                 updatePreview.run();
-            } else if (confirmedParams.contains(param)) {
+            } else if (confirmedParams.containsKey(param)) {
                 JOptionPane.showMessageDialog(entryPanel, "Parameter already exist!", "Duplicate Parameter", JOptionPane.WARNING_MESSAGE);
             }
         });
@@ -843,7 +870,7 @@ public class GUIController {
         addAnotherButton.addActionListener(e -> {
             JTextField methodNameField = (JTextField) entryPanel.getClientProperty("methodNameField");
             @SuppressWarnings("unchecked")
-            ArrayList<String> confirmedParams = (ArrayList<String>) entryPanel.getClientProperty("confirmedParams");
+            LinkedHashMap<String, String> confirmedParams = (LinkedHashMap<String,String >) entryPanel.getClientProperty("confirmedParams");
             String methodName = methodNameField.getText().trim();
             if (!methodName.isEmpty()) {
                 // Only add the method if it does not already exist.
@@ -863,7 +890,7 @@ public class GUIController {
         doneButton.addActionListener(e -> {
             JTextField methodNameField = (JTextField) entryPanel.getClientProperty("methodNameField");
             @SuppressWarnings("unchecked")
-            ArrayList<String> confirmedParams = (ArrayList<String>) entryPanel.getClientProperty("confirmedParams");
+            LinkedHashMap<String, String> confirmedParams = (LinkedHashMap<String, String>) entryPanel.getClientProperty("confirmedParams");
             String methodName = methodNameField.getText().trim();
             if (!methodName.isEmpty() && !activeClass.methodExists(methodName, confirmedParams.size())) {
                 selectedClassBox.addMethod(methodName, confirmedParams);
@@ -1026,8 +1053,24 @@ public class GUIController {
             return;
         }
 
+        //Prompt for the new parameter type
+        JTextField paramTypeField = new JTextField();
+        result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter New Parameter Type", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String newParamType = paramTypeField.getText().trim();
+        if (newParamType.isEmpty()) {
+            return;
+        }
+
+
+        
+        // ****** Dont Forget this Section ******
+        
         // Update the selected method with the new parameter.
-        selectedMethod.addParameter(newParamName);
+        selectedMethod.addParameter(newParamName, newParamType);
         // Optionally, update the model via editor.
 
         // Refresh the method display.
@@ -1165,6 +1208,9 @@ public class GUIController {
         }
 
         String oldParamName = (String) paramDropdown.getSelectedItem();
+        
+
+        //***** 
 
         // Prompt for the new parameter name, pre-filled with the current name.
         JTextField paramField = new JTextField(oldParamName);
@@ -1177,9 +1223,20 @@ public class GUIController {
         if (newParamName.isEmpty()) {
             return;
         }
+        // Prompt for the  Parameter type
+        JTextField paramTypeField = new JTextField();
+        result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter the Parameter Type", JOptionPane.OK_CANCEL_OPTION);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String newParamType = paramTypeField.getText().trim();
+        if (newParamType.isEmpty()) {
+            return;
+        }
 
         // Update the parameter in the selected method.
-        selectedMethod.updateParameter(oldParamName, newParamName);
+        selectedMethod.updateParameter(oldParamName, newParamName, newParamType);
 
         // Refresh the method display.
         selectedClassBox.updateMethodDisplay(selectedMethod);

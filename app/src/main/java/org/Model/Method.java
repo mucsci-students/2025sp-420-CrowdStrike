@@ -171,13 +171,14 @@ public class Method implements AttributeInterface {
      * @param newParamName The new name for the parameter.
      * @throws IllegalArgumentException if the new name is invalid or the parameter is not found.
      */
-    public void updateParameter(String oldParamName, String newParamName) {
+    public void updateParameter(String oldParamName, String newParamName, String newParamType) {
         if (newParamName == null || newParamName.trim().isEmpty()) {
             throw new IllegalArgumentException("New parameter name cannot be empty.");
         }
         for (Parameter p : paramList) {
             if (p.getName().equals(oldParamName)) {
                 p.setName(newParamName);
+				p.setType(newParamType);
                 return;
             }
         }
