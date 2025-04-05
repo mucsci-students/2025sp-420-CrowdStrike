@@ -49,7 +49,7 @@ public class MethodTest {
 		m.addParameter("test", "double");
 		assertTrue(m.paramUsed("test"));
 
-        LinkedHashMap<String, String> strs = new LinkedHashMap<>();
+    LinkedHashMap<String, String> strs = new LinkedHashMap<>();
 		for (Integer i = 0; i <= 12; i++)
 			strs.put(i.toString(), i.toString());
 
@@ -94,4 +94,5 @@ public class MethodTest {
 		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz"));
 		assertDoesNotThrow(() -> m.fetchParameter("zbuz"));
 	}
+
 }

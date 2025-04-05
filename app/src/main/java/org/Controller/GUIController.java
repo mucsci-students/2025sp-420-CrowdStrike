@@ -80,8 +80,8 @@ public class GUIController {
         view.getRenameClassButton().addActionListener(e -> renameSelectedClass());
 
         view.getAddRelationshipButton().addActionListener(e -> {
-            if (classBoxes.size() < 2) {
-                JOptionPane.showMessageDialog(view, "At least two classes are required to add a relationship.", "Error", JOptionPane.ERROR_MESSAGE);
+            if (classBoxes.size() < 1) {
+                JOptionPane.showMessageDialog(view, "At least one class is required to add a relationship.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             addRelationshipMode = view.getAddRelationshipButton().isSelected();
@@ -259,12 +259,6 @@ public class GUIController {
             selectedSource.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
         } else {
             selectedDestination = classBox;
-            if (selectedSource == selectedDestination) {
-                JOptionPane.showMessageDialog(view, "Cannot connect a class to itself!", "Error", JOptionPane.ERROR_MESSAGE);
-                resetRelationshipSelection();
-                return;
-            }
-
             createRelationship(selectedSource, selectedDestination);
         }
     }
