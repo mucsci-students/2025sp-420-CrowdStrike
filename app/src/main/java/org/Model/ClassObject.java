@@ -1,12 +1,16 @@
 package org.Model;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.awt.Point;
 
 //Creates a Class object
 public class ClassObject implements ClassObjectInterface {
 
 	// Name of a class
 	private String name;
+	
+	// Position of class when displayed in GUI
+	private Point position;
 
 	// Stores all attributes belonging to a class
 	private LinkedHashMap<String, ArrayList<AttributeInterface>> attrMap;
@@ -18,6 +22,7 @@ public class ClassObject implements ClassObjectInterface {
 	public ClassObject(String name) {
 		this.name = name;
 		attrMap = new LinkedHashMap<>();
+		this.position = new Point(-1,-1);
 		// Need to create the Maps to be paired with each key
 		ArrayList<AttributeInterface> fieldList = new ArrayList<>();
 		ArrayList<AttributeInterface> methodList = new ArrayList<>();
@@ -26,6 +31,27 @@ public class ClassObject implements ClassObjectInterface {
 		attrMap.put("Field", fieldList);
 		attrMap.put("Method", methodList);
 	}
+
+    public ClassObject(ClassObject o){
+	this.name = o.name;
+	this.position = o.position;
+	attrMap = new LinkedHashMap<>();
+	ArrayList<AttributeInterface> fieldList = new ArrayList<>();
+	ArrayList<AttributeInterface> methodList = new ArrayList<>();
+
+	attrMap.put("Field", fieldList);
+	attrMap.put("Method", methodList);
+
+	for(AttributeInterface f: o.attrMap.get("Field")){
+	    Field fm = (Field) f;
+	    attrMap.get("Field").add(new Field(f.getName(),fm.getVarType()));
+	}
+
+	for(AttributeInterface m: o.attrMap.get("Method")){
+	    Method mo = (Method) m;
+	    attrMap.get("Method").add(new Method(m.getName(),mo.getParamList()));
+	}
+    }
 	
 	/**
 	 * Gets the name of a class object
@@ -37,6 +63,19 @@ public class ClassObject implements ClassObjectInterface {
 	@Override
 	public void setName(String newName) {
 		this.name = newName;
+	}
+
+	
+	public Point getPosition(){
+		return this.position;
+	}
+
+	public void setPosition(Point p){
+		this.position = p;
+	}
+
+	public void setPosition(int xPos, int yPos){
+		this.position.move(xPos, yPos);
 	}
 
 	/**

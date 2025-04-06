@@ -121,6 +121,9 @@ public class GUIController {
         view.getDeleteParamButton().addActionListener(e -> deleteParameterFromMethod());
         view.getChangeParamButton().addActionListener(e -> changeParameterInMethod());
 
+        view.getUndoButton().addActionListener(e -> undo());
+        view.getRedoButton().addActionListener(e -> redo());
+
         view.getSaveButton().addActionListener(e -> saveDiagram());
         view.getLoadButton().addActionListener(e -> loadDiagram());
 
@@ -209,8 +212,13 @@ public class GUIController {
     private void addClass(ClassObject newClass) {
         // Create a new ClassBox for the given ClassObject.
         ClassBox classBox = new ClassBox(newClass, this);
-        // Calculate the next available grid position for placing the new box.
-        Point position = getNextGridPosition();
+        Point position = newClass.getPosition();
+        
+        //System.out.println("position of " + newClass.getName() + ": (" + position.x + ", " + position.y + ")\n"); // Debug
+        if(position.x == -1 || position.y == -1){
+            position = getNextGridPosition();
+        }
+
         classBox.setBounds(position.x, position.y, 150, 200);
 
         // Set appearance properties.
@@ -225,8 +233,6 @@ public class GUIController {
         classBoxes.add(classBox);
         view.getDrawingPanel().revalidate();
         view.getDrawingPanel().repaint();
-
-        System.out.println("Added class");
     }
 
     /**
@@ -1373,49 +1379,55 @@ public class GUIController {
         String path = JOptionPane.showInputDialog(view, "Where would you like to load from:");
         try {
             FileManager fileManager = new FileManager();
+		for(ClassBox cb: classBoxes){
+		    view.getDrawingPanel().remove(cb);
+		    removeRelationships(cb);
+		}
 
-            // Remove all existing class boxes and their relationships from the view.
-            for (ClassBox cb : classBoxes) {
-                view.getDrawingPanel().remove(cb);
-                removeRelationships(cb);
-            }
+		view.getDrawingPanel().revalidate();
+		view.getDrawingPanel().repaint();
 
-            view.getDrawingPanel().revalidate();
-            view.getDrawingPanel().repaint();
+                model = fileManager.load(path.trim());
+		editor = new UMLEditor(model);
+		refreshClassBoxes(model);
+		JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+	    }
+	    catch (Exception e) {
+		    JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    }
+    }
 
-            // Load the UML model from the specified file path.
-            model = fileManager.load(path.trim());
-            // Create a new editor for the loaded model.
-            editor = new UMLEditor(model);
-            // Clear the lists to prepare for loading new data.
-            classBoxes.clear();
-            relationships.clear();
 
-            // Re-add all classes from the loaded model to the view.
-            for (ClassObject c : model.getClassList()) {
-                addClass(c);
-            }
 
-            // Re-establish relationships from the loaded model.
-            for (Relationship r : model.getRelationshipList()) {
-                ClassBox s = null;
-                ClassBox d = null;
-                String sn, dn;
-                sn = r.getSource().getName();
-                dn = r.getDestination().getName();
-                // Find the corresponding ClassBox objects for the relationship.
-                for (ClassBox b : classBoxes) {
-                    s = b.getClassName().equals(sn) ? b : s;
-                    d = b.getClassName().equals(dn) ? b : d;
-                }
-                String type = r.getTypeString();
-                relationships.add(new GUIRelationship(s, d, type));
-                view.getDrawingPanel().addRelationship(s, d, type);
-                JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    /**
+     * Updates the classbox and relationship according to the model
+     */
+    private void refreshClassBoxes(UMLModel model){
+    // Remove classes and relationships from the controller
+	classBoxes.clear();
+	relationships.clear();
+    // And also remove them from the view
+	view.getDrawingPanel().removeAll();
+    view.getDrawingPanel().removeAllRelationships();
+	for(ClassObject c:model.getClassList())
+	    addClass(c);
+
+	for(Relationship r: model.getRelationshipList()){
+	    ClassBox s = null;
+	    ClassBox d = null;
+	    String sn,dn;
+	    sn = r.getSource().getName();
+	    dn = r.getDestination().getName();
+	    for(ClassBox b: classBoxes){
+		s = b.getClassName().equals(sn) ? b : s;
+		d = b.getClassName().equals(dn) ? b : d;
+	    }
+	    String type = r.getTypeString();
+	    relationships.add(new GUIRelationship(s, d, type));
+	    view.getDrawingPanel().addRelationship(s, d, type);
+	    view.getDrawingPanel().revalidate();
+	    view.getDrawingPanel().repaint();
+	}
     }
 
     /**
@@ -1426,6 +1438,33 @@ public class GUIController {
     public UMLEditor getEditor() {
         return this.editor;
     }
+
+    public void undo(){
+        try{
+        editor.undo();
+	    this.model = editor.getModel();
+	    refreshClassBoxes(model);
+        view.getDrawingPanel().revalidate();
+        view.getDrawingPanel().repaint();
+        } catch(Exception e){
+        JOptionPane.showMessageDialog(view, "Nothing to undo!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+        }
+    }
+
+    public void redo(){
+        try{		
+        editor.redo();
+	    this.model = editor.getModel();
+	    refreshClassBoxes(model);
+        view.getDrawingPanel().revalidate();
+        view.getDrawingPanel().repaint();
+        } catch(Exception e){
+        JOptionPane.showMessageDialog(view, "Nothing to redo!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+        }
+    }
+
 
     // ==================== HELP & EXIT ==================== //
     /**
