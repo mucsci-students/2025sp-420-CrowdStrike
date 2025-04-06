@@ -194,11 +194,12 @@ public class FileManager {
 		}
 	}
 
-	private void addPosition(JsonObject json, ClassObject cls){
-		int x = Integer.parseInt(json.get("x").getAsString());
-		int y = Integer.parseInt(json.get("y").getAsString());
-		if(cls.getPosition()!=null)
-			cls.setPosition(x,y);
+	private void addPosition(JsonObject json, ClassObject cls) throws Exception{
+	    if(!json.has("x") && !json.has("y"))
+		throw new InvalidObjectException("Position is malformed");
+	    int x = json.get("x").getAsInt();
+	    int y = json.get("y").getAsInt();
+	    cls.setPosition(x,y);
 	}
 
 	private <T> String jsonCommas(String begin, String end, ArrayList<T> data, Function<T, String> convert) {
