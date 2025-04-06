@@ -1,17 +1,5 @@
 package org.Controller;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.AutoComplete;
-import picocli.AutoComplete.GenerateCompletion;
-
-import picocli.shell.jline3.PicocliJLineCompleter;
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
@@ -24,6 +12,15 @@ import org.Model.Parameter;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
 import org.View.CLView;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
 // editor to carry out change
@@ -409,7 +406,7 @@ public class CLController {
 			view.show("What do you want to name the method?");
 			input = sc.nextLine();
 			LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
-			view.show("Type the name then type of a parameter you'd like to add to this new method (enter to skip)");
+			view.show("Type the name of a parameter you'd like to add to this new method (enter to skip)");
 			String paramName = sc.nextLine().replaceAll("\\s", "");
 			String type;
 
@@ -595,12 +592,12 @@ public class CLController {
 				} else {
 					if (activeMethod.paramUsed(input)) {
 						view.show("This parameter is already in the method.");
-						view.show("Please type the name of the next parameter:");
+						view.show("Please type the name of the next parameter (enter to stop): ");
 						continue;
 					}
 					if (editor.nameAlrAdded(input, parameterList)) {
 						view.show("This parameter has already been added.");
-						view.show("Please type the name of the next parameter:");
+						view.show("Please type the name of the next parameter (enter to stop):");
 						continue;
 					}
 					view.show("Enter the parameter's type");
@@ -612,7 +609,7 @@ public class CLController {
 					}
 					parameterList.put(input, typeInput);
 				}
-				view.show("Please type the name of the next parameter:");
+				view.show("Please type the name of the next parameter (enter to stop):");
 			}
 			editor.addParam(parameterList, activeMethod);
 			view.show("The parameter(s) were added to " + activeMethod.getName());

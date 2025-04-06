@@ -766,6 +766,8 @@ public class GUIController {
         JLabel paramTypeLabel = new JLabel("Type: ");
         JTextField newParamTypeField = new JTextField();
         newParamField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamField.getPreferredSize().height));
+        newParamTypeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamField.getPreferredSize().height));
+
         JButton addParamButton = new JButton("Add Parameter");
         newParamPanel.add(paramLabel);
         newParamPanel.add(newParamField);
@@ -812,6 +814,9 @@ public class GUIController {
         addParamButton.addActionListener(e -> {
             String param = newParamField.getText().trim();
             String paramType = newParamTypeField.getText().trim();
+            if (paramType.isEmpty()){
+                paramType = "void";
+            }
             if (!param.isEmpty() && !confirmedParams.containsKey(param)) {
                 confirmedParams.put(param, paramType);
                 newParamField.setText(""); // Clear the field for the next parameter.
@@ -1053,7 +1058,7 @@ public class GUIController {
             return;
         }
 
-        //Prompt for the new parameter type
+        //Prompt for the parameter type
         JTextField paramTypeField = new JTextField();
         result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter New Parameter Type", JOptionPane.OK_CANCEL_OPTION);
         if (result != JOptionPane.OK_OPTION) {
@@ -1062,7 +1067,7 @@ public class GUIController {
 
         String newParamType = paramTypeField.getText().trim();
         if (newParamType.isEmpty()) {
-            return;
+            newParamType = "void";
         }
 
 
@@ -1218,24 +1223,24 @@ public class GUIController {
         if (result != JOptionPane.OK_OPTION) {
             return;
         }
-
+        //creates a variable to store the new parameter name
         String newParamName = paramField.getText().trim();
         if (newParamName.isEmpty()) {
             return;
         }
         // Prompt for the  Parameter type
         JTextField paramTypeField = new JTextField();
-        result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter the Parameter Type", JOptionPane.OK_CANCEL_OPTION);
+        result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter the new Parameter's Type", JOptionPane.OK_CANCEL_OPTION);
         if (result != JOptionPane.OK_OPTION) {
             return;
         }
-
+        //creates a variable to store the new parameter type
         String newParamType = paramTypeField.getText().trim();
         if (newParamType.isEmpty()) {
-            return;
+            newParamType = "void";
         }
 
-        // Update the parameter in the selected method.
+        // Update the parameter in the selected method with the new parameter name and type.
         selectedMethod.updateParameter(oldParamName, newParamName, newParamType);
 
         // Refresh the method display.

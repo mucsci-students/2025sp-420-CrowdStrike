@@ -13,12 +13,13 @@ import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
 
+
 public class UMLEditor {
 	// The model that is being edited
 	private UMLModel model;
 	// Holds the class actively being worked on
 	private ClassObject activeClass;
-
+	
 	/**
 	 * Constructs an instance of the UMLEditor
 	 * 
