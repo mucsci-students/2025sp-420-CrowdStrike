@@ -1,16 +1,15 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MethodTest {
 	Method m;
@@ -85,13 +84,13 @@ public class MethodTest {
 
 	@Test
 	public void updateParameter() {
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(null, "zzz"));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(" ", "zzz"));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", null));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", " "));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("missing name", "zzz"));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(null, "zzz", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(" ", "zzz", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", null, ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", " ", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("missing name", "zzz", ""));
 
-		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz"));
+		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz", "zub"));
 		assertDoesNotThrow(() -> m.fetchParameter("zbuz"));
 	}
 
