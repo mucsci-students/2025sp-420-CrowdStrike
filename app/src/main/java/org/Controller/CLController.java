@@ -7,6 +7,7 @@ import java.util.Scanner;
 import org.FileManager;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
+import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.Relationship.Type;
@@ -341,7 +342,13 @@ public class CLController {
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the field?");
 			input = sc.nextLine();
-			editor.addField(activeClass, input);
+			if (input.isEmpty()) {
+				view.show("Field name must not be blank");
+				return;
+			}
+			view.show("What do you want the type of the field to be?");
+			String fieldType = sc.nextLine();
+			editor.addField(activeClass, input, fieldType);
 			view.show("Field " + input + " successfully added to class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -369,11 +376,10 @@ public class CLController {
 	}
 
 	/**
-	 * Gets class and field info from user as well as what they want to rename it to
-	 * Returns whether or not the operation succeeds
+	 * Gets class and field info from user and allows them to change its name/type
 	 */
-	@Command(name = "renamefield", aliases = ("rf"), description = "Renames a field")
-	private void CL_renameField() {
+	@Command(name = "editfield", aliases = ("ef"), description = "Edits a field")
+	private void CL_editField() {
 		try {
 			view.show(model.listClassNames());
 			view.show("What class do you want to rename a field from?");
@@ -382,11 +388,28 @@ public class CLController {
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to rename?");
 			input = sc.nextLine();
-			AttributeInterface renameField = activeClass.fetchField(input);
-			view.show("What do you want to rename the field to?");
-			String newName = sc.nextLine();
-			editor.renameField(activeClass, renameField, newName);
-			view.show("Field " + input + " renamed to " + newName);
+			Field editField = activeClass.fetchField(input);
+			view.show("What part of " + input + " do you want to edit? (Name or Type)");
+			input = sc.nextLine().replaceAll("\\s", "");
+			while(true) {
+				if (input.equalsIgnoreCase("name")) {
+					// Edit name
+					view.show("What do you want to rename the field to?");
+					String newName = sc.nextLine();
+					editor.renameField(activeClass, editField, newName);
+					view.show("Field " + input + " renamed to " + newName);
+					break;
+				} else if (input.equalsIgnoreCase("type")) {
+					// Edit type
+					view.show("What do you want the field's new type to be?");
+					String newType = sc.nextLine();
+					editor.changeFieldType(editField, newType);
+					view.show("Type successfully changed to " + newType);
+					break;
+				}
+				view.show("Input did not match a changable value \nPlease try again");
+				input = sc.nextLine().replaceAll("\\s", "");
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}

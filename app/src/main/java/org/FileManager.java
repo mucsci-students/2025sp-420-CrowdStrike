@@ -158,8 +158,9 @@ public class FileManager {
 				throw new InvalidObjectException("Field is not an object");
 			if (!field.getAsJsonObject().has("name"))
 				throw new InvalidObjectException("Field is missing name");
-
-			fields.add(new Field(field.getAsJsonObject().get("name").getAsString()));
+			if (!field.getAsJsonObject().has("type"))
+				throw new InvalidObjectException("Field is missing type");
+			fields.add(new Field(field.getAsJsonObject().get("name").getAsString(), field.getAsJsonObject().get("type").getAsString()));
 		}
 	}
 
@@ -225,7 +226,8 @@ public class FileManager {
 	}
 
 	private String FieldsToJson(AttributeInterface field) {
-		return String.format("{ \"name\": \"%s\"}", field.getName());
+		Field fld = (Field) field;
+		return String.format("{ \"name\": \"%s\", \"type\": \"%s\"}", fld.getName(), fld.getVarType());
 	}
 
 	private String MethodsToJson(AttributeInterface methodInterface) {

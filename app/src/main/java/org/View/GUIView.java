@@ -17,7 +17,7 @@ public class GUIView extends JFrame {
     // Field Management Buttons
     private JButton addFieldButton;
     private JButton deleteFieldButton;
-    private JButton renameFieldButton;
+    private JButton editFieldButton;
 
     // Method Management Buttons
     private JButton addMethodButton;
@@ -69,7 +69,7 @@ public class GUIView extends JFrame {
         // Field Controls
         addFieldButton = new JButton("Add Field");
         deleteFieldButton = new JButton("Delete Field");
-        renameFieldButton = new JButton("Rename Field");
+        editFieldButton = new JButton("Edit Field");
 
         // Method Controls
         addMethodButton = new JButton("Add Method");
@@ -103,7 +103,7 @@ public class GUIView extends JFrame {
         toolPanel.add(new JSeparator()); // UI Divider
         toolPanel.add(addFieldButton);
         toolPanel.add(deleteFieldButton);
-        toolPanel.add(renameFieldButton);
+        toolPanel.add(editFieldButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(addMethodButton);
         toolPanel.add(deleteMethodButton);
@@ -227,8 +227,8 @@ public class GUIView extends JFrame {
         return deleteFieldButton;
     }
 
-    public JButton getRenameFieldButton() {
-        return renameFieldButton;
+    public JButton getEditFieldButton() {
+        return editFieldButton;
     }
 
     public JButton getAddMethodButton() {

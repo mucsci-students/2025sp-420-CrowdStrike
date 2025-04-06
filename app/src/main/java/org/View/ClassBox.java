@@ -26,6 +26,7 @@ import org.Controller.GUIController;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Method;
+import org.Model.Field;
 
 public class ClassBox extends JLayeredPane {
     private DefaultListModel<String> fieldModel;
@@ -101,7 +102,8 @@ public class ClassBox extends JLayeredPane {
         fieldsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         contentPanel.add(fieldsScrollPane);
         for (AttributeInterface f : classObject.getFieldList()) {
-            fieldModel.addElement(f.getName());
+            Field fld = (Field) f;
+            fieldModel.addElement(fld.getName() + ": " + fld.getVarType());
         }
         updateFieldsScrollPaneSize();
         
@@ -233,10 +235,10 @@ public class ClassBox extends JLayeredPane {
         repaint();
     }
     
-    public void addField(String field) {
+    public void addField(String fieldName, String fieldType) {
         try {
-            controller.getEditor().addField(classObject, field);
-            fieldModel.addElement(field);
+            controller.getEditor().addField(classObject, fieldName, fieldType);
+            fieldModel.addElement(fieldName + ": " + fieldType);
             updateFieldsScrollPaneSize();
             revalidate();
             repaint();
@@ -245,10 +247,10 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void removeField(AttributeInterface field) {
+    public void removeField(Field field) {
         try {
             controller.getEditor().deleteField(classObject, field.getName());
-            fieldModel.removeElement(field.getName());
+            fieldModel.removeElement(field.getName() + ": " + field.getVarType());
             updateFieldsScrollPaneSize();
             revalidate();
             repaint();
@@ -268,6 +270,28 @@ public class ClassBox extends JLayeredPane {
             int index = fieldModel.indexOf(fs);
             if (index != -1) {
                 fieldModel.set(index, newName);
+            }
+            updateFieldsScrollPaneSize();
+            revalidate();
+            repaint();
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
+        }
+    }
+
+    public void editField(String fs, String newName, String newType) {
+        try {
+            if (classObject.fieldNameUsed(newName)) {
+                displayErrorMessage("Field with name " + newName + " already exists");
+                return;
+            }
+            Field fld = classObject.fetchField(fs);
+            int index = fieldModel.indexOf(fs + ": " + fld.getVarType());
+            controller.getEditor().renameField(classObject, fld, newName);
+            controller.getEditor().changeFieldType(fld, newType);
+            if (index != -1) {
+                String newDisplay = newName + ": " + newType;
+                fieldModel.set(index, newDisplay);
             }
             updateFieldsScrollPaneSize();
             revalidate();
