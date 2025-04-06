@@ -80,75 +80,30 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 ```
 ## Usage
  Below is our available commands in command line 
-==============   CLASS   =============
-ADD CLASS - Adds a new class with a unique name.
-        type -> 'add class' or 'ac'
-
-DELETE CLASS - Deletes an existing class by name.
-        type -> 'delete class' or 'dc'
-
-RENAME CLASS - Renames an existing class.
-        type -> 'rename class' or 'rc'
-
-LIST CLASS - Returns given class.
-        type -> 'list class' or 'lc'
-
-LIST CLASSES - Returns all classes.
-        type -> 'list classes' or 'lcs'
-
-==========   RELATIONSHIP   ===========
-ADD RELATIONSHIP - Creates a relationship between two classes.
-        type -> 'add relationship' or 'ar'
-
-DELETE RELATIONSHIP - Removes an existing relationship between two classes.
-        type -> 'delete relationship' or 'dr'
-
-EDIT RELATIONSHIP - Allows user to edit a designated field of a relationship
-        type -> 'edit relationship' or 'er'
-
-LIST RELATIONSHIPS - Displays all relationships involving a specific class.
-        type -> 'list relationships' or 'lr'
-
-==========   Fields   ==========
-ADD FIELD - Adds a new field to a class.
-        type -> 'add field' or 'af'
-    
-DELETE FIELD - Removes a field from a class.
-        type -> 'delete field' or 'df'
-    
-RENAME FIELD - Renames an existing field in a class.
-        type -> 'rename field' or 'rf'
-    
-==========   Methods   ==========
-ADD METHOD - Adds a new method to a class.
-        type -> 'add method' or 'am'
-    
-DELETE METHOD - Removes a method from a class.
-        type -> 'delete method' or 'dm'
-
-RENAME METHOD - Renames an existing method in a class.
-        type -> 'rename method' or 'rm'
-
-==========   Parameters   ==========
-ADD PARAMETER - Adds one or more parameters to a method
-        type -> 'add parameter' or 'ap'
-
-DELETE PARAMETER - Deletes one or all parameters from a method
-        type -> 'remove parameter' or 'rp'
-
-CHANGE PARAMETER - Changes one parameter or all parameters to a new set of parameters
-        type -> 'change parameter' or 'cp'
-
-==========   SAVE/LOAD   =============
-SAVE - Saves the current state of the project.
-        type -> save
-
-LOAD - Loads a previously saved project.
-        type -> load
-
-==========   EXIT   =============
-EXIT - Exits the program
-        type -> 'exit' or 'q'
+ 
+Commands:
+  commands, com             Prints help list
+  addclass, ac              Add a new class
+  addfield, af              Adds a field
+  addmethod, am             Adds a method
+  addparameter, ap          Adds a parameter
+  addrelationship, ar       Add relationship between classes
+  changeparameter, cp       Replaces one or all params
+  delete class, dc          Delete a class
+  deletefield, df           Delete a field
+  deletemethod, dm          Deletes a method
+  deleterelationship, dr    Deletes a relationship
+  editrelationship, er      Edits a relationship
+  listclass, lc             List info for one class
+  listclasses, lcs          List all classes
+  listrelationships, lr     List all relationships
+  removeallparameters, rap  Removes all parameters
+  removeparameter, rp       Removes a parameter
+  renameclass, rc           Rename a class
+  renamefield, rf           Renames a field
+  renamemethod, rm          Renames a method
+  load                      Loads a saved model
+  save                      Saves model
 ## Codebase
 We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow code.
 
