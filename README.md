@@ -13,6 +13,7 @@ Created for MU's CSCI420 in the Spring semester of 2025.
   - [Model](#model)
   - [View](#view)
   - [Controller](#controller)
+  - [Design Patterns](#Design_Patterns)
 - [Developers](#devs)
 
 
@@ -77,7 +78,77 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 ```sh
 .\gradlew.bat run-cli
 ```
+## Usage
+ Below is our available commands in command line 
+==============   CLASS   =============
+ADD CLASS - Adds a new class with a unique name.
+        type -> 'add class' or 'ac'
 
+DELETE CLASS - Deletes an existing class by name.
+        type -> 'delete class' or 'dc'
+
+RENAME CLASS - Renames an existing class.
+        type -> 'rename class' or 'rc'
+
+LIST CLASS - Returns given class.
+        type -> 'list class' or 'lc'
+
+LIST CLASSES - Returns all classes.
+        type -> 'list classes' or 'lcs'
+
+==========   RELATIONSHIP   ===========
+ADD RELATIONSHIP - Creates a relationship between two classes.
+        type -> 'add relationship' or 'ar'
+
+DELETE RELATIONSHIP - Removes an existing relationship between two classes.
+        type -> 'delete relationship' or 'dr'
+
+EDIT RELATIONSHIP - Allows user to edit a designated field of a relationship
+        type -> 'edit relationship' or 'er'
+
+LIST RELATIONSHIPS - Displays all relationships involving a specific class.
+        type -> 'list relationships' or 'lr'
+
+==========   Fields   ==========
+ADD FIELD - Adds a new field to a class.
+        type -> 'add field' or 'af'
+    
+DELETE FIELD - Removes a field from a class.
+        type -> 'delete field' or 'df'
+    
+RENAME FIELD - Renames an existing field in a class.
+        type -> 'rename field' or 'rf'
+    
+==========   Methods   ==========
+ADD METHOD - Adds a new method to a class.
+        type -> 'add method' or 'am'
+    
+DELETE METHOD - Removes a method from a class.
+        type -> 'delete method' or 'dm'
+
+RENAME METHOD - Renames an existing method in a class.
+        type -> 'rename method' or 'rm'
+
+==========   Parameters   ==========
+ADD PARAMETER - Adds one or more parameters to a method
+        type -> 'add parameter' or 'ap'
+
+DELETE PARAMETER - Deletes one or all parameters from a method
+        type -> 'remove parameter' or 'rp'
+
+CHANGE PARAMETER - Changes one parameter or all parameters to a new set of parameters
+        type -> 'change parameter' or 'cp'
+
+==========   SAVE/LOAD   =============
+SAVE - Saves the current state of the project.
+        type -> save
+
+LOAD - Loads a previously saved project.
+        type -> load
+
+==========   EXIT   =============
+EXIT - Exits the program
+        type -> 'exit' or 'q'
 ## Codebase
 We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow code.
 
@@ -97,7 +168,7 @@ In our setup, we have a controller that edits the data stored in the model calle
 We have a controller for our cli view called `CLController.java` that accepts text commands from the user and updates the command line interface.
 We also have a controller for our gui view call `GUIController.java` that accepts commands from the user and updates the model and view.
 
-## Design Patterns
+## Design_Patterns
 ### 1. Memento
  Seen in the undo/redo the UMLMemento file to implement undo/redo by saving state on a stack.
 ### 2. Iterator
