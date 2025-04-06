@@ -35,8 +35,8 @@ This will generate a distribution file in app/build/distributions/app.zip
 
 ## Running
 ## distribution file
-Unpack the distribution file and run the proper command
-
+Unpack the distribution file located in app/build/distributions.
+There will be both a tar an a zip file (unzip or tar -xf) depending on which version you want to unpack.
 ## Linux/Macos
 ```sh
 ./bin/app
@@ -97,6 +97,15 @@ In our setup, we have a controller that edits the data stored in the model calle
 We have a controller for our cli view called `CLController.java` that accepts text commands from the user and updates the command line interface.
 We also have a controller for our gui view call `GUIController.java` that accepts commands from the user and updates the model and view.
 
+## Design Patterns
+### 1. Memento
+ Seen in the undo/redo the UMLMemento file to implement undo/redo by saving state on a stack.
+### 2. Iterator
+ Seen in the CLController as for:each loops to iterate through various lists. 
+### 3. Decorator
+ Seen in the CLI as we did not change the base functionality of calling commands, but rather added a command feature that allows users to tab complete.
+### 4. Composite
+ Seen in the classbox as we take in a class object and reference it later.
 ## Devs
 Brought to you by:  
 
