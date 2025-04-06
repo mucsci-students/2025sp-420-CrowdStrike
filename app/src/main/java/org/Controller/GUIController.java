@@ -815,7 +815,9 @@ public class GUIController {
             String param = newParamField.getText().trim();
             String paramType = newParamTypeField.getText().trim();
             if (paramType.isEmpty()){
-                paramType = "void";
+                // Paramter must have a type
+                JOptionPane.showMessageDialog(entryPanel, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+                return;
             }
             if (!param.isEmpty() && !confirmedParams.containsKey(param)) {
                 confirmedParams.put(param, paramType);
@@ -1067,7 +1069,9 @@ public class GUIController {
 
         String newParamType = paramTypeField.getText().trim();
         if (newParamType.isEmpty()) {
-            newParamType = "void";
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
 
@@ -1237,7 +1241,9 @@ public class GUIController {
         //creates a variable to store the new parameter type
         String newParamType = paramTypeField.getText().trim();
         if (newParamType.isEmpty()) {
-            newParamType = "void";
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
         // Update the parameter in the selected method with the new parameter name and type.
