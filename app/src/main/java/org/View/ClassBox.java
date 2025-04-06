@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedHashMap;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -21,7 +20,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
-
 import org.Controller.GUIController;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
@@ -270,10 +268,12 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void addMethod(String method, LinkedHashMap<String, String> params) {
+    public void addMethod(String method, LinkedHashMap<String, String> params, String retType) {
         try {
             controller.getEditor().addMethod(classObject, method, params);
             Method mthd = classObject.fetchMethod(method, params.size());
+            
+            //code for returnType
             methodModel.addElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
             revalidate();
@@ -337,6 +337,11 @@ public class ClassBox extends JLayeredPane {
             }
         }
         sig.append(")");
+        //when method has a return type just replace m.getReturnType()
+        //append the return type if it exist
+        //if(m.getReturnType() != null && !m.getReturnType().isEmpty()){
+        //    sig.append(" : " + m.getReturnType());
+        //}
         return sig.toString();
     }
     

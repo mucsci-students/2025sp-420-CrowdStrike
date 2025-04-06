@@ -15,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -28,7 +27,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import org.FileManager;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
@@ -64,8 +62,6 @@ public class GUIController {
     private ClassBox selectedClassBox = null;
     //private boolean addRelationshipMode = false;
     // These fields could be used for relationship selection (currently not fully implemented).
-    
-    
 
     /**
      * Constructor for GUIController. Initializes the controller with the given
@@ -101,9 +97,7 @@ public class GUIController {
         view.getDeleteClassButton().addActionListener(e -> deleteSelectedClass());
         view.getRenameClassButton().addActionListener(e -> renameSelectedClass());
 
-
         view.getAddRelationshipButton().addActionListener(e -> createRelationshipDialog());
-
 
         view.getEditRelationshipButton().addActionListener(e -> editRelationship());
 
@@ -131,7 +125,7 @@ public class GUIController {
             helpDialog.setSize(500, 400);
             helpDialog.setLocationRelativeTo(view);
             helpDialog.setVisible(true);
-            });
+        });
     }
 
     // ==================== ADD CLASS ==================== //
@@ -363,7 +357,6 @@ public class GUIController {
                 view.displayErrorMessage("Relationship between " + sourceName + " and " + destinationName + " already exists");
                 return;
             }
-            
 
             // Find the corresponding ClassBox objects for the selected source and destination.
             ClassBox sourceBox = null;
@@ -584,7 +577,6 @@ public class GUIController {
         return entryPanel;
     }
 
-
     /**
      * Opens a dialog to add one or more fields to the selected class. Supports
      * dynamic addition of input fields.
@@ -733,66 +725,101 @@ public class GUIController {
      * @return The constructed JPanel for method entry.
      */
     private JPanel createMethodEntryPanel() {
-        // Main panel with vertical layout for method entry.
+        // Create the main panel and set a vertical box layout.
         JPanel entryPanel = new JPanel();
         entryPanel.setLayout(new BoxLayout(entryPanel, BoxLayout.Y_AXIS));
+        // Set a compound border (a gray line border with an empty padding inside).
         entryPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.GRAY),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
 
-        // Create and add a label and text field for the method name.
+        // --------------------- Method Name Input ---------------------
+        // Create and add a label for the method name.
         JLabel methodNameLabel = new JLabel("Enter Method Name:");
         methodNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JTextField methodNameField = new JTextField();
-        methodNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, methodNameField.getPreferredSize().height));
         entryPanel.add(methodNameLabel);
+        // Create a text field for the user to input the method name.
+        JTextField methodNameField = new JTextField();
+        // Set the maximum width to allow the text field to expand horizontally.
+        methodNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, methodNameField.getPreferredSize().height));
         entryPanel.add(methodNameField);
 
-        // Create a non-editable text area for the live signature preview.
+        // --------------------- Return Type Input ---------------------
+        // Create and add a label for the return type.
+        JLabel returnTypeLabel = new JLabel("Enter Return Type:");
+        returnTypeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        entryPanel.add(returnTypeLabel);
+        // Create a text field for the user to input the return type.
+        JTextField returnTypeField = new JTextField();
+        // Set the maximum width similarly to the method name field.
+        returnTypeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, returnTypeField.getPreferredSize().height));
+        entryPanel.add(returnTypeField);
+        // Store the return type field in the panel's client properties for later retrieval.
+        entryPanel.putClientProperty("returnTypeField", returnTypeField);
+
+        // --------------------- Live Signature Preview ---------------------
+        // Create a non-editable text area to show the live signature preview.
         JTextArea signaturePreviewLabel = new JTextArea("Method: ");
         signaturePreviewLabel.setEditable(false);
         signaturePreviewLabel.setLineWrap(true);
         signaturePreviewLabel.setWrapStyleWord(true);
-        signaturePreviewLabel.setBackground(entryPanel.getBackground()); // match background
+        // Match the background to the entry panel's background.
+        signaturePreviewLabel.setBackground(entryPanel.getBackground());
         signaturePreviewLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         entryPanel.add(signaturePreviewLabel);
 
-        // Create a panel for new parameter input with a label, text field, and an add button.
+        // --------------------- New Parameter Input Panel ---------------------
+        // Create a sub-panel for entering a new parameter with its type.
         JPanel newParamPanel = new JPanel();
         newParamPanel.setLayout(new BoxLayout(newParamPanel, BoxLayout.X_AXIS));
+        // Label for parameter name.
         JLabel paramLabel = new JLabel("Parameter: ");
-        JTextField newParamField = new JTextField();
-        JLabel paramTypeLabel = new JLabel("Type: ");
-        JTextField newParamTypeField = new JTextField();
-        newParamField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamField.getPreferredSize().height));
-        newParamTypeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamField.getPreferredSize().height));
-
-        JButton addParamButton = new JButton("Add Parameter");
         newParamPanel.add(paramLabel);
+        // Text field for parameter name.
+        JTextField newParamField = new JTextField();
+        newParamField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamField.getPreferredSize().height));
         newParamPanel.add(newParamField);
+        // Label for parameter type.
+        JLabel paramTypeLabel = new JLabel("Type: ");
         newParamPanel.add(paramTypeLabel);
+        // Text field for parameter type.
+        JTextField newParamTypeField = new JTextField();
+        newParamTypeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, newParamTypeField.getPreferredSize().height));
         newParamPanel.add(newParamTypeField);
+        // Button to add the parameter to the method.
+        JButton addParamButton = new JButton("Add Parameter");
         newParamPanel.add(addParamButton);
+        // Add the parameter input panel to the main entry panel.
         entryPanel.add(newParamPanel);
 
-
-        // List to store confirmed parameters for the method.
+        // --------------------- Confirmed Parameters Storage ---------------------
+        // LinkedHashMap to store confirmed parameters (parameter name and its type)
+        // This maintains insertion order.
         LinkedHashMap<String, String> confirmedParams = new LinkedHashMap<>();
 
-        // Helper function to update the signature preview dynamically.
+        // --------------------- Signature Preview Update Logic ---------------------
+        // Define a runnable to update the method signature preview whenever input changes.
         Runnable updatePreview = () -> {
+            // Retrieve the current method name and return type.
             String methodName = methodNameField.getText().trim();
-            //*** ? ***
-            String paramsString = confirmedParams.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue()).collect(Collectors.joining(", "));
-            if (methodName.isEmpty() && paramsString.isEmpty()) {
-                signaturePreviewLabel.setText("Method: ");
-            } else {
-                signaturePreviewLabel.setText(methodName + "(" + paramsString + ")");
+            String retType = returnTypeField.getText().trim();
+            // Build a string of confirmed parameters in the format "param: type".
+            String paramsString = confirmedParams.entrySet().stream()
+                    .map(entry -> entry.getKey() + ": " + entry.getValue())
+                    .collect(Collectors.joining(", "));
+            // Construct the full method signature string.
+            String signature = methodName + "(" + paramsString + ")";
+            // If a return type is specified, prepend it to the signature.
+            if (!retType.isEmpty()) {
+                signature = retType + " : " + signature;
             }
+            // Update the live preview text area with the new signature.
+            signaturePreviewLabel.setText("Method: " + signature);
         };
 
-        // Add a document listener to update the preview when the method name changes.
+        // --------------------- Listeners for Dynamic Updates ---------------------
+        // Update preview when the method name changes.
         methodNameField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -810,29 +837,59 @@ public class GUIController {
             }
         });
 
-        // When "Add Parameter" is pressed, add the parameter if it is valid and update the preview.
+        // Update preview when the return type changes.
+        returnTypeField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updatePreview.run();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updatePreview.run();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updatePreview.run();
+            }
+        });
+
+        // --------------------- Action Listener for "Add Parameter" Button ---------------------
+        // When pressed, validate and add a new parameter to the confirmed parameters list.
         addParamButton.addActionListener(e -> {
+            // Get the input values for the parameter name and type.
             String param = newParamField.getText().trim();
             String paramType = newParamTypeField.getText().trim();
-            if (paramType.isEmpty()){
+            // If no parameter type is provided, default to "void".
+            if (paramType.isEmpty()) {
                 paramType = "void";
             }
+            // Only add the parameter if the name is not empty and not already added.
             if (!param.isEmpty() && !confirmedParams.containsKey(param)) {
                 confirmedParams.put(param, paramType);
-                newParamField.setText(""); // Clear the field for the next parameter.
+                // Clear the parameter input fields after adding.
+                newParamField.setText("");
                 newParamTypeField.setText("");
+                // Update the live preview to reflect the newly added parameter.
                 updatePreview.run();
             } else if (confirmedParams.containsKey(param)) {
+                // Warn the user if the parameter already exists.
                 JOptionPane.showMessageDialog(entryPanel, "Parameter already exist!", "Duplicate Parameter", JOptionPane.WARNING_MESSAGE);
             }
         });
 
-        // Store important components as client properties for later retrieval.
+        // --------------------- Store Components for Later Retrieval ---------------------
+        // Save the method name field in client properties.
         entryPanel.putClientProperty("methodNameField", methodNameField);
+        // Save the confirmed parameters map for later access.
         entryPanel.putClientProperty("confirmedParams", confirmedParams);
+        // Save the signature preview label to update it later.
         entryPanel.putClientProperty("signaturePreviewLabel", signaturePreviewLabel);
+        // Save the new parameter field in case it needs to be reset later.
         entryPanel.putClientProperty("newParamField", newParamField);
 
+        // Return the fully constructed method entry panel.
         return entryPanel;
     }
 
@@ -843,68 +900,105 @@ public class GUIController {
      * any remaining input and closes the dialog.
      */
     private void addMethodToClass() {
+        // Check if a class is selected; if not, show an error message.
         if (selectedClassBox == null) {
             JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Create a main panel for the method entry dialog.
+        // --------------------- Setup Main Dialog Panel ---------------------
+        // Create the main panel for the method entry dialog.
         JPanel mainPanel = new JPanel(new BorderLayout());
-        // Create the method entry panel.
+        // Create the method entry panel using the helper method.
         JPanel entryPanel = createMethodEntryPanel();
+        // Add the method entry panel to the center of the main panel.
         mainPanel.add(entryPanel, BorderLayout.CENTER);
 
-        // Create a panel for buttons: "Add another method" and "Done".
+        // --------------------- Setup Button Panel ---------------------
+        // Create a panel to hold the action buttons.
         JPanel buttonPanel = new JPanel();
+        // Create the "Add another method" button.
         JButton addAnotherButton = new JButton("Add another method");
+        // Create the "Done" button to finish the dialog.
         JButton doneButton = new JButton("Done");
+        // Add buttons to the button panel.
         buttonPanel.add(addAnotherButton);
         buttonPanel.add(doneButton);
+        // Add the button panel to the bottom of the main panel.
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Create and configure a modal dialog to host the method entry panel.
+        // --------------------- Create and Configure the Dialog ---------------------
+        // Create a modal dialog with no parent frame.
         JDialog dialog = new JDialog((Frame) null, "Add Methods", true);
         dialog.getContentPane().add(mainPanel);
         dialog.pack();
+        // Center the dialog relative to the main view.
         dialog.setLocationRelativeTo(view);
-        dialog.setSize(500, 300); // sets a fixed size
+        // Set a fixed size and also define a minimum size.
+        dialog.setSize(500, 300);
+        dialog.setMinimumSize(new Dimension(500, 300));
 
-        dialog.setMinimumSize(new Dimension(500, 300)); // sets a minimum size
-
-        // Action for "Add another method" button: process current input and clear fields.
+        // --------------------- "Add another method" Button Action ---------------------
+        // When pressed, this button processes the current input and resets the fields.
         addAnotherButton.addActionListener(e -> {
+            // Retrieve the method name text field from client properties.
             JTextField methodNameField = (JTextField) entryPanel.getClientProperty("methodNameField");
+            // Retrieve the return type text field using the correct key.
+            JTextField returnTypeField = (JTextField) entryPanel.getClientProperty("returnTypeField");
+            // Retrieve the confirmed parameters map.
             @SuppressWarnings("unchecked")
-            LinkedHashMap<String, String> confirmedParams = (LinkedHashMap<String,String >) entryPanel.getClientProperty("confirmedParams");
+            LinkedHashMap<String, String> confirmedParams = (LinkedHashMap<String, String>) entryPanel.getClientProperty("confirmedParams");
+            // Get the trimmed text values.
             String methodName = methodNameField.getText().trim();
+            String retType = returnTypeField.getText().trim();
+
+            // If the method name is not empty, try to add the method.
             if (!methodName.isEmpty()) {
-                // Only add the method if it does not already exist.
+                // Check if the method already exists in the active class.
                 if (!activeClass.methodExists(methodName, confirmedParams.size())) {
-                    selectedClassBox.addMethod(methodName, confirmedParams);
+                    // Add the method to the selected class box along with parameters and return type.
+                    selectedClassBox.addMethod(methodName, confirmedParams, retType);
                 }
             }
-            // Reset the input fields for the next method.
+
+            // Show an error if the return type is empty.
+            if (retType.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "Return type cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            // Clear the method name and return type fields for new input.
             methodNameField.setText("");
+            returnTypeField.setText("");
+            // Clear the confirmed parameters as they have been processed.
             confirmedParams.clear();
 
+            // Reset the signature preview label.
             JLabel signaturePreviewLabel = (JLabel) entryPanel.getClientProperty("signaturePreviewLabel");
             signaturePreviewLabel.setText("Method: ");
         });
 
-        // "Done" button processes any remaining input and closes the dialog.
+        // --------------------- "Done" Button Action ---------------------
+        // When pressed, processes any remaining method input and closes the dialog.
         doneButton.addActionListener(e -> {
+            // Retrieve input fields and confirmed parameters.
             JTextField methodNameField = (JTextField) entryPanel.getClientProperty("methodNameField");
+            JTextField returnTypeField = (JTextField) entryPanel.getClientProperty("returnTypeField");
             @SuppressWarnings("unchecked")
             LinkedHashMap<String, String> confirmedParams = (LinkedHashMap<String, String>) entryPanel.getClientProperty("confirmedParams");
+            // Get the trimmed text values.
             String methodName = methodNameField.getText().trim();
+            String retType = returnTypeField.getText().trim();
+            // If there is a method name and the method doesn't already exist, add it.
             if (!methodName.isEmpty() && !activeClass.methodExists(methodName, confirmedParams.size())) {
-                selectedClassBox.addMethod(methodName, confirmedParams);
+                selectedClassBox.addMethod(methodName, confirmedParams, retType);
             }
+            // Close the dialog.
             dialog.dispose();
+            // Refresh the drawing panel to display the updated method.
             view.getDrawingPanel().repaint();
         });
 
-        // Display the dialog.
+        // --------------------- Display the Dialog ---------------------
+        // Make the dialog visible to the user.
         dialog.setVisible(true);
     }
 
@@ -1070,10 +1164,7 @@ public class GUIController {
             newParamType = "void";
         }
 
-
-        
         // ****** Dont Forget this Section ******
-        
         // Update the selected method with the new parameter.
         selectedMethod.addParameter(newParamName, newParamType);
         // Optionally, update the model via editor.
@@ -1213,10 +1304,8 @@ public class GUIController {
         }
 
         String oldParamName = (String) paramDropdown.getSelectedItem();
-        
 
         //***** 
-
         // Prompt for the new parameter name, pre-filled with the current name.
         JTextField paramField = new JTextField(oldParamName);
         result = JOptionPane.showConfirmDialog(view, paramField, "Enter New Parameter Name", JOptionPane.OK_CANCEL_OPTION);
