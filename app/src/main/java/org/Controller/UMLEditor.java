@@ -197,10 +197,11 @@ public class UMLEditor {
 	 * 
 	 * @param cls        | The class the method is being added to
 	 * @param methodName | The name of the method
+	 * @param retType	 | The return type of the method
 	 * @param paramList  | The parameter list the method will have
 	 * @throws Exception
 	 */
-	public void addMethod(ClassObject cls, String methodName, LinkedHashMap<String, String> paramNameList) throws Exception {
+	public void addMethod(ClassObject cls, String methodName, String retType, LinkedHashMap<String, String> paramNameList) throws Exception {
 		if (cls.methodExists(methodName, paramNameList.size())) {
 			throw new Exception ("Method " + methodName + " with " + paramNameList.size() + " parameters already exists in " + cls.getName());
 		} else {
@@ -210,7 +211,7 @@ public class UMLEditor {
 				param = new Parameter(obj.getKey(), obj.getValue());
 				paramList.add(param);
 			}
-			Method method = new Method(methodName, paramList);
+			Method method = new Method(methodName, retType, paramList);
 			cls.addAttribute(method);
 		}
 	}
@@ -246,6 +247,10 @@ public class UMLEditor {
 			Method delMethod = cls.fetchMethod(methodName, paramArity);
 			cls.removeAttribute(delMethod);
 		}
+	}
+
+	public void deleteMethod2(ClassObject cls, Method mthd) {
+		cls.removeAttribute(mthd);
 	}
 
 	/**
@@ -286,6 +291,10 @@ public class UMLEditor {
 		} else {
 			renameMethod.renameAttribute(newName);
 		}
+	}
+
+	public void changeMethodType(Method mthd, String newType) {
+		mthd.setReturnType(newType);
 	}
 
 	/**

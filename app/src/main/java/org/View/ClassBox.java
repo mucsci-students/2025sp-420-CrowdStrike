@@ -294,9 +294,9 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void addMethod(String method, LinkedHashMap<String, String> params) {
+    public void addMethod(String method, String methodType, LinkedHashMap<String, String> params) {
         try {
-            controller.getEditor().addMethod(classObject, method, params);
+            controller.getEditor().addMethod(classObject, method, methodType, params);
             Method mthd = classObject.fetchMethod(method, params.size());
             methodModel.addElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
@@ -351,7 +351,7 @@ public class ClassBox extends JLayeredPane {
     
     public String displayMethod(Method m) {
         if (m.getParamList().isEmpty()) {
-            return m.getName() + "()";
+            return m.getName() + "() -> " + m.getReturnType();
         }
         StringBuilder sig = new StringBuilder(m.getName() + "(");
         for (int i = 0; i < m.getParamList().size(); i++) {
@@ -360,7 +360,7 @@ public class ClassBox extends JLayeredPane {
                 sig.append(", ");
             }
         }
-        sig.append(")");
+        sig.append(") -> " + m.getReturnType());
         return sig.toString();
     }
     

@@ -151,7 +151,7 @@ public class UMLModel implements UMLModelInterface{
         finalString = finalString + "  Methods:\n";
 		for (AttributeInterface mthd : cls.getMethodList()) {
 			Method activeMethod = (Method) mthd;
-			finalString = finalString + "   " + activeMethod.getName() + listParams(activeMethod) + "\n";
+			finalString = finalString + "   " + activeMethod.getName() + listParams(activeMethod) + " -> " + activeMethod.getReturnType() + "\n";
 		}
 
         /*
@@ -271,29 +271,36 @@ public class UMLModel implements UMLModelInterface{
      * @return A string containing all methods in the class
 	 * @throws Exception
      */
-    public String listMethods(ClassObject cls) throws Exception{
-    	ArrayList<AttributeInterface> methodList = cls.getMethodList();
+	public String listMethods(ClassObject cls) throws Exception {
+		ArrayList<AttributeInterface> methodList = cls.getMethodList();
     	if (methodList.size() == 0) {
     		throw new Exception("No methods exist in class " + cls.getName());
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "Available Methods:\n- " + methodList.get(0).getName() + listParams((Method) methodList.get(0));
+		int num = 0;
+    	String finalString = "Available Methods:\n1. " + methodList.get(0).getName() + listParams((Method) methodList.get(0));
     	AttributeInterface attr;
     	while (index < methodList.size()) {
+			num = index + 1;
     		attr = methodList.get(index);
     		if (countNewLine >= 5) {
     			// Create a new line after every six names
-    			finalString = finalString + "\n- " + attr.getName() + listParams((Method) attr);
+    			finalString = finalString + "\n" + num + ". " + attr.getName() + listParams((Method) attr);
     			countNewLine = 0;
     		} else {
-    			finalString = finalString + "   - " + attr.getName() + listParams((Method) attr);
+    			finalString = finalString + "   " + num + ". " + attr.getName() + listParams((Method) attr);
     			countNewLine++;
     		}
     		index++;
     	}
     	return finalString;
-    }
+	}
+
+
+
+
+
 
 	private String listParams(Method mthd) {
 		String str = "(";

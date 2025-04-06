@@ -171,12 +171,15 @@ public class FileManager {
 
 			if (!(methodObject.has("name") && methodObject.has("params")))
 				throw new InvalidObjectException("method is missing nanme");
+			
+			if (!(methodObject.has("return_type") && methodObject.has("params")))
+				throw new InvalidObjectException("method is missing a return type");
 
 			if (!methodObject.has("params") && methodObject.get("params").isJsonArray())
 				throw new InvalidObjectException("method params are malformed");
 
 			addParameters(methodObject.get("params").getAsJsonArray(), parameterList);
-			method = new Method(methodObject.get("name").getAsString(), parameterList);
+			method = new Method(methodObject.get("name").getAsString(), methodObject.get("return_type").getAsString(), parameterList);
 			methods.add(method);
 		}
 	}
@@ -218,6 +221,7 @@ public class FileManager {
 	private String MethodsToJson(AttributeInterface methodInterface) {
 		StringBuilder ret = new StringBuilder("{\"name\": \"" + methodInterface.getName() + "\",");
 		Method method = (Method) methodInterface;
+		ret.append("\"return_type\": \"" + method.getReturnType() + "\",");
 		ret.append(jsonCommas("\"params\": [", "]", method.getParamList(), this::ParamToJson));
 		ret.append("}");
 		return ret.toString();
