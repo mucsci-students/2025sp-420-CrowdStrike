@@ -37,7 +37,7 @@ public class ClassObjectTest {
 	@Test
 	public void attrAddDel() {
 		Method m = new Method("test", new ArrayList<>());
-		Field f = new Field("test");
+		Field f = new Field("test", "int");
 
 		c.addAttribute(m);
 		assertTrue(c.getMethodList().contains(m));
@@ -53,7 +53,7 @@ public class ClassObjectTest {
 	@Test
 	public void used() {
 		Method m = new Method("test", new ArrayList<>());
-		Field f = new Field("test");
+		Field f = new Field("test", "int");
 		c.addAttribute(m);
 		c.addAttribute(f);
 
@@ -68,7 +68,7 @@ public class ClassObjectTest {
 	@Test
 	public void fetch() {
 		Method m = new Method("test", new ArrayList<>());
-		Field f = new Field("test");
+		Field f = new Field("test", "int");
 		c.addAttribute(m);
 		c.addAttribute(f);
 		c.addAttribute(new Method("foo", new ArrayList<>()));

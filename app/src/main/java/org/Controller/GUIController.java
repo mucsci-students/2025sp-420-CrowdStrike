@@ -574,12 +574,19 @@ public class GUIController {
         JLabel fieldNameLabel = new JLabel("Enter Field Name:");
         fieldNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         JTextField fieldNameField = new JTextField();
+        JLabel fieldTypeLabel = new JLabel("Enter Field Type:");
+        fieldTypeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JTextField fieldTypeField = new JTextField();
         fieldNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldNameField.getPreferredSize().height));
+        fieldTypeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldTypeField.getPreferredSize().height));
         entryPanel.add(fieldNameLabel);
         entryPanel.add(fieldNameField);
+        entryPanel.add(fieldTypeLabel);
+        entryPanel.add(fieldTypeField);
 
         // Store important components as client properties for later retrieval.
         entryPanel.putClientProperty("fieldNameField", fieldNameField);
+        entryPanel.putClientProperty("fieldTypeField", fieldTypeField);
 
         return entryPanel;
     }
@@ -614,32 +621,37 @@ public class GUIController {
         dialog.getContentPane().add(mainPanel);
         dialog.pack();
         dialog.setLocationRelativeTo(view);
-        dialog.setSize(250, 150);
+        dialog.setSize(250, 175);
 
-        dialog.setMinimumSize(new Dimension(250, 150)); // sets a minimum size
+        dialog.setMinimumSize(new Dimension(250, 175)); // sets a minimum size
 
         // Action for "Add another method" button: process current input and clear fields.
         addAnotherButton.addActionListener(e -> {
             JTextField fieldNameField = (JTextField) entryPanel.getClientProperty("fieldNameField");
+            JTextField fieldTypeField = (JTextField) entryPanel.getClientProperty("fieldTypeField");
             @SuppressWarnings("unchecked")
             String fieldName = fieldNameField.getText().trim();
-            if (!fieldName.isEmpty()) {
+            String fieldType = fieldTypeField.getText().trim();
+            if (!fieldName.isEmpty() && !fieldType.isEmpty()) {
                 // Only add the method if it does not already exist.
-                if (!activeClass.fieldNameUsed(fieldName)) {
-                    selectedClassBox.addField(fieldName);
+                if (!activeClass.fieldNameUsed(fieldName) && !fieldType.isEmpty()) {
+                    selectedClassBox.addField(fieldName, fieldType);
                 }
             }
             // Reset the input fields for the next method.
             fieldNameField.setText("");
+            fieldTypeField.setText("");
         });
 
         // "Done" button processes any remaining input and closes the dialog.
         doneButton.addActionListener(e -> {
             JTextField fieldNameField = (JTextField) entryPanel.getClientProperty("fieldNameField");
+            JTextField fieldTypeField = (JTextField) entryPanel.getClientProperty("fieldTypeField");
             @SuppressWarnings("unchecked")
             String fieldName = fieldNameField.getText().trim();
-            if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName)) {
-                selectedClassBox.addField(fieldName);
+            String fieldType = fieldTypeField.getText().trim();
+            if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName) && !fieldType.isEmpty()) {
+                selectedClassBox.addField(fieldName, fieldType);
             }
             dialog.dispose();
             view.getDrawingPanel().repaint();
@@ -703,6 +715,7 @@ public class GUIController {
         }
         // Text field to enter the new field name.
         JTextField newFieldNameInput = new JTextField();
+        JTextField newFieldtypeInput = new JTextField();
 
         // Create a panel that holds both the selection and the new name input.
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -710,15 +723,19 @@ public class GUIController {
         panel.add(fieldDropdown);
         panel.add(new JLabel("Enter New Name:"));
         panel.add(newFieldNameInput);
+        panel.add(new JLabel("Enter New Type:"));
+        panel.add(newFieldtypeInput);
 
         int result = JOptionPane.showConfirmDialog(view, panel, "Rename Field", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String oldName = (String) fieldDropdown.getSelectedItem();
             String newName = newFieldNameInput.getText().trim();
+            String newType = newFieldtypeInput.getText().trim();
 
-            if (!newName.isEmpty()) {
+            if (!newName.isEmpty() && !newType.isEmpty()) {
                 // Update the field name in the class box.
-                selectedClassBox.renameField(oldName, newName);
+                //selectedClassBox.renameField(oldName, newName);
+                selectedClassBox.editField(oldName, newName, newType);
             }
         }
     }
