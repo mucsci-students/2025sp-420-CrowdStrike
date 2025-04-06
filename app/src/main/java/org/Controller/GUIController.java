@@ -111,7 +111,7 @@ public class GUIController {
 
         view.getAddFieldButton().addActionListener(e -> addFieldToClass());
         view.getDeleteFieldButton().addActionListener(e -> deleteFieldFromClass());
-        view.getRenameFieldButton().addActionListener(e -> renameFieldInClass());
+        view.getEditFieldButton().addActionListener(e -> editFieldInClass());
 
         view.getAddMethodButton().addActionListener(e -> addMethodToClass());
         view.getDeleteMethodButton().addActionListener(e -> deleteMethodFromClass());
@@ -697,7 +697,7 @@ public class GUIController {
     /**
      * Renames a selected field in the active class.
      */
-    private void renameFieldInClass() {
+    private void editFieldInClass() {
         if (selectedClassBox == null) {
             JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
