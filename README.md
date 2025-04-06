@@ -99,7 +99,7 @@ We also have a controller for our gui view call `GUIController.java` that accept
 
 ## Design Patterns
 ### 1. Memento
- Seen in the undo/redo the UMLMemento file ...
+ Seen in the undo/redo the UMLMemento file to implement undo/redo by saving state on a stack.
 ### 2. Iterator
  Seen in the CLController as for:each loops to iterate through various lists. 
 ### 3. Decorator
