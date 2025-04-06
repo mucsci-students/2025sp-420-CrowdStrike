@@ -42,8 +42,10 @@ public class ClassObject implements ClassObjectInterface {
 	attrMap.put("Field", fieldList);
 	attrMap.put("Method", methodList);
 
-	for(AttributeInterface f: o.attrMap.get("Field"))
-	    attrMap.get("Field").add(new Field(f.getName()));
+	for(AttributeInterface f: o.attrMap.get("Field")){
+	    Field fm = (Field) f;
+	    attrMap.get("Field").add(new Field(f.getName(),fm.getVarType()));
+	}
 
 	for(AttributeInterface m: o.attrMap.get("Method")){
 	    Method mo = (Method) m;
