@@ -80,7 +80,7 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 ```
 ## Usage
  Below is our available commands in command line 
- 
+ ```
 Commands:
   commands, com             Prints help list
   addclass, ac              Add a new class
@@ -104,6 +104,7 @@ Commands:
   renamemethod, rm          Renames a method
   load                      Loads a saved model
   save                      Saves model
+```
 ## Codebase
 We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow code.
 
