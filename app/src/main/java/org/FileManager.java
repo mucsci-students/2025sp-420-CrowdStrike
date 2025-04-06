@@ -182,9 +182,9 @@ public class FileManager {
 
 	private void addParameters(JsonArray json, ArrayList<Parameter> parameterList) throws Exception {
 		for (JsonElement parameter : json) {
-			if (!parameter.isJsonObject() && parameter.getAsJsonObject().has("name"))
+			if (!parameter.isJsonObject() && parameter.getAsJsonObject().has("name") && parameter.getAsJsonObject().has("type"))
 				throw new InvalidObjectException("Parameter is malformed");
-			parameterList.add(new Parameter(parameter.getAsJsonObject().get("name").getAsString()));
+			parameterList.add(new Parameter(parameter.getAsJsonObject().get("name").getAsString(), parameter.getAsJsonObject().get("type").getAsString() ));
 		}
 	}
 
@@ -222,7 +222,7 @@ public class FileManager {
 	}
 
 	private String ParamToJson(Parameter param) {
-		return String.format("{ \"name\": \"%s\"}", param.getName());
+		return String.format("{ \"name\": \"%s\", \"type\": \"%s\"}", param.getName(), param.getType());
 	}
 
 	private String relationshipToJson(Relationship relationship) {

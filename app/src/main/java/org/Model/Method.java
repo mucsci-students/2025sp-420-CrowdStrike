@@ -1,6 +1,8 @@
 package org.Model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Method implements AttributeInterface {
 
@@ -50,11 +52,11 @@ public class Method implements AttributeInterface {
 	 * 
 	 * @param moreParams | List of params being added
 	 */
-	public void addParameters(ArrayList<String> moreParamNames) {
+	public void addParameters(LinkedHashMap<String, String> moreParamNames) {
         ArrayList<Parameter> moreParams= new ArrayList<>();
         Parameter param;
-        for (int i = 0; i < moreParamNames.size(); i++) {
-            param = new Parameter(moreParamNames.get(i));
+        for(Map.Entry<String,String> obj : moreParamNames.entrySet()){
+            param = new Parameter(obj.getKey(), obj.getValue());
             paramList.add(param);
         }
         paramList.addAll(moreParams);
@@ -130,7 +132,7 @@ public class Method implements AttributeInterface {
      * @param paramName The name of the new parameter.
      * @throws IllegalArgumentException if the parameter name is null, empty, or already exists.
      */
-    public void addParameter(String paramName) {
+    public void addParameter(String paramName, String type) {
         if (paramName == null || paramName.trim().isEmpty()) {
             throw new IllegalArgumentException("Parameter name cannot be empty.");
         }
@@ -140,7 +142,7 @@ public class Method implements AttributeInterface {
                 throw new IllegalArgumentException("Parameter already exists: " + paramName);
             }
         }
-        paramList.add(new Parameter(paramName));
+        paramList.add(new Parameter(paramName, type));
     }
 
     /**
@@ -169,13 +171,14 @@ public class Method implements AttributeInterface {
      * @param newParamName The new name for the parameter.
      * @throws IllegalArgumentException if the new name is invalid or the parameter is not found.
      */
-    public void updateParameter(String oldParamName, String newParamName) {
+    public void updateParameter(String oldParamName, String newParamName, String newParamType) {
         if (newParamName == null || newParamName.trim().isEmpty()) {
             throw new IllegalArgumentException("New parameter name cannot be empty.");
         }
         for (Parameter p : paramList) {
             if (p.getName().equals(oldParamName)) {
                 p.setName(newParamName);
+				p.setType(newParamType);
                 return;
             }
         }

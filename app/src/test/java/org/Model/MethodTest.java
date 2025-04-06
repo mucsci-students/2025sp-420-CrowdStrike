@@ -1,15 +1,15 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MethodTest {
 	Method m;
@@ -18,9 +18,9 @@ public class MethodTest {
 	@BeforeEach
 	public void init() {
 		p = new ArrayList<>();
-		p.add(new Parameter("bar"));
-		p.add(new Parameter("baz"));
-		p.add(new Parameter("buz"));
+		p.add(new Parameter("bar", "int"));
+		p.add(new Parameter("baz", "String"));
+		p.add(new Parameter("buz", "boolean"));
 		m = new Method("foo", p);
 	}
 
@@ -39,18 +39,18 @@ public class MethodTest {
 
 	@Test
 	public void addParam() {
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter("bar"));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(null));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(""));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(" "));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter("bar", "int"));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(null, null));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter("", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(" ", " "));
 
 		assertFalse(m.paramUsed("test"));
-		m.addParameter("test");
+		m.addParameter("test", "double");
 		assertTrue(m.paramUsed("test"));
 
-		ArrayList<String> strs = new ArrayList<>();
+    LinkedHashMap<String, String> strs = new LinkedHashMap<>();
 		for (Integer i = 0; i <= 12; i++)
-			strs.add(i.toString());
+			strs.put(i.toString(), i.toString());
 
 		assertFalse(m.paramUsed("4"));
 		m.addParameters(strs);
@@ -84,13 +84,14 @@ public class MethodTest {
 
 	@Test
 	public void updateParameter() {
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(null, "zzz"));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(" ", "zzz"));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", null));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", " "));
-		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("missing name", "zzz"));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(null, "zzz", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(" ", "zzz", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", null, ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", " ", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("missing name", "zzz", ""));
 
-		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz"));
+		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz", "zub"));
 		assertDoesNotThrow(() -> m.fetchParameter("zbuz"));
 	}
+
 }

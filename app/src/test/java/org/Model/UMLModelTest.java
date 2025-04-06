@@ -1,17 +1,14 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.ArrayList;
 
+import org.Model.Relationship.Type;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import org.Model.Relationship.Type;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class UMLModelTest {
 	private UMLModel m;
@@ -28,8 +25,8 @@ public class UMLModelTest {
 		cl.add(b);
 
 		ArrayList<Parameter> p = new ArrayList<>();
-		p.add(new Parameter("param1"));
-		p.add(new Parameter("param2"));
+		p.add(new Parameter("param1", "String"));
+		p.add(new Parameter("param2", "Int"));
 
 		b.addAttribute(new Field("zap"));
 		b.addAttribute(new Field("zoop"));

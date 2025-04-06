@@ -1,30 +1,26 @@
 package org.Controller;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.AutoComplete;
-import picocli.AutoComplete.GenerateCompletion;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Scanner;
 
-import picocli.shell.jline3.PicocliJLineCompleter;
+import org.FileManager;
+import org.Model.AttributeInterface;
+import org.Model.ClassObject;
+import org.Model.Method;
+import org.Model.Parameter;
+import org.Model.Relationship.Type;
+import org.Model.UMLModel;
+import org.View.CLView;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-
-import org.FileManager;
-import org.Model.Relationship;
-import org.Model.Relationship.Type;
-import org.Model.AttributeInterface;
-import org.Model.ClassObject;
-import org.Model.Field;
-import org.Model.Method;
-import org.Model.Parameter;
-import org.Model.UMLModel;
-import org.View.CLView;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
 // editor to carry out change
@@ -409,9 +405,10 @@ public class CLController {
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the method?");
 			input = sc.nextLine();
-			ArrayList<String> paramList = new ArrayList<>();
+			LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
 			view.show("Type the name of a parameter you'd like to add to this new method (enter to skip)");
 			String paramName = sc.nextLine().replaceAll("\\s", "");
+			String type;
 
 			boolean empty_input = paramName.equalsIgnoreCase("");
 			while (!empty_input) {
@@ -420,8 +417,8 @@ public class CLController {
 					break;
 				} else {
 					boolean exist = false;
-					for (int i = 0; i < paramList.size(); i++) {
-						if (paramName.equals(paramList.get(i))) {
+					for (String str : paramList.keySet()) {
+						if (paramName.equals(str)) {
 							// Parameter name has already been added
 							exist = true;
 							break;
@@ -432,7 +429,14 @@ public class CLController {
 					if (exist) {
 						view.show("Parameter " + paramName + " has already been added");
 					} else {
-						paramList.add(paramName);
+						view.show("Enter the parameter's type");
+						type = sc.nextLine().replaceAll("\\s", "");
+						if (type.isEmpty()) {
+							// Will restart loop which will immediately come back to this point b/c paramName is still stored
+							view.show("Parameters must have a type, please try again");
+							continue;
+						}
+						paramList.put(paramName, type);
 						view.show("Parameter " + paramName + " added to method " + input);
 					}
 				}
@@ -444,11 +448,16 @@ public class CLController {
 			if (paramList.size() == 0) {
 				view.show("Method " + input + "() successfully added to class " + className);
 			} else {
+				int i = 0;
 				String message = "Method " + input + "(";
-				for (int i = 0; i < paramList.size() - 1; i++) {
-					message += paramList.get(i) + ", ";
+				for (String str : paramList.keySet()) {
+					message += str;
+					if (i < paramList.size() - 1) {
+						message += ", ";
+					}
+					i++;
 				}
-				message += paramList.get(paramList.size() - 1) + ")";
+				message += ")";
 				message += " successfully added to class " + className;
 				view.show(message);
 			}
@@ -572,8 +581,9 @@ public class CLController {
 			}
 
 			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
-			ArrayList<String> parameterList = new ArrayList<>();
+			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
 			boolean loop = true;
+			String typeInput = "";
 			view.show("Type the name of a parameter you'd like to add (enter to stop)");
 			while(loop) {
 				input = sc.nextLine().replaceAll("\\s", "");
@@ -582,20 +592,27 @@ public class CLController {
 				} else {
 					if (activeMethod.paramUsed(input)) {
 						view.show("This parameter is already in the method.");
-						view.show("Please type the name of the next parameter:");
+						view.show("Please type the name of the next parameter (enter to stop): ");
 						continue;
 					}
 					if (editor.nameAlrAdded(input, parameterList)) {
 						view.show("This parameter has already been added.");
-						view.show("Please type the name of the next parameter:");
+						view.show("Please type the name of the next parameter (enter to stop):");
 						continue;
 					}
-					parameterList.add(input);
+					view.show("Enter the parameter's type");
+					typeInput = sc.nextLine().replaceAll("\\s", "");
+					if(typeInput.equals("")) {
+						view.show("Parameters must have a type");
+						view.show("Please type the name of the next parameter:");
+						continue;					
+					}
+					parameterList.put(input, typeInput);
 				}
-				view.show("Please type the name of the next parameter:");
+				view.show("Please type the name of the next parameter (enter to stop):");
 			}
 			editor.addParam(parameterList, activeMethod);
-			view.show("The parameter(s) were added");
+			view.show("The parameter(s) were added to " + activeMethod.getName());
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -732,10 +749,11 @@ public class CLController {
 				// Changing one parameter
 				oldParam = activeMethod.fetchParameter(input);
 			}
-			ArrayList<String> parameterList = new ArrayList<>();
+			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
 			boolean loop = true;
 			boolean changeParamReadded = false;
 			String paramName = "";
+			String type = "";
 			view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
 			while (loop) {
 				// Loops for adding
@@ -748,22 +766,29 @@ public class CLController {
 						// being replaced
 						if (activeMethod.paramUsed(paramName)) {
 							if (!changeParamReadded && paramName.equals(input)) {
-								parameterList.add(paramName);
-								view.show("Please type the name of the next parameter:");
+								parameterList.put(paramName, type);
+								view.show("Please type the name then type of the next parameter:");
 								changeParamReadded = true;
 								continue;
 							}
 							view.show("This parameter is already in the method.");
-							view.show("Please type the name of the next parameter:");
+							view.show("Please type the name then type of the next parameter:");
 							continue;
 						}
 					}
 					if (editor.nameAlrAdded(paramName, parameterList)) {
 						view.show("This parameter has already been added.");
-						view.show("Please type the name of the next parameter:");
+						view.show("Please type the name then type of the next parameter:");
 						continue;
 					}
-					parameterList.add(paramName);
+					view.show("Enter the parameter's type");
+					type = sc.nextLine().replaceAll("\\s", "");
+					if(type.equals("")) {
+						view.show("Parameters must have a type");
+						view.show("Please type the name of the next parameter:");
+						continue;					
+					}
+					parameterList.put(paramName, type);
 				}
 				view.show("Please type the name of the next parameter:");
 			}
