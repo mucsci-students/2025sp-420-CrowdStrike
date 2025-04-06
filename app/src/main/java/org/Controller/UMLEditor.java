@@ -236,20 +236,10 @@ public class UMLEditor {
 	 * Deletes methods from the designated ClassObject
 	 * 
 	 * @param cls     	 | The class from which the method is to be deleted from
-	 * @param methodName | The method's name
-	 * @param paramArity | The number of params the method has
+	 * @param mthd		 | The method being deleted
 	 * @throws Exception
 	 */
-	public void deleteMethod(ClassObject cls, String methodName, int paramArity) throws Exception {
-		if (!cls.methodExists(methodName, paramArity)) {
-			throw new Exception ("Class " + cls.getName() + " does not have a method with name " + methodName + " and parameter arity " + paramArity);
-		} else {
-			Method delMethod = cls.fetchMethod(methodName, paramArity);
-			cls.removeAttribute(delMethod);
-		}
-	}
-
-	public void deleteMethod2(ClassObject cls, Method mthd) {
+	public void deleteMethod(ClassObject cls, Method mthd) {
 		cls.removeAttribute(mthd);
 	}
 

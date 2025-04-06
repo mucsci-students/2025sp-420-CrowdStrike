@@ -115,7 +115,7 @@ public class GUIController {
 
         view.getAddMethodButton().addActionListener(e -> addMethodToClass());
         view.getDeleteMethodButton().addActionListener(e -> deleteMethodFromClass());
-        view.getRenameMethodButton().addActionListener(e -> renameMethodInClass());
+        view.getEditMethodButton().addActionListener(e -> editMethodInClass());
 
         view.getAddParamButton().addActionListener(e -> addParameterToMethod());
         view.getDeleteParamButton().addActionListener(e -> deleteParameterFromMethod());
@@ -1047,6 +1047,7 @@ public class GUIController {
             displayString.put(strdisplay, str);
         }
 
+
         int result = JOptionPane.showConfirmDialog(view, methodDropdown, "Select Method to Delete", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
@@ -1064,7 +1065,7 @@ public class GUIController {
     /**
      * Renames a selected method in the active class.
      */
-    private void renameMethodInClass() {
+    private void editMethodInClass() {
         if (selectedClassBox == null) {
             JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -1072,7 +1073,7 @@ public class GUIController {
 
         ArrayList<AttributeInterface> methods = activeClass.getMethodList();
         if (methods.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "No methods to rename!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "No methods to edit!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -1090,8 +1091,9 @@ public class GUIController {
             displayString.put(strdisplay, str);
         }
 
-        // Create a text field for entering the new method name.
+        // Create a text field for entering the new method name and return type
         JTextField newMethodNameInput = new JTextField();
+        JTextField newMethodTypeInput = new JTextField();
 
         // Build a panel that includes both the method selection and new name input.
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -1099,16 +1101,19 @@ public class GUIController {
         panel.add(methodDropdown);
         panel.add(new JLabel("Enter New Name:"));
         panel.add(newMethodNameInput);
+        panel.add(new JLabel("Enter New Return Type:"));
+        panel.add(newMethodTypeInput);
 
         int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String displayChoice = (String) methodDropdown.getSelectedItem();
             String oldName = displayString.get(displayChoice);
             String newName = newMethodNameInput.getText().trim();
+            String newType = newMethodTypeInput.getText().trim();
 
             if (!newName.isEmpty() && oldName != null) {
                 // Update the method name in the class box.
-                selectedClassBox.renameMethod(oldName, newName);
+                selectedClassBox.renameMethod(oldName, newName, newType);
             }
         }
     }

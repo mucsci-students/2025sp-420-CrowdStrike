@@ -123,6 +123,33 @@ public class ClassObject implements ClassObjectInterface {
         throw new Exception ("Method " + methodName + " with parameter arity " + paramArity + " does not exist in " + name);
 	}
 
+	public Method fetchMethod2(String methodName, LinkedHashMap<String, String> paramMap) throws Exception {
+		// Used to iterate through list of methods
+		int index = 0;
+		// Iterate through the array of classes
+        while (index < attrMap.get("Method").size()) {
+            // Check if the current method's name equals the given methodName
+            if (methodName.equals(attrMap.get("Method").get(index).getName())) {
+            	// If yes, Check if params have the same type
+				// Need to cast as a method to access paramList
+                Method activeMethod = (Method) attrMap.get("Method").get(index);
+                int paramIndex = 0;
+				for (Parameter param : activeMethod.getParamList()) {
+					if (!param.getType().equalsIgnoreCase(activeMethod.getParamList().get(paramIndex).getType())) {
+						// If parameters in the same position don't have the same type,
+						// methods are not the same, move on to the next
+						continue;
+					}
+					paramIndex++;
+				}
+				return activeMethod;
+            }
+            index++;
+        }
+        // Class with className did not exist, return false
+        throw new Exception ("Method " + methodName + " does not exist in " + name);
+	}
+
 	/**
 	 * Used to return a boolean when needed for checking is a method exists
 	 * @param methodName	| Name of method being checked

@@ -95,7 +95,17 @@ public class Method implements AttributeInterface {
 	 * @return True if this is equal to compareMethod, false otherwise
 	 */
 	public boolean equals(Method compareMethod) {
+		// Check if method name and paramArity are the same
 		if (this.name.equals(compareMethod.getName()) && this.paramList.size() == compareMethod.getParamList().size()) {
+			// Check types of parameters in both methods to make sure they are the same (in type and order)
+			int index = 0;
+			for (Parameter param : paramList) {
+				if (!param.getType().equalsIgnoreCase(paramList.get(index).getType())) {
+					// If parameters in the same position don't have the same type, they are not equal
+					return false;
+				}
+				index++;
+			}
 			return true;
 		} else {
 			return false;

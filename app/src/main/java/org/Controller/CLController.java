@@ -507,8 +507,6 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			//view.show("What is the name of the method you want to rename?");
-			//input = sc.nextLine();
 			view.show("Enter the number of the method you want to delete");
 			int methodNum = -1;
 			boolean validNum = false;
@@ -527,7 +525,7 @@ public class CLController {
 				sc.nextLine();
 			}
             Method delMethod = (Method) activeClass.getMethodList().get(methodNum);
-			editor.deleteMethod2(activeClass, delMethod);
+			editor.deleteMethod(activeClass, delMethod);
 			view.show("Method " + delMethod.getName() + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
