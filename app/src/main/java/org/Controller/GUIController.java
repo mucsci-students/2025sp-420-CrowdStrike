@@ -704,7 +704,7 @@ public class GUIController {
         }
 
         if (activeClass.getFieldList().isEmpty()) {
-            JOptionPane.showMessageDialog(view, "No fields to rename!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "No fields to edit!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -719,14 +719,14 @@ public class GUIController {
 
         // Create a panel that holds both the selection and the new name input.
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Select Field to Rename:"));
+        panel.add(new JLabel("Select Field to Edit:"));
         panel.add(fieldDropdown);
         panel.add(new JLabel("Enter New Name:"));
         panel.add(newFieldNameInput);
         panel.add(new JLabel("Enter New Type:"));
         panel.add(newFieldtypeInput);
 
-        int result = JOptionPane.showConfirmDialog(view, panel, "Rename Field", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(view, panel, "Edit Field", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String oldName = (String) fieldDropdown.getSelectedItem();
             String newName = newFieldNameInput.getText().trim();
