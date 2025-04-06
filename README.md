@@ -35,8 +35,7 @@ This will generate a distribution file in app/build/distributions/app.zip
 
 ## Running
 ## distribution file
-Unpack the distribution file and run the proper command
-
+Unpack the distribution file (unzip or tar -xf) depending on which version you are unpacking.
 ## Linux/Macos
 ```sh
 ./bin/app
