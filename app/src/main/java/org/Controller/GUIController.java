@@ -650,6 +650,10 @@ public class GUIController {
             @SuppressWarnings("unchecked")
             String fieldName = fieldNameField.getText().trim();
             String fieldType = fieldTypeField.getText().trim();
+           
+           //Helper function for Error checks
+            fieldErrorHelper(fieldName, fieldType, entryPanel);
+
             if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName) && !fieldType.isEmpty()) {
                 selectedClassBox.addField(fieldName, fieldType);
             }
@@ -731,6 +735,9 @@ public class GUIController {
             String oldName = (String) fieldDropdown.getSelectedItem();
             String newName = newFieldNameInput.getText().trim();
             String newType = newFieldtypeInput.getText().trim();
+            
+            //Helper function for Error checks  
+            fieldErrorHelper(newName, newType, panel);
 
             if (!newName.isEmpty() && !newType.isEmpty()) {
                 // Update the field name in the class box.
@@ -831,11 +838,10 @@ public class GUIController {
         addParamButton.addActionListener(e -> {
             String param = newParamField.getText().trim();
             String paramType = newParamTypeField.getText().trim();
-            if (paramType.isEmpty()){
-                // Paramter must have a type
-                JOptionPane.showMessageDialog(entryPanel, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+              
+              //Helper function for error checks
+              paramErrorHelper(param, paramType, entryPanel);
+            
             if (!param.isEmpty() && !confirmedParams.containsKey(param)) {
                 confirmedParams.put(param, paramType);
                 newParamField.setText(""); // Clear the field for the next parameter.
@@ -1073,9 +1079,12 @@ public class GUIController {
         }
 
         String newParamName = paramField.getText().trim();
+        //Error check
         if (newParamName.isEmpty()) {
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
             return;
-        }
+            }
 
         //Prompt for the parameter type
         JTextField paramTypeField = new JTextField();
@@ -1083,8 +1092,8 @@ public class GUIController {
         if (result != JOptionPane.OK_OPTION) {
             return;
         }
-
         String newParamType = paramTypeField.getText().trim();
+        //Error checks
         if (newParamType.isEmpty()) {
             //newParamType = "void";
             JOptionPane.showMessageDialog(view, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
@@ -1247,8 +1256,10 @@ public class GUIController {
         //creates a variable to store the new parameter name
         String newParamName = paramField.getText().trim();
         if (newParamName.isEmpty()) {
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
             return;
-        }
+            }
         // Prompt for the  Parameter type
         JTextField paramTypeField = new JTextField();
         result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter the new Parameter's Type", JOptionPane.OK_CANCEL_OPTION);
@@ -1489,4 +1500,34 @@ public class GUIController {
         }
     }
 
+    private void paramErrorHelper(String param, String paramType, JPanel entryPanel){
+        if(param.isEmpty() && paramType.isEmpty()){
+            JOptionPane.showMessageDialog(entryPanel, "Parameters cannot be empty", "State Error", JOptionPane.WARNING_MESSAGE);
+            return;
+            }
+            if (param.isEmpty()) {
+            // Parameter must have a name
+            JOptionPane.showMessageDialog(entryPanel, "Parameter must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
+            return;
+            }
+            if (paramType.isEmpty()){
+                // Paramter must have a type
+                JOptionPane.showMessageDialog(entryPanel, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+    }
+    private void fieldErrorHelper(String fieldName, String fieldType, JPanel entryPanel){
+        if(fieldName.isEmpty() && fieldType.isEmpty()) {
+                JOptionPane.showMessageDialog(entryPanel, "Field cannot be empty!", "State Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(fieldName.isEmpty()){           
+                JOptionPane.showMessageDialog(entryPanel, "Field must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(fieldType.isEmpty()){           
+                JOptionPane.showMessageDialog(entryPanel, "Field must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+    }
 }
