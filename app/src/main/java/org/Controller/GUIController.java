@@ -111,7 +111,7 @@ public class GUIController {
 
         view.getAddFieldButton().addActionListener(e -> addFieldToClass());
         view.getDeleteFieldButton().addActionListener(e -> deleteFieldFromClass());
-        view.getRenameFieldButton().addActionListener(e -> renameFieldInClass());
+        view.getEditFieldButton().addActionListener(e -> editFieldInClass());
 
         view.getAddMethodButton().addActionListener(e -> addMethodToClass());
         view.getDeleteMethodButton().addActionListener(e -> deleteMethodFromClass());
@@ -574,12 +574,19 @@ public class GUIController {
         JLabel fieldNameLabel = new JLabel("Enter Field Name:");
         fieldNameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         JTextField fieldNameField = new JTextField();
+        JLabel fieldTypeLabel = new JLabel("Enter Field Type:");
+        fieldTypeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JTextField fieldTypeField = new JTextField();
         fieldNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldNameField.getPreferredSize().height));
+        fieldTypeField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldTypeField.getPreferredSize().height));
         entryPanel.add(fieldNameLabel);
         entryPanel.add(fieldNameField);
+        entryPanel.add(fieldTypeLabel);
+        entryPanel.add(fieldTypeField);
 
         // Store important components as client properties for later retrieval.
         entryPanel.putClientProperty("fieldNameField", fieldNameField);
+        entryPanel.putClientProperty("fieldTypeField", fieldTypeField);
 
         return entryPanel;
     }
@@ -614,32 +621,41 @@ public class GUIController {
         dialog.getContentPane().add(mainPanel);
         dialog.pack();
         dialog.setLocationRelativeTo(view);
-        dialog.setSize(250, 150);
+        dialog.setSize(250, 175);
 
-        dialog.setMinimumSize(new Dimension(250, 150)); // sets a minimum size
+        dialog.setMinimumSize(new Dimension(250, 175)); // sets a minimum size
 
         // Action for "Add another method" button: process current input and clear fields.
         addAnotherButton.addActionListener(e -> {
             JTextField fieldNameField = (JTextField) entryPanel.getClientProperty("fieldNameField");
+            JTextField fieldTypeField = (JTextField) entryPanel.getClientProperty("fieldTypeField");
             @SuppressWarnings("unchecked")
             String fieldName = fieldNameField.getText().trim();
-            if (!fieldName.isEmpty()) {
+            String fieldType = fieldTypeField.getText().trim();
+            if (!fieldName.isEmpty() && !fieldType.isEmpty()) {
                 // Only add the method if it does not already exist.
-                if (!activeClass.fieldNameUsed(fieldName)) {
-                    selectedClassBox.addField(fieldName);
+                if (!activeClass.fieldNameUsed(fieldName) && !fieldType.isEmpty()) {
+                    selectedClassBox.addField(fieldName, fieldType);
                 }
             }
             // Reset the input fields for the next method.
             fieldNameField.setText("");
+            fieldTypeField.setText("");
         });
 
         // "Done" button processes any remaining input and closes the dialog.
         doneButton.addActionListener(e -> {
             JTextField fieldNameField = (JTextField) entryPanel.getClientProperty("fieldNameField");
+            JTextField fieldTypeField = (JTextField) entryPanel.getClientProperty("fieldTypeField");
             @SuppressWarnings("unchecked")
             String fieldName = fieldNameField.getText().trim();
-            if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName)) {
-                selectedClassBox.addField(fieldName);
+            String fieldType = fieldTypeField.getText().trim();
+           
+           //Helper function for Error checks
+            fieldErrorHelper(fieldName, fieldType, entryPanel);
+
+            if (!fieldName.isEmpty() && !activeClass.fieldNameUsed(fieldName) && !fieldType.isEmpty()) {
+                selectedClassBox.addField(fieldName, fieldType);
             }
             dialog.dispose();
             view.getDrawingPanel().repaint();
@@ -685,14 +701,14 @@ public class GUIController {
     /**
      * Renames a selected field in the active class.
      */
-    private void renameFieldInClass() {
+    private void editFieldInClass() {
         if (selectedClassBox == null) {
             JOptionPane.showMessageDialog(view, "Click a class first!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (activeClass.getFieldList().isEmpty()) {
-            JOptionPane.showMessageDialog(view, "No fields to rename!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "No fields to edit!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -703,22 +719,30 @@ public class GUIController {
         }
         // Text field to enter the new field name.
         JTextField newFieldNameInput = new JTextField();
+        JTextField newFieldtypeInput = new JTextField();
 
         // Create a panel that holds both the selection and the new name input.
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Select Field to Rename:"));
+        panel.add(new JLabel("Select Field to Edit:"));
         panel.add(fieldDropdown);
         panel.add(new JLabel("Enter New Name:"));
         panel.add(newFieldNameInput);
+        panel.add(new JLabel("Enter New Type:"));
+        panel.add(newFieldtypeInput);
 
-        int result = JOptionPane.showConfirmDialog(view, panel, "Rename Field", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(view, panel, "Edit Field", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String oldName = (String) fieldDropdown.getSelectedItem();
             String newName = newFieldNameInput.getText().trim();
+            String newType = newFieldtypeInput.getText().trim();
+            
+            //Helper function for Error checks  
+            fieldErrorHelper(newName, newType, panel);
 
-            if (!newName.isEmpty()) {
+            if (!newName.isEmpty() && !newType.isEmpty()) {
                 // Update the field name in the class box.
-                selectedClassBox.renameField(oldName, newName);
+                //selectedClassBox.renameField(oldName, newName);
+                selectedClassBox.editField(oldName, newName, newType);
             }
         }
     }
@@ -814,9 +838,10 @@ public class GUIController {
         addParamButton.addActionListener(e -> {
             String param = newParamField.getText().trim();
             String paramType = newParamTypeField.getText().trim();
-            if (paramType.isEmpty()){
-                paramType = "void";
-            }
+              
+              //Helper function for error checks
+              paramErrorHelper(param, paramType, entryPanel);
+            
             if (!param.isEmpty() && !confirmedParams.containsKey(param)) {
                 confirmedParams.put(param, paramType);
                 newParamField.setText(""); // Clear the field for the next parameter.
@@ -1054,9 +1079,12 @@ public class GUIController {
         }
 
         String newParamName = paramField.getText().trim();
+        //Error check
         if (newParamName.isEmpty()) {
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
             return;
-        }
+            }
 
         //Prompt for the parameter type
         JTextField paramTypeField = new JTextField();
@@ -1064,10 +1092,12 @@ public class GUIController {
         if (result != JOptionPane.OK_OPTION) {
             return;
         }
-
         String newParamType = paramTypeField.getText().trim();
+        //Error checks
         if (newParamType.isEmpty()) {
-            newParamType = "void";
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
 
@@ -1226,8 +1256,10 @@ public class GUIController {
         //creates a variable to store the new parameter name
         String newParamName = paramField.getText().trim();
         if (newParamName.isEmpty()) {
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
             return;
-        }
+            }
         // Prompt for the  Parameter type
         JTextField paramTypeField = new JTextField();
         result = JOptionPane.showConfirmDialog(view, paramTypeField, "Enter the new Parameter's Type", JOptionPane.OK_CANCEL_OPTION);
@@ -1237,7 +1269,9 @@ public class GUIController {
         //creates a variable to store the new parameter type
         String newParamType = paramTypeField.getText().trim();
         if (newParamType.isEmpty()) {
-            newParamType = "void";
+            //newParamType = "void";
+            JOptionPane.showMessageDialog(view, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
         // Update the parameter in the selected method with the new parameter name and type.
@@ -1466,4 +1500,34 @@ public class GUIController {
         }
     }
 
+    private void paramErrorHelper(String param, String paramType, JPanel entryPanel){
+        if(param.isEmpty() && paramType.isEmpty()){
+            JOptionPane.showMessageDialog(entryPanel, "Parameters cannot be empty", "State Error", JOptionPane.WARNING_MESSAGE);
+            return;
+            }
+            if (param.isEmpty()) {
+            // Parameter must have a name
+            JOptionPane.showMessageDialog(entryPanel, "Parameter must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
+            return;
+            }
+            if (paramType.isEmpty()){
+                // Paramter must have a type
+                JOptionPane.showMessageDialog(entryPanel, "Parameter must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+    }
+    private void fieldErrorHelper(String fieldName, String fieldType, JPanel entryPanel){
+        if(fieldName.isEmpty() && fieldType.isEmpty()) {
+                JOptionPane.showMessageDialog(entryPanel, "Field cannot be empty!", "State Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(fieldName.isEmpty()){           
+                JOptionPane.showMessageDialog(entryPanel, "Field must have a name!", "Name Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(fieldType.isEmpty()){           
+                JOptionPane.showMessageDialog(entryPanel, "Field must have a type!", "Type Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+    }
 }

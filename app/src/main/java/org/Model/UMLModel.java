@@ -143,8 +143,10 @@ public class UMLModel implements UMLModelInterface{
         // Add class name to finalString
         String finalString = "Class Name: " + cls.getName() + "\n  Fields:\n";
         // Add Fields to finalString
+		Field fld;
         for (int i = 0; i < cls.getFieldList().size(); i++) {
-        	finalString = finalString + "   " +  cls.getFieldList().get(i).getName() + "\n";
+			fld = (Field) cls.getFieldList().get(i);
+        	finalString = finalString + "   " +  fld.getName() + ": " + fld.getVarType() + "\n";
         }
         finalString = finalString + "  Methods:\n";
 		for (AttributeInterface mthd : cls.getMethodList()) {

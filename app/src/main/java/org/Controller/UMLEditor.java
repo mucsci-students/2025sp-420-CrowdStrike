@@ -181,11 +181,13 @@ public class UMLEditor {
 	 * @param fieldName | The name of the field
 	 * @throws Exception
 	 */
-	public void addField(ClassObject cls, String fieldName) throws Exception {
+	public void addField(ClassObject cls, String fieldName, String fieldType) throws Exception {
 		if (cls.fieldNameUsed(fieldName)) {
 			throw new Exception ("Field " + fieldName + " is already in " + cls.getName());
+		} else if (fieldType.isEmpty()) {
+			throw new Exception ("Fields must have a type");
 		} else {
-			Field fld = new Field(fieldName);
+			Field fld = new Field(fieldName, fieldType);
 			cls.addAttribute(fld);
 		}
 	}
@@ -259,6 +261,14 @@ public class UMLEditor {
 			throw new Exception (newName + " is currently used by another field in the class");
 		} else {
 			renameAttr.renameAttribute(newName);
+		}
+	}
+
+	public void changeFieldType(Field fld, String newType) throws Exception {
+		if (newType.isEmpty()) {
+			throw new Exception ("Fields must have a type");
+		} else {
+			fld.setVarType(newType);
 		}
 	}
 
