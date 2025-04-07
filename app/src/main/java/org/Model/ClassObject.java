@@ -1,12 +1,16 @@
 package org.Model;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.awt.Point;
 
 //Creates a Class object
 public class ClassObject implements ClassObjectInterface {
 
 	// Name of a class
 	private String name;
+	
+	// Position of class when displayed in GUI
+	private Point position;
 
 	// Stores all attributes belonging to a class
 	private LinkedHashMap<String, ArrayList<AttributeInterface>> attrMap;
@@ -18,6 +22,7 @@ public class ClassObject implements ClassObjectInterface {
 	public ClassObject(String name) {
 		this.name = name;
 		attrMap = new LinkedHashMap<>();
+		this.position = new Point(-1,-1);
 		// Need to create the Maps to be paired with each key
 		ArrayList<AttributeInterface> fieldList = new ArrayList<>();
 		ArrayList<AttributeInterface> methodList = new ArrayList<>();
@@ -26,6 +31,27 @@ public class ClassObject implements ClassObjectInterface {
 		attrMap.put("Field", fieldList);
 		attrMap.put("Method", methodList);
 	}
+
+    public ClassObject(ClassObject o){
+	this.name = o.name;
+	this.position = o.position;
+	attrMap = new LinkedHashMap<>();
+	ArrayList<AttributeInterface> fieldList = new ArrayList<>();
+	ArrayList<AttributeInterface> methodList = new ArrayList<>();
+
+	attrMap.put("Field", fieldList);
+	attrMap.put("Method", methodList);
+
+	for(AttributeInterface f: o.attrMap.get("Field")){
+	    Field fm = (Field) f;
+	    attrMap.get("Field").add(new Field(f.getName(),fm.getVarType()));
+	}
+
+	for(AttributeInterface m: o.attrMap.get("Method")){
+	    Method mo = (Method) m;
+	    attrMap.get("Method").add(new Method(m.getName(),mo.getParamList()));
+	}
+    }
 	
 	/**
 	 * Gets the name of a class object
@@ -37,6 +63,19 @@ public class ClassObject implements ClassObjectInterface {
 	@Override
 	public void setName(String newName) {
 		this.name = newName;
+	}
+
+	
+	public Point getPosition(){
+		return this.position;
+	}
+
+	public void setPosition(Point p){
+		this.position = p;
+	}
+
+	public void setPosition(int xPos, int yPos){
+		this.position.move(xPos, yPos);
 	}
 
 	/**
@@ -74,7 +113,7 @@ public class ClassObject implements ClassObjectInterface {
 	}
 	
 	@Override
-	public Field fetchField(String fieldName) {
+	public Field fetchField(String fieldName) throws Exception {
 		int index = 0;
         // Iterate through the array of classes
         while (index < attrMap.get("Field").size()) {
@@ -86,11 +125,25 @@ public class ClassObject implements ClassObjectInterface {
             index++;
         }
         // Class with className did not exist, return false
-        return null;
+        throw new Exception ("Field " + fieldName + " does not exist in " + name);
+	}
+
+	/**
+	 * Used to return a boolean when needed for checking is a field exists
+	 * @param fieldName		| The name of the field being checked
+	 * @return True is a field with the name exists, false otherwise
+	 */
+	public boolean fieldNameUsed (String fieldName) {
+		try {
+			fetchField(fieldName);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 	
 	@Override
-	public Method fetchMethod(String methodName, int paramArity) {
+	public Method fetchMethod(String methodName, int paramArity) throws Exception{
 		int index = 0;
         // Iterate through the array of classes
         while (index < attrMap.get("Method").size()) {
@@ -106,7 +159,22 @@ public class ClassObject implements ClassObjectInterface {
             index++;
         }
         // Class with className did not exist, return false
-        return null;
+        throw new Exception ("Method " + methodName + " with parameter arity " + paramArity + " does not exist in " + name);
+	}
+
+	/**
+	 * Used to return a boolean when needed for checking is a method exists
+	 * @param methodName	| Name of method being checked
+	 * @param paramArity	| Number of expected parameters
+	 * @return True if method with name and arity exists, false otherwise
+	 */
+	public boolean methodExists(String methodName, int paramArity) {
+		try {
+			fetchMethod(methodName, paramArity);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	public ArrayList<Method> fetchMethodByName(String methodName) {

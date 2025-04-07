@@ -16,10 +16,13 @@ public class classTest {
 	ClassObject class2;
 	
 	public void populateClass() {
-		testEditor.addClass("class1");
-		class1 = testModel.fetchClass("class1");
-		testEditor.addClass("2class");
-		class2 = testModel.fetchClass("2class");
+		try {
+			testEditor.addClass("class1");
+			class1 = testModel.fetchClass("class1");
+			testEditor.addClass("2class");
+			class2 = testModel.fetchClass("2class");
+		} catch (Exception e) {
+		}
 	}
 
 	public void getName() {

@@ -1,162 +1,97 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.ArrayList;
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.Model.Method;
-import org.Model.Parameter;
-import org.Controller.UMLEditor;
+import java.util.LinkedHashMap;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MethodTest {
+	Method m;
+	ArrayList<Parameter> p;
 
-    UMLModel testModel = new UMLModel();
-    UMLEditor testEditor = new UMLEditor(testModel);
-    ClassObject class1;
-    ArrayList<String> emptyConstructList;
+	@BeforeEach
+	public void init() {
+		p = new ArrayList<>();
+		p.add(new Parameter("bar", "int"));
+		p.add(new Parameter("baz", "String"));
+		p.add(new Parameter("buz", "boolean"));
+		m = new Method("foo", p);
+	}
 
-    @BeforeEach
-    public void populateClasses() {
-        testEditor.addClass("class1");
-        class1 = testModel.fetchClass("class1");
-        emptyConstructList = new ArrayList<>();
-    }
+	@Test
+	public void geters() {
+		assertEquals(m.getName(), "foo");
+		assertEquals(m.getType(), "Method");
+		assertEquals(m.getParamList(), p);
+	}
 
-    @AfterEach
-    public void cleanUp() {
-        testEditor.deleteClass("class1");
-    }
+	@Test
+	public void rename() {
+		m.renameAttribute("test");
+		assertEquals(m.getName(), "test");
+	}
 
-    @Test
-    public void testGetName() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        assertEquals(mthd.getName(), "method1", "mthd name should be 'method1'");
-    }
+	@Test
+	public void addParam() {
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter("bar", "int"));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(null, null));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter("", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.addParameter(" ", " "));
 
-    @Test
-    public void testGetType() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        assertEquals(mthd.getType(), "Method", "mthd type should be 'Method'");
-    }
+		assertFalse(m.paramUsed("test"));
+		m.addParameter("test", "double");
+		assertTrue(m.paramUsed("test"));
 
-    @Test
-    public void testGetParamList() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        ArrayList<Parameter> paramList = new ArrayList<>();
-        assertEquals(mthd.getParamList(), paramList, "mthd's paramList should equal paramList");
-    }
+    LinkedHashMap<String, String> strs = new LinkedHashMap<>();
+		for (Integer i = 0; i <= 12; i++)
+			strs.put(i.toString(), i.toString());
 
-    @Test
-    public void testRenameMethod() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        testEditor.renameAttribute(mthd, "newName");
-        assertEquals(mthd.getName(), "newName", "mthd name should be 'newName'");
-    }
+		assertFalse(m.paramUsed("4"));
+		m.addParameters(strs);
+		assertTrue(m.paramUsed("4"));
+	}
 
-    @Test
-    public void testAddParametersOne() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        String paramName = "param1";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName);
-        mthd.addParameters(newList);
-        assertEquals(mthd.getParamList().size(), 1, "mthd should have a list containing 'param1'");
-    }
+	@Test
+	public void removeParam() {
+		Parameter h = p.get(1);
+		m.removeParameter(h);
+		assertFalse(m.getParamList().contains(h));
 
-    @Test
-    public void testAddParameters() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName1);
-        newList.add(paramName2);
-        newList.add(paramName3);
-        mthd.addParameters(newList);
-        assertEquals(mthd.getParamList().size(), 3, "mthd should have a list containing ['param1', 'param2', 'param3']");
-    }
+		h = p.get(1);
+		m.removeParameter("buz");
+		assertFalse(m.getParamList().contains(h));
 
-    @Test
-    public void testRemoveAllParameter() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName1);
-        newList.add(paramName2);
-        newList.add(paramName3);
-        mthd.addParameters(newList);
-        mthd.removeAllParameters();
-        assertEquals(mthd.getParamList().size(), 0, "mthd should have an empty list");
-    }
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.removeParameter("foo"));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.removeParameter(""));
 
-    @Test
-    public void testRemoveParameter() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName1);
-        newList.add(paramName2);
-        newList.add(paramName3);
-        mthd.addParameters(newList);
-        Parameter param = mthd.fetchParameter("param2");
-        mthd.removeParameter(param);
-        assertEquals(mthd.getParamList().size(), 2, "mthd should have a list containing ['param1', 'param3']");
-    }
+		m.removeAllParameters();
+		assertEquals(m.getParamList(), new ArrayList<>());
+	}
 
-    @Test
-    public void testEqualsDifNames() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        testEditor.addMethod(class1, "method2", emptyConstructList);
-        Method mthd1 = class1.fetchMethod("method1", 0);
-        Method mthd2 = class1.fetchMethod("method2", 0);
-        assertEquals(mthd1.equals(mthd2), false, "mthd1 should not equal mthd2 because they have different names");
-    }
+	@Test
+	public void equals() {
+		assertTrue(m.equals(new Method("foo", p)));
 
-    @Test
-    public void testEqualsDifLists() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> paramList2 = new ArrayList<>();
-        paramList2.add(paramName1);
-        paramList2.add(paramName2);
-        paramList2.add(paramName3);
-        testEditor.addMethod(class1, "method1", paramList2);
-        Method mthd1 = class1.fetchMethod("method1", 0);
-        Method mthd2 = class1.fetchMethod("method1", 3);
-        assertEquals(mthd1.equals(mthd2), false, "mthd1 should not equal mthd2 because they have different paramLists");
-    }
+		assertFalse(m.equals(new Method("foo2", p)));
+		assertFalse(m.equals(new Method("foo", new ArrayList<>())));
+	}
 
-    @Test
-    public void testFetchParameter() {
-        testEditor.addMethod(class1, "method1", emptyConstructList);
-        Method mthd = class1.fetchMethod("method1", 0);
-        String paramName1 = "param1";
-        String paramName2 = "param2";
-        String paramName3 = "param3";
-        ArrayList<String> newList = new ArrayList<>();
-        newList.add(paramName1);
-        newList.add(paramName2);
-        newList.add(paramName3);
-        mthd.addParameters(newList);
-        assertEquals(mthd.fetchParameter("param2").getName(), "param2", "fetchParameter should return param3");
-    }
+	@Test
+	public void updateParameter() {
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(null, "zzz", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter(" ", "zzz", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", null, ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("buz", " ", ""));
+		assertThrows(java.lang.IllegalArgumentException.class, () -> m.updateParameter("missing name", "zzz", ""));
+
+		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz", "zub"));
+		assertDoesNotThrow(() -> m.fetchParameter("zbuz"));
+	}
+
 }
