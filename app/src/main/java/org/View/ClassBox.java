@@ -64,6 +64,12 @@ public class ClassBox extends JLayeredPane {
     public ClassBox(ClassObject classObject, GUIController controller) {
         this.classObject = classObject;
         this.controller = controller;
+
+	myX = classObject.getPosition().x;
+        myY = classObject.getPosition().y;
+
+        setLocation(myX, myY);
+
         
         // Create the content holder panel with BorderLayout.
         // This panel contains the class label at the top and the fields/methods panels below.
@@ -137,7 +143,8 @@ public class ClassBox extends JLayeredPane {
             public void mouseDragged(MouseEvent e) {
                 int deltaX = e.getXOnScreen() - screenX;
                 int deltaY = e.getYOnScreen() - screenY;
-                ClassBox.this.setLocation(myX + deltaX, myY + deltaY);
+                setLocation(myX + deltaX, myY + deltaY);
+		classObject.setPosition(myX + deltaX, myY + deltaY);
                 getParent().repaint();
                 e.consume();
             }

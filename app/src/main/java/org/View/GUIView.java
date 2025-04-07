@@ -29,6 +29,10 @@ public class GUIView extends JFrame {
     private JButton deleteParameterButton;
     private JButton changeParameterButton;
 
+    // Undo/Redo buttons
+    private JButton undoButton;
+    private JButton redoButton;
+
     //Save/Load buttons
     private JButton saveButton;
     private JButton loadButton;
@@ -77,6 +81,10 @@ public class GUIView extends JFrame {
         deleteParameterButton = new JButton("Delete Parameter");
         changeParameterButton = new JButton("Change Parameter");
 
+        // Undo/Redo Controls
+        undoButton = new JButton("Undo");
+        redoButton = new JButton("Redo");
+
         //Save/Load Controls 
         saveButton = new JButton("Save");
         loadButton = new JButton("Load");
@@ -104,6 +112,9 @@ public class GUIView extends JFrame {
         toolPanel.add(addParameterButton);
         toolPanel.add(deleteParameterButton);
         toolPanel.add(changeParameterButton);
+        toolPanel.add(new JSeparator());
+        toolPanel.add(undoButton);
+        toolPanel.add(redoButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(saveButton);
         toolPanel.add(loadButton);
@@ -180,6 +191,9 @@ public class GUIView extends JFrame {
         drawingPanel.setBackground(new Color(240, 240, 240));
         add(drawingPanel, BorderLayout.CENTER);
     }
+
+    public JButton getUndoButton(){return undoButton;}
+    public JButton getRedoButton(){return redoButton;}
 
     public JButton getAddClassButton() {
         return addClassButton;

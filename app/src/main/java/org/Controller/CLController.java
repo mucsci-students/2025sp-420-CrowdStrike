@@ -849,6 +849,29 @@ public class CLController {
 		}
 	}
 
+	@Command(name = "undo", description = "undo change")
+	private void CL_undo(){
+		try {
+		editor.undo();
+		this.model = editor.getModel();
+		view.show("The last action was undone.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+		
+	}
+
+    	@Command(name = "redo", description = "redo change")
+	private void CL_redo(){
+		try {
+		editor.redo();
+		this.model = editor.getModel();
+		view.show("The last undone action was redone.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+	}
+
 	@Command(name = "save", description = "Saves model")
 	private void save() {
 		view.show("Where would you like to save:");

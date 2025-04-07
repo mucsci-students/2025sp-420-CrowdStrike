@@ -1,6 +1,6 @@
 package org.Model;
 import java.util.ArrayList;
-
+import org.Model.Relationship.Type;
 
 public class UMLModel implements UMLModelInterface{
 	
@@ -15,6 +15,27 @@ public class UMLModel implements UMLModelInterface{
     public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
+    }
+
+    private UMLModel(UMLModel m){
+	classList = new ArrayList<>();
+	relationshipList = new ArrayList<>();
+
+	for(ClassObject o: m.getClassList())
+	    classList.add(new ClassObject(o));
+
+	for(Relationship r: m.getRelationshipList()){
+	    String s,d;
+	    Type t = r.getType();
+	    s = r.getSource().getName();
+	    d = r.getDestination().getName();
+
+	    try{
+		relationshipList.add(new Relationship(fetchClass(s),fetchClass(d),t));
+	    } catch (Exception e){
+	    }
+	}
+
     }
     
     /**
@@ -377,4 +398,16 @@ public class UMLModel implements UMLModelInterface{
 			return true;
 		}
 	}
+
+	    /**
+     * Method A: Creates a deep copy of the model by converting it into a String 
+     * and then reconstructing a model from that string
+     *
+     * @param model the current UMLModel
+     * @return a deep copy of the provided UMLModel
+     */
+    public UMLModel deepCopy() {
+	return new UMLModel(this);
+    }
+
 }
