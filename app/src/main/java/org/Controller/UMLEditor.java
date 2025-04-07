@@ -213,6 +213,7 @@ public class UMLEditor {
 	 * @throws Exception
 	 */
 	public void addMethod(ClassObject cls, String methodName, String retType, LinkedHashMap<String, String> paramNameList) throws Exception {
+		/*
 		if (cls.methodExists(methodName, paramNameList.size())) {
 			throw new Exception ("Method " + methodName + " with " + paramNameList.size() + " parameters already exists in " + cls.getName());
 		} else {
@@ -226,6 +227,41 @@ public class UMLEditor {
 			cls.addAttribute(method);
 			memento.saveState(model);
 		}
+		*/
+		// Check all methods for name and paramTypes
+		attrloop:
+		for (AttributeInterface attr : cls.getMethodList()) {
+			if (!attr.getName().equals(methodName)) {
+				// Name does not match method being created, move on to the next
+				continue;
+			}
+			Method activeMethod = (Method) attr;
+			if (activeMethod.getParamList().size() != paramNameList.size()) {
+				// Number of params does not match, move onto next attr
+				continue;
+			}
+			int index = 0;
+			for (String type : paramNameList.values()) {
+				if (!type.equals(activeMethod.getParamList().get(index).getType())) {
+					// Parameter at given index does not match type in same position
+					// Move onto the next attribute
+					continue attrloop;
+				}
+				index++;
+			}
+			// Method has same name, arity, and types as an existing method
+			throw new Exception ("Method " + methodName + " already exists in " + cls.getName());
+		}
+		// No methods matched the one being created
+		ArrayList<Parameter> paramList = new ArrayList<>();
+		Parameter param;
+		for (Map.Entry<String, String> obj : paramNameList.entrySet()) {
+			param = new Parameter(obj.getKey(), obj.getValue());
+			paramList.add(param);
+		}
+		Method method = new Method(methodName, retType, paramList);
+		cls.addAttribute(method);
+		memento.saveState(model);
 	}
 
 	/**
@@ -253,15 +289,9 @@ public class UMLEditor {
 	 * @throws Exception
 	 */
 
-	public void deleteMethod(ClassObject cls, String methodName, int paramArity) throws Exception {
-		if (!cls.methodExists(methodName, paramArity)) {
-			throw new Exception ("Class " + cls.getName() + " does not have a method with name " + methodName + " and parameter arity " + paramArity);
-		} else {
-			Method delMethod = cls.fetchMethod(methodName, paramArity);
-			cls.removeAttribute(delMethod);
-			memento.saveState(this.model);
-		}
-
+	public void deleteMethod(ClassObject cls, Method mthd) throws Exception {
+		cls.removeAttribute(mthd);
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -298,7 +328,7 @@ public class UMLEditor {
 	 * @throws Exception
 	 */
 	public void renameMethod(ClassObject cls, Method renameMethod, String newName) throws Exception {
-		if (cls.fieldNameUsed(newName)) {
+		if (cls.methodExists(newName, renameMethod.getParamList())) {
 			throw new Exception (newName + " is currently used by another method in the class");
 		} else {
 			renameMethod.renameAttribute(newName);

@@ -304,7 +304,7 @@ public class ClassBox extends JLayeredPane {
     public void addMethod(String method, String methodType, LinkedHashMap<String, String> params) {
         try {
             controller.getEditor().addMethod(classObject, method, methodType, params);
-            Method mthd = classObject.fetchMethod2(method, params);
+            Method mthd = classObject.fetchMethod(method, params);
             methodModel.addElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
             revalidate();
@@ -316,8 +316,13 @@ public class ClassBox extends JLayeredPane {
     
     public void removeMethod(String method) {
         try {
-            String[] parts = method.split(":"); // parts = {name, arity}
-            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+            String[] parts = method.split(":"); // parts = {name, paramTypes}
+            Method mthd;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                mthd = classObject.fetchMethod(parts[0]);
+            } else {
+                mthd = classObject.fetchMethod(parts[0], parts[1]);
+            }
             controller.getEditor().deleteMethod(classObject, mthd);
             methodModel.removeElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
@@ -330,8 +335,13 @@ public class ClassBox extends JLayeredPane {
     
     public void renameMethod(String method, String newName, String newType) {
         try {
-            String[] parts = method.split(":"); // parts = {name, arity}
-            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+            String[] parts = method.split(":"); // parts = {name, paramTypes}
+            Method mthd;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                mthd = classObject.fetchMethod(parts[0]);
+            } else {
+                mthd = classObject.fetchMethod(parts[0], parts[1]);
+            }
             int index = methodModel.indexOf(displayMethod(mthd));
             //UMLeditor code
             if (newType.isEmpty()) {
@@ -339,7 +349,12 @@ public class ClassBox extends JLayeredPane {
             }
             controller.getEditor().renameMethod(classObject, mthd, newName);
             controller.getEditor().changeMethodType(mthd, newType);
-            Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
+            Method renamedMethod;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                renamedMethod = classObject.fetchMethod(newName);
+            } else {
+                renamedMethod = classObject.fetchMethod(newName, parts[1]);
+            }
             if (index != -1) {
                 methodModel.set(index, displayMethod(renamedMethod));
             }

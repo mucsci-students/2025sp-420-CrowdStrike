@@ -382,11 +382,11 @@ public class CLController {
 	private void CL_editField() {
 		try {
 			view.show(model.listClassNames());
-			view.show("What class do you want to rename a field from?");
+			view.show("What class do you want to edit a field from?");
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
-			view.show("What is the name of the field you want to rename?");
+			view.show("What is the name of the field you want to edit?");
 			input = sc.nextLine();
 			Field editField = activeClass.fetchField(input);
 			view.show("What part of " + input + " do you want to edit? (Name or Type)");
@@ -507,7 +507,7 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to delete");
+			view.show("Enter the number of the method you want to delete('stop' to cancel)");
 			int methodNum = -1;
 			boolean validNum = false;
 			while (!validNum) {
@@ -519,6 +519,9 @@ public class CLController {
 					}
 					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
@@ -543,7 +546,7 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename");
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
 			int methodNum = -1;
 			boolean validNum = false;
 			while (!validNum) {
@@ -555,6 +558,9 @@ public class CLController {
 					}
 					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
@@ -604,28 +610,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to add parameters to:");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
 			boolean loop = true;
 			String typeInput = "";
@@ -677,28 +684,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			ArrayList<Parameter> paramList = activeMethod.getParamList();
 			view.show("Type the name of the parameter you'd like to remove");
 			String paramName = sc.nextLine().replaceAll("\\s", "");
@@ -718,28 +726,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			editor.removeAllParams(activeMethod);
 			view.show("All parameters were removed");
 		} catch (Exception e) {
@@ -761,28 +770,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to add parameters to:");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
 			input = sc.nextLine().replaceAll("//s", "");
 			Parameter oldParam = null;

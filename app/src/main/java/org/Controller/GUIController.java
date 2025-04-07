@@ -989,7 +989,7 @@ public class GUIController {
                     returnType = "void";
                 }
                 // Only add the method if it does not already exist.
-                if (!activeClass.methodExists(methodName, confirmedParams.size())) {
+                if (!activeClass.methodExists(methodName, confirmedParams)) {
                     selectedClassBox.addMethod(methodName, returnType, confirmedParams);
                 }
             }
@@ -998,6 +998,9 @@ public class GUIController {
             returnTypeField.setText("");
             confirmedParams.clear();
 
+            /*
+             * Try casting as a JTextArea instead
+             */
             JLabel signaturePreviewLabel = (JLabel) entryPanel.getClientProperty("signaturePreviewLabel");
             signaturePreviewLabel.setText("Method: ");
         });
@@ -1010,7 +1013,7 @@ public class GUIController {
             LinkedHashMap<String, String> confirmedParams = (LinkedHashMap<String, String>) entryPanel.getClientProperty("confirmedParams");
             String methodName = methodNameField.getText().trim();
             String returnType = returnTypeField.getText().trim();
-            if (!methodName.isEmpty() && !activeClass.methodExists(methodName, confirmedParams.size())) {
+            if (!methodName.isEmpty() && !activeClass.methodExists(methodName, confirmedParams)) {
                 if (returnType.isEmpty()) {
                     returnType = "void";
                 }
@@ -1047,7 +1050,9 @@ public class GUIController {
         // Populate the dropdown with method display strings.
         for (int index = 0; index < activeClass.getMethodList().size(); index++) {
             Method m = (Method) activeClass.getMethodList().get(index);
-            String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
+            // What is being used to identify each method
+            String str = activeClass.getMethodList().get(index).getName() + ":" + buildParamTypeString(m);
+            // What is being shown to the user in the dropdown
             String strdisplay = selectedClassBox.displayMethod(m);
             methodDropdown.addItem(strdisplay);
             displayString.put(strdisplay, str);
@@ -1066,6 +1071,22 @@ public class GUIController {
                 selectedClassBox.removeMethod(selectedMethod);
             }
         }
+    }
+
+    /**
+     * Returns a String of paramTypes seperated by commas
+     * @param mthd  | The method whose params are being checked
+     * @return String of paramTypes
+     */
+    public String buildParamTypeString(Method mthd) {
+        if (mthd.getParamList().size() == 0) {
+            return " ";
+        }
+        String paramTypes = mthd.getParamList().get(0).getType();
+        for (int i = 1; i < mthd.getParamList().size(); i++) {
+            paramTypes += "," + mthd.getParamList().get(i).getType();
+        }
+        return paramTypes;
     }
 
     /**
@@ -1091,7 +1112,7 @@ public class GUIController {
         for (int index = 0; index < activeClass.getMethodList().size(); index++) {
             Method m = (Method) activeClass.getMethodList().get(index);
 
-            String str = activeClass.getMethodList().get(index).getName() + ":" + m.getParamList().size();
+            String str = activeClass.getMethodList().get(index).getName() + ":" + buildParamTypeString(m);
             String strdisplay = selectedClassBox.displayMethod(m);
             methodDropdown.addItem(strdisplay);
             displayString.put(strdisplay, str);
