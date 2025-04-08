@@ -1131,7 +1131,7 @@ public class GUIController {
         panel.add(new JLabel("Enter New Return Type:"));
         panel.add(newMethodTypeInput);
 
-        int result = JOptionPane.showConfirmDialog(view, panel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(view, panel, "Edit Method", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String displayChoice = (String) methodDropdown.getSelectedItem();
             String oldName = displayString.get(displayChoice);

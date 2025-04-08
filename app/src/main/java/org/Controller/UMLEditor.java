@@ -316,6 +316,7 @@ public class UMLEditor {
 			throw new Exception ("Fields must have a type");
 		} else {
 			fld.setVarType(newType);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -328,6 +329,9 @@ public class UMLEditor {
 	 * @throws Exception
 	 */
 	public void renameMethod(ClassObject cls, Method renameMethod, String newName) throws Exception {
+		if (renameMethod.getName().equals(newName)) {
+			return;
+		}
 		if (cls.methodExists(newName, renameMethod.getParamList())) {
 			throw new Exception (newName + " is currently used by another method in the class");
 		} else {
@@ -338,6 +342,7 @@ public class UMLEditor {
 
 	public void changeMethodType(Method mthd, String newType) {
 		mthd.setReturnType(newType);
+		memento.saveState(this.model);
 	}
 
 	/**
