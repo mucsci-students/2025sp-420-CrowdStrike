@@ -25,7 +25,7 @@ import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
 // editor to carry out change
-@Command(name = "CLController", mixinStandardHelpOptions = true, version = "CLController 1.0",
+@Command(name = "", mixinStandardHelpOptions = true, version = "CLController 1.0",
 		description = "CLI Controller for UML Editor")
 public class CLController {
 
@@ -42,7 +42,7 @@ public class CLController {
 	// Create a global class that can be used and passed into editor
 	ClassObject activeClass = null;
 	// Prompt to be displayed at beginning of every loop
-	private final String basePrompt = "Please type your command(Commands for list of commands): ";
+	private final String basePrompt = "Please type your command(Help for list of commands): ";
 
 	/**
 	 * Constructs an instance of the CLController
@@ -923,6 +923,9 @@ public class CLController {
 				}
 
 				try {
+					if (input.equalsIgnoreCase("help")) {
+						input = "-h";
+					}
 					cmd.execute(input.replaceAll("\\s", ""));
 				} catch (CommandLine.ParameterException ex) {
 					System.err.println(ex.getMessage());
