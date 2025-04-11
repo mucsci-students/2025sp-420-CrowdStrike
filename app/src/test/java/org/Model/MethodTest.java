@@ -21,7 +21,7 @@ public class MethodTest {
 		p.add(new Parameter("bar", "int"));
 		p.add(new Parameter("baz", "String"));
 		p.add(new Parameter("buz", "boolean"));
-		m = new Method("foo", p);
+		m = new Method("foo", "void", p);
 	}
 
 	@Test
@@ -76,10 +76,10 @@ public class MethodTest {
 
 	@Test
 	public void equals() {
-		assertTrue(m.equals(new Method("foo", p)));
+		assertTrue(m.equals(new Method("foo", "void", p)));
 
-		assertFalse(m.equals(new Method("foo2", p)));
-		assertFalse(m.equals(new Method("foo", new ArrayList<>())));
+		assertFalse(m.equals(new Method("foo2", "void", p)));
+		assertFalse(m.equals(new Method("foo", "void", new ArrayList<>())));
 	}
 
 	@Test
