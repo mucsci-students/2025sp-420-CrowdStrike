@@ -197,7 +197,8 @@ public class Method implements AttributeInterface {
 			r.append(p.getType());
 			r.append(",");
 		}
-		r.deleteCharAt(r.lastIndexOf(","));
+		if(r.lastIndexOf(",")>-1)
+		    r.deleteCharAt(r.lastIndexOf(","));
 		r.append(")");
 
 		return r.toString();
