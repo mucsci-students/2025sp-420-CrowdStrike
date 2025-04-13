@@ -33,6 +33,11 @@ public class UMLClass extends JPanel {
 				mouseX = e.getX();
 				mouseY = e.getY();
 			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				getParent().revalidate();
+			}
 		});
 
 		addMouseMotionListener(new MouseAdapter() {
@@ -40,10 +45,14 @@ public class UMLClass extends JPanel {
 			public void mouseDragged(MouseEvent e) {
 				int newX = getX() + e.getX() - mouseX;
 				int newY = getY() + e.getY() - mouseY;
+				newX = Math.max(0, newX);
+				newY = Math.max(0, newY);
+
 				setLocation(newX, newY);
 				c.setPosition(getLocation());
 			}
 		});
+
 		rebuild(c);
 	}
 

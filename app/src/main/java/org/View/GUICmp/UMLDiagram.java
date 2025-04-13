@@ -1,14 +1,17 @@
 package org.View.GUICmp;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
-import org.Model.ClassObject;
+import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+
 import org.Model.UMLModel;
+import org.Model.ClassObject;
 
 public class UMLDiagram extends JPanel {
 	public UMLDiagram(UMLModel m) {
@@ -32,10 +35,20 @@ public class UMLDiagram extends JPanel {
 	public void updatemdl(UMLModel m) {
 		removeAll();
 		for (ClassObject c : m.getClassList()) {
-		    add(new UMLClass(c));
+			add(new UMLClass(c));
 		}
 		setSize(getPreferredSize());
 		revalidate();
 		repaint();
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		int x = 0, y = 0;
+		for (Component c : getComponents()) {
+			x = Math.max(x, c.getX() + c.getHeight());
+			y = Math.max(y, c.getY() + c.getWidth());
+		}
+		return new Dimension(x + 10, y + 10);
 	}
 }

@@ -5,19 +5,16 @@ import org.View.GUICmp.UMLDiagram;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GUIWindow extends JFrame {
-	private UMLModel m;
-	private UMLDiagram d;// should be in scrole container
-
 	public GUIWindow(UMLModel m) {
-		this.m = m;
-		d = new UMLDiagram(m);
+		UMLDiagram d = new UMLDiagram(m);
 
 		setTitle("UML CLASS DIAGRAM");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,7 +40,10 @@ public class GUIWindow extends JFrame {
 		input.add(up);
 		input.add(save);
 
-		JSplitPane s = new JSplitPane(JSplitPane.VERTICAL_SPLIT, input, d);
+		JScrollPane sp = new JScrollPane();
+		sp.setViewportView(d);
+
+		JSplitPane s = new JSplitPane(JSplitPane.VERTICAL_SPLIT, input, sp);
 		getContentPane().add(s);
 	}
 }
