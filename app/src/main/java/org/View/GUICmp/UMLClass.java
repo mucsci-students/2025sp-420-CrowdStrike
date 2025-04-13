@@ -45,8 +45,8 @@ public class UMLClass extends JPanel {
 			public void mouseDragged(MouseEvent e) {
 				int newX = getX() + e.getX() - mouseX;
 				int newY = getY() + e.getY() - mouseY;
-				newX = Math.max(0, newX);
-				newY = Math.max(0, newY);
+				newX = Math.max(10, newX);
+				newY = Math.max(10, newY);
 
 				setLocation(newX, newY);
 				c.setPosition(getLocation());

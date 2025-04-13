@@ -20,6 +20,7 @@ public class UMLDiagram extends JPanel {
 	}
 
 	public void save(String pth) {
+		setSize(getPreferredSize());
 		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = image.createGraphics();
 		printAll(g);
