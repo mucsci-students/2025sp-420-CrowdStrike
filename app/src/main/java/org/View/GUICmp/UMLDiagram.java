@@ -47,8 +47,8 @@ public class UMLDiagram extends JPanel {
 	public Dimension getPreferredSize() {
 		int x = 0, y = 0;
 		for (Component c : getComponents()) {
-			x = Math.max(x, c.getX() + c.getHeight());
-			y = Math.max(y, c.getY() + c.getWidth());
+			x = Math.max(x, c.getX() + c.getWidth());
+			y = Math.max(y, c.getY() + c.getHeight());
 		}
 		return new Dimension(x + 10, y + 10);
 	}

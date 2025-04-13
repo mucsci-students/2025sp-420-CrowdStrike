@@ -6,10 +6,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
-import java.awt.Font;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
@@ -26,6 +28,8 @@ public class UMLClass extends JPanel {
 
 		setLocation(c.getPosition());
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setBorder(new CompoundBorder(BorderFactory.createTitledBorder(c.getName()),
+				new EmptyBorder(5, 5, 5, 5)));
 
 		addMouseListener(new MouseAdapter() {
 			@Override
@@ -60,7 +64,12 @@ public class UMLClass extends JPanel {
 	public Dimension getPreferredSize() {
 		Dimension pref = super.getPreferredSize();
 
-		int width = Math.max(pref.width, 100);
+		Border border = getBorder();
+		CompoundBorder cb = (CompoundBorder) border;
+		TitledBorder tb = (TitledBorder) cb.getOutsideBorder();
+		FontMetrics fm = getFontMetrics(tb.getTitleFont());
+
+		int width = Math.max(Math.max(pref.width, fm.stringWidth(tb.getTitle()) + 25), 100);
 		int height = Math.max(pref.height, 100);
 
 		return new Dimension(width, height);
@@ -68,9 +77,7 @@ public class UMLClass extends JPanel {
 
 	public void rebuild(ClassObject c) {
 		JPanel fields, methods;
-		JLabel nl, fl, ml;
 		Dimension maxWidth;
-		Font boldFont = new Font(getFont().getName(), Font.BOLD, getFont().getSize());
 
 		methods = new JPanel();
 		fields = new JPanel();
