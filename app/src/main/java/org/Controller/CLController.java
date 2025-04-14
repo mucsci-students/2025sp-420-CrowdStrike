@@ -21,6 +21,7 @@ import org.jline.terminal.TerminalBuilder;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
@@ -59,6 +60,10 @@ public class CLController {
 		this.sc = new Scanner(System.in);
 	}
 
+	protected UMLModel getModel() {
+		return model;
+	}
+
 	/**
 	 * Prints help list
 	 */
@@ -84,12 +89,12 @@ public class CLController {
 	 * Gets the class to be listed and tells user if action failed
 	 */
 	@Command(name = "listclass", aliases = ("lc"), description = "List info for one class")
-	private void CL_listClassInfo() {
+	private void CL_listClassInfo(@Parameters(paramLabel = "className", description = "The class being listed") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like printed?");
-			input = sc.nextLine();
-			activeClass = model.fetchClass(input);
+			//view.show(model.listClassNames());
+			//view.show("What class would you like printed?");
+			//input = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			view.show(model.listClassInfo(activeClass));
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -914,7 +919,8 @@ public class CLController {
 		try {
 			Terminal terminal = TerminalBuilder.builder().system(true).build();
 			CommandLine cmd = new CommandLine(this);
-			Completer completer = new PicocliJLineCompleter(cmd.getCommandSpec());
+			//Completer completer = new PicocliJLineCompleter(cmd.getCommandSpec());
+			Completer completer = new UMLCompleter(cmd.getCommandSpec(), model);
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build();
 
 			while ((input = reader.readLine(basePrompt)) != null) {
@@ -926,7 +932,9 @@ public class CLController {
 					if (input.equalsIgnoreCase("help")) {
 						input = "-h";
 					}
-					cmd.execute(input.replaceAll("\\s", ""));
+					//cmd.execute(input.replaceAll("\\s", ""));
+					String[] cmds = input.split(" ");
+					cmd.execute(cmds);
 				} catch (CommandLine.ParameterException ex) {
 					System.err.println(ex.getMessage());
 					ex.getCommandLine().usage(System.err);
