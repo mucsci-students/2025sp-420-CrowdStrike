@@ -45,6 +45,7 @@ import org.View.GUIView;
  * handles user interactions, updates the model via the editor, and refreshes
  * the view accordingly.
  */
+@Deprecated
 public class GUIController {
 
     // Model representing the UML diagram structure.
