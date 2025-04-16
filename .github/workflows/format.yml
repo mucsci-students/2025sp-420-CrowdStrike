@@ -1,9 +1,8 @@
 name: Format Java Code
 
 on:
-  push:
-    branches:
-      - develop
+  pull_request:
+    branches: [ "develop" ]
 
 jobs:
   format:
