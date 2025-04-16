@@ -302,11 +302,8 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	@Command(name = "addfield", aliases = ("af"), description = "Adds a field")
-	private void CL_addField() {
+	private void CL_addField(@Parameters(paramLabel = "className", description = "The class the field is being added to") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to add a field to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the field?");
 			input = sc.nextLine();
@@ -327,11 +324,8 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletefield", aliases = ("df"), description = "Delete a field")
-	private void CL_deleteField() {
+	private void CL_deleteField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to delete a field from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to delete?");
@@ -347,11 +341,8 @@ public class CLController {
 	 * Gets class and field info from user and allows them to change its name/type
 	 */
 	@Command(name = "editfield", aliases = ("ef"), description = "Edits a field")
-	private void CL_editField() {
+	private void CL_editField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class do you want to edit a field from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to edit?");
@@ -388,11 +379,8 @@ public class CLController {
 	 * or not
 	 */
 	@Command(name = "addmethod", aliases = ("am"), description = "Adds a method")
-	private void CL_addMethod() {
+	private void CL_addMethod(@Parameters(paramLabel = "className", description = "The class the method is being added to") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to add a method to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the method?");
 			input = sc.nextLine();
@@ -468,11 +456,8 @@ public class CLController {
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletemethod", aliases = ("dm"), description = "Deletes a method")
-	private void CL_deleteMethod() {
+	private void CL_deleteMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class do you want to rename a method from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to delete('stop' to cancel)");
@@ -507,11 +492,8 @@ public class CLController {
 	 * Gets class and method info from user and allows the to change name/return type
 	 */
 	@Command(name = "editmethod", aliases = {"em"}, description = "Edits a method")
-	private void CL_editMethod() {
+	private void CL_editMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class do you want to rename a method from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -571,11 +553,8 @@ public class CLController {
 	 * to the list of parameters attached to the method.
 	 */
 	@Command(name = "addparameter", aliases = ("ap"), description = "Adds a parameter")
-	private void CL_addParam() {
+	private void CL_addParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to add the parameter to belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -645,11 +624,8 @@ public class CLController {
 	 * the named parameter.
 	 */
 	@Command(name = "removeparameter", aliases = ("rp"), description = "Removes a parameter")
-	private void CL_removeParam() {
+	private void CL_removeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to remove the parameter from belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -687,11 +663,8 @@ public class CLController {
 	}
 
 	@Command(name = "removeallparameters", aliases = ("rap"), description = "Removes all parameters")
-	private void CL_removeAllParam() {
+	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to remove the parameter from belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -731,11 +704,8 @@ public class CLController {
 	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
 	 */
 	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one or all params")
-	private void CL_changeParam() {
+	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to add the parameter to belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
