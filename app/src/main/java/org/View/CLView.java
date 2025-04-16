@@ -1,18 +1,18 @@
 package org.View;
+
 /**
  * CLView.java
- * 
- * Displays the UML diagram to the user via a command line interface
+ *
+ * <p>Displays the UML diagram to the user via a command line interface
  */
-
 public class CLView {
-    
-    //Displays prompt
+
+    // Displays prompt
     public void show(String prompt) {
         System.out.println(prompt);
     }
 
-    //this method displays showHelp after using show() to print getInstructions()
+    // this method displays showHelp after using show() to print getInstructions()
     public void showHelp() {
         show(getInstructions());
     }
@@ -54,17 +54,17 @@ public class CLView {
         ==========   Fields   ==========
             ADD FIELD - Adds a new field to a class.
                 type -> 'add field' or 'af'
-    
+
             DELETE FIELD - Removes a field from a class.
                 type -> 'delete field' or 'df'
-    
+
             RENAME FIELD - Renames an existing field in a class.
                 type -> 'rename field' or 'rf'
-    
+
         ==========   Methods   ==========
             ADD METHOD - Adds a new method to a class.
                 type -> 'add method' or 'am'
-    
+
             DELETE METHOD - Removes a method from a class.
                 type -> 'delete method' or 'dm'
 
@@ -91,7 +91,6 @@ public class CLView {
         ==========   EXIT   =============
             EXIT - Exits the program
                 type -> 'exit' or 'q'
-            """;
-}    
-    
+        """;
+    }
 }

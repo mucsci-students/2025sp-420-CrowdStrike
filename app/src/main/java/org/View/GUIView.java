@@ -2,6 +2,7 @@ package org.View;
 
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.swing.*;
 
 public class GUIView extends JFrame {
@@ -33,11 +34,11 @@ public class GUIView extends JFrame {
     private JButton undoButton;
     private JButton redoButton;
 
-    //Save/Load buttons
+    // Save/Load buttons
     private JButton saveButton;
     private JButton loadButton;
 
-    //Help and Exit Buttons
+    // Help and Exit Buttons
     private JButton exitButton;
     private JButton helpButton;
 
@@ -45,7 +46,7 @@ public class GUIView extends JFrame {
 
     public GUIView() {
         setTitle("UML CLASS DIAGRAM");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);//Open in full-screen mode
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Open in full-screen mode
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -55,7 +56,7 @@ public class GUIView extends JFrame {
 
     private void initToolPanel() {
 
-        //TOOL PANEL
+        // TOOL PANEL
         JPanel toolPanel = new JPanel();
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
 
@@ -85,11 +86,11 @@ public class GUIView extends JFrame {
         undoButton = new JButton("Undo");
         redoButton = new JButton("Redo");
 
-        //Save/Load Controls 
+        // Save/Load Controls
         saveButton = new JButton("Save");
         loadButton = new JButton("Load");
 
-        //Help/Exit Controls
+        // Help/Exit Controls
         exitButton = new JButton("Exit");
         helpButton = new JButton("Help");
 
@@ -126,8 +127,8 @@ public class GUIView extends JFrame {
     }
 
     /**
-     * Creates and returns a help panel with multiple cards explaining how the
-     * various controls in the tool panel work.
+     * Creates and returns a help panel with multiple cards explaining how the various controls in
+     * the tool panel work.
      */
     public JPanel helpPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -135,19 +136,37 @@ public class GUIView extends JFrame {
         JPanel cardPanel = new JPanel(cardLayout);
 
         String[] helpSteps = {
-            "<html><h2>Overview</h2><p>This UML Diagram Editor lets you create, edit, and manage class diagrams. Use the tool panel on the left to add classes, define relationships, and manage class members such as fields, methods, and parameters.</p></html>",
-            "<html><h2>Class Controls</h2><p><b>Add Class:</b> Create a new class box on the canvas.<br><b>Rename Class:</b> Modify the name of a selected class.<br><b>Delete Class:</b> Remove a class from your diagram.</p></html>",
-            "<html><h2>Relationship Controls</h2><p><b>Add Relationship:</b> Enable relationship mode to connect classes.<br><b>Edit Relationship:</b> Change the source, destination, or type of an existing relationship.<br><b>Delete Relationship:</b> Remove a selected relationship from the diagram.</p></html>",
-            "<html><h2>Field Controls</h2><p><b>Add Field:</b> Insert a new attribute into the selected class.<br><b>Delete Field:</b> Remove an attribute from the class.<br><b>Rename Field:</b> Change the name of an attribute.</p></html>",
-            "<html><h2>Method Controls</h2><p><b>Add Method:</b> Add a new operation to the selected class.<br><b>Delete Method:</b> Remove an existing method.<br><b>Rename Method:</b> Modify the name of a method.</p></html>",
-            "<html><h2>Parameter Controls</h2><p><b>Add Parameter:</b> Add a parameter to a method.<br><b>Delete Parameter:</b> Remove a method parameter.<br><b>Change Parameter:</b> Edit the details of a parameter.</p></html>",
-            "<html><h2>File & Other Controls</h2><p><b>Save:</b> Save your current diagram to a file.<br><b>Load:</b> Open a saved diagram.<br><b>Help:</b> Open this help guide.<br><b>Exit:</b> Close the application (with an option to save changes).</p></html>"
+            "<html><h2>Overview</h2><p>This UML Diagram Editor lets you create, edit, and manage"
+                + " class diagrams. Use the tool panel on the left to add classes, define"
+                + " relationships, and manage class members such as fields, methods, and"
+                + " parameters.</p></html>",
+            "<html><h2>Class Controls</h2><p><b>Add Class:</b> Create a new class box on the"
+                + " canvas.<br><b>Rename Class:</b> Modify the name of a selected"
+                + " class.<br><b>Delete Class:</b> Remove a class from your diagram.</p></html>",
+            "<html><h2>Relationship Controls</h2><p><b>Add Relationship:</b> Enable relationship"
+                + " mode to connect classes.<br><b>Edit Relationship:</b> Change the source,"
+                + " destination, or type of an existing relationship.<br><b>Delete"
+                + " Relationship:</b> Remove a selected relationship from the diagram.</p></html>",
+            "<html><h2>Field Controls</h2><p><b>Add Field:</b> Insert a new attribute into the"
+                + " selected class.<br><b>Delete Field:</b> Remove an attribute from the"
+                + " class.<br><b>Rename Field:</b> Change the name of an attribute.</p></html>",
+            "<html><h2>Method Controls</h2><p><b>Add Method:</b> Add a new operation to the"
+                + " selected class.<br><b>Delete Method:</b> Remove an existing"
+                + " method.<br><b>Rename Method:</b> Modify the name of a method.</p></html>",
+            "<html><h2>Parameter Controls</h2><p><b>Add Parameter:</b> Add a parameter to a"
+                + " method.<br><b>Delete Parameter:</b> Remove a method parameter.<br><b>Change"
+                + " Parameter:</b> Edit the details of a parameter.</p></html>",
+            "<html><h2>File & Other Controls</h2><p><b>Save:</b> Save your current diagram to a"
+                + " file.<br><b>Load:</b> Open a saved diagram.<br><b>Help:</b> Open this help"
+                + " guide.<br><b>Exit:</b> Close the application (with an option to save"
+                + " changes).</p></html>"
         };
 
         // Create a card for each help step.
         for (int i = 0; i < helpSteps.length; i++) {
             JPanel stepPanel = new JPanel(new BorderLayout());
-            stepPanel.setSize(740, 740);;
+            stepPanel.setSize(740, 740);
+            ;
             // Center the help text in each card.
             JLabel label = new JLabel(helpSteps[i]);
             label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -161,19 +180,21 @@ public class GUIView extends JFrame {
         JButton prevButton = new JButton("<- Previous");
         JButton nextButton = new JButton("Next ->");
 
-        prevButton.addActionListener(e -> {
-            if (currentIndex.get() > 0) {
-                currentIndex.decrementAndGet();
-                cardLayout.show(cardPanel, String.valueOf(currentIndex.get()));
-            }
-        });
+        prevButton.addActionListener(
+                e -> {
+                    if (currentIndex.get() > 0) {
+                        currentIndex.decrementAndGet();
+                        cardLayout.show(cardPanel, String.valueOf(currentIndex.get()));
+                    }
+                });
 
-        nextButton.addActionListener(e -> {
-            if (currentIndex.get() < helpSteps.length - 1) {
-                currentIndex.incrementAndGet();
-                cardLayout.show(cardPanel, String.valueOf(currentIndex.get()));
-            }
-        });
+        nextButton.addActionListener(
+                e -> {
+                    if (currentIndex.get() < helpSteps.length - 1) {
+                        currentIndex.incrementAndGet();
+                        cardLayout.show(cardPanel, String.valueOf(currentIndex.get()));
+                    }
+                });
 
         JPanel navPanel = new JPanel();
         navPanel.add(prevButton);
@@ -192,8 +213,13 @@ public class GUIView extends JFrame {
         add(drawingPanel, BorderLayout.CENTER);
     }
 
-    public JButton getUndoButton(){return undoButton;}
-    public JButton getRedoButton(){return redoButton;}
+    public JButton getUndoButton() {
+        return undoButton;
+    }
+
+    public JButton getRedoButton() {
+        return redoButton;
+    }
 
     public JButton getAddClassButton() {
         return addClassButton;

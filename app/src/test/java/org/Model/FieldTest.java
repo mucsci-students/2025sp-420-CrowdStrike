@@ -1,16 +1,11 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.beans.Transient;
-
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.Model.Field;
 import org.Controller.UMLEditor;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FieldTest {
 
@@ -28,7 +23,6 @@ public class FieldTest {
             fld = class1.fetchField("field1");
         } catch (Exception e) {
         }
-       
     }
 
     @AfterEach
