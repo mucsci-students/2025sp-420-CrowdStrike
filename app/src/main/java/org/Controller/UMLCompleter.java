@@ -28,7 +28,7 @@ public class UMLCompleter implements Completer {
 
     private final CommandSpec spec;
 
-    private final UMLModel model;
+    private UMLModel model;
 
     private final ArrayList<String> classCommands = new ArrayList<>(Arrays.asList("listclass", "lc", "deleteclass", "dc", "renameclass", "rc",
                                                                     "addrelationship", "ar", "editrelationship", "er", "deleterelationship", "dr",
@@ -58,6 +58,15 @@ public class UMLCompleter implements Completer {
         this.model = model;
     }
 
+    /**
+     * Function used to update the model stored in the completer
+     * Used when load, undo, or redo is called
+     * @param The new model to use for tab-completion
+     */
+    public void setModel(UMLModel model) {
+        this.model = model;
+    }
+
     private void commandCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         List<CharSequence> cs = new ArrayList<CharSequence>();
         AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
@@ -66,8 +75,8 @@ public class UMLCompleter implements Completer {
         }
     }
 
-    private void classCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
-        if (words.length == 1) {
+    private void classCompletion(String[] words, ParsedLine line, List<Candidate> candidates, int stringLocation) {
+        if (words.length == stringLocation) {
             // List all classes if user has not started class input yet
             for (ClassObject classObj : model.getClassList()) {
                 candidates.add(new Candidate(classObj.getName()));
@@ -75,23 +84,7 @@ public class UMLCompleter implements Completer {
         } else {
             // Only list classes that match what user has manually typed
             for (ClassObject classObj : model.getClassList()) {
-                if (classObj.getName().startsWith(words[1])) {
-                    candidates.add(new Candidate(classObj.getName()));
-                }
-            }
-        }
-    }
-
-    private void classCompletion2(String[] words, ParsedLine line, List<Candidate> candidates) {
-        if (words.length == 2) {
-            // List all classes if user has not started class input yet
-            for (ClassObject classObj : model.getClassList()) {
-                candidates.add(new Candidate(classObj.getName()));
-            }
-        } else {
-            // Only list classes that match what user has manually typed
-            for (ClassObject classObj : model.getClassList()) {
-                if (classObj.getName().startsWith(words[2])) {
+                if (classObj.getName().startsWith(words[stringLocation])) {
                     candidates.add(new Candidate(classObj.getName()));
                 }
             }
@@ -219,10 +212,10 @@ public class UMLCompleter implements Completer {
             commandCompletion(words, line, candidates);
         } else if (words.length == 2 && isValidClassCommand(words[0])) {
             // Completion function for class names
-            classCompletion(words, line, candidates);
+            classCompletion(words, line, candidates, 1);
         } else if (words.length == 3 && isValidRelCommand(words[0])) {
             // Completion function for class names
-            classCompletion2(words, line, candidates);
+            classCompletion(words, line, candidates, 2);
         } else if (words.length == 3 && isValidFieldCommand(words[0])) {
             // Completion function for field names
             fieldCompletion(words, line, candidates);

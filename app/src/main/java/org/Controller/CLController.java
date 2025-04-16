@@ -36,6 +36,8 @@ public class CLController {
 
 	private CLView view;
 
+	private UMLCompleter completer;
+
 	// Create scanner to read user input
 	private Scanner sc;
 	// Create a string to read user input
@@ -60,19 +62,6 @@ public class CLController {
 		this.sc = new Scanner(System.in);
 	}
 
-	protected UMLModel getModel() {
-		return model;
-	}
-
-	/**
-	 * Prints help list
-	 */
-	@Command(name = "commands", aliases = {"com"}, description = "Prints help list")
-	private void CL_Help() {
-		view.showHelp();
-		//view.show(basePrompt);
-	}
-
 	/**
 	 * Checks if any classes exist before printing them
 	 */
@@ -91,9 +80,6 @@ public class CLController {
 	@Command(name = "listclass", aliases = ("lc"), description = "List info for one class")
 	private void CL_listClassInfo(@Parameters(paramLabel = "className", description = "The class being listed") String className) {
 		try {
-			//view.show(model.listClassNames());
-			//view.show("What class would you like printed?");
-			//input = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listClassInfo(activeClass));
 		} catch (Exception e) {
@@ -117,13 +103,11 @@ public class CLController {
 	 * Gets name of new class from user and displays if it was added successfully
 	 */
 	@Command(name = "addclass", aliases = ("ac"), description = "Add a new class")
-	private void CL_addClass() {
+	private void CL_addClass(@Parameters(paramLabel = "className", description = "The class being added") String className) {
 		try {
-			view.show("Enter the new class' name: ");
-			input = sc.nextLine();
-			model.isValidClassName(input);
-			editor.addClass(input);
-			view.show("Class " + input + " succesfully added");
+			model.isValidClassName(className);
+			editor.addClass(className);
+			view.show("Class " + className + " succesfully added");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -132,14 +116,11 @@ public class CLController {
 	/**
 	 * Gets class info from user and displays if class was deleted
 	 */
-	@Command(name = "delete class", aliases = ("dc"), description = "Delete a class")
-	private void CL_deleteClass() {
+	@Command(name = "deleteclass", aliases = ("dc"), description = "Delete a class")
+	private void CL_deleteClass(@Parameters(paramLabel = "className", description = "The class being deleted") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to delete?");
-			input = sc.nextLine();
-			editor.deleteClass(input);
-			view.show("Class " + input + " successfully deleted");
+			editor.deleteClass(className);
+			view.show("Class " + className + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -149,17 +130,13 @@ public class CLController {
 	 * Gets class info from user and displays if class was renamed
 	 */
 	@Command(name = "renameclass", aliases = ("rc"), description = "Rename a class")
-	private void CL_renameClass() {
+	private void CL_renameClass(@Parameters(paramLabel = "className", description = "The class being renamed") String className,
+								@Parameters(paramLabel = "newName", description = "New name for class") String newName) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to rename?");
-			input = sc.nextLine();
-			activeClass = model.fetchClass(input);
-			view.show("What would you like the new name to be?");
-			String newName = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			model.isValidClassName(newName);
 			editor.renameClass(activeClass, newName);
-			view.show("Class " + input + " renamed to " + newName);
+			view.show("Class " + className + " renamed to " + newName);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -169,15 +146,10 @@ public class CLController {
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
 	@Command(name = "addrelationship", aliases = ("ar"), description = "Add relationship between classes")
-	private void CL_addRelationship() {
+	private void CL_addRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
+									@Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
 		try {
-			view.show(model.listClassNames());
-			view.show("Enter the source class");
-			String source = sc.nextLine();
 			model.fetchClass(source);
-			view.show(model.listClassNames());
-			view.show("Enter the destination class");
-			String dest = sc.nextLine();
 			model.fetchClass(dest);
 			if (!model.relationshipExist(source, dest)) {
 				// Relationship does not already exist
@@ -218,15 +190,10 @@ public class CLController {
 	 * Loops until the
 	 */
 	@Command(name = "editrelationship", aliases = ("er"), description = "Edits a relationship")
-	private void CL_editRelationship() {
+	private void CL_editRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
+									 @Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
 		try {
-			view.show(model.listRelationships());
-			view.show("What is the source of the relationship are you changing?");
-			String source = sc.nextLine();
 			model.fetchClass(source);
-			view.show(model.listClassNames());
-			view.show("What is the destination of the relationship are you changing?");
-			String dest = sc.nextLine();
 			model.fetchClass(dest);
 			if (model.relationshipExist(source, dest)) {
 				view.show("What property of the relationship are you changing?\n");
@@ -318,18 +285,14 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	@Command(name = "deleterelationship", aliases = ("dr"), description = "Deletes a relationship")
-	private void CL_deleteRelationship() {
+	private void CL_deleteRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
+									   @Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
 		try {
-			view.show(model.listRelationships());
-			view.show("What is the source of the relationship are you deleting?");
-			String source = sc.nextLine();
 			model.fetchClass(source);
-			view.show(model.listClassNames());
-			view.show("What is the destination of the relationship are you deleting?");
-			String dest = sc.nextLine();
 			model.fetchClass(dest);
 			model.fetchRelationship(source, dest);
 			editor.deleteRelationship(source, dest);
+			view.show("Relationship between " + source + " and " + dest + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -869,6 +832,7 @@ public class CLController {
 		try {
 		editor.undo();
 		this.model = editor.getModel();
+		completer.setModel(editor.getModel());
 		view.show("The last action was undone.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -881,6 +845,7 @@ public class CLController {
 		try {
 		editor.redo();
 		this.model = editor.getModel();
+		completer.setModel(editor.getModel());
 		view.show("The last undone action was redone.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -907,6 +872,7 @@ public class CLController {
 			FileManager file = new FileManager();
 			model = file.load(path);
 			editor = new UMLEditor(model);
+			completer.setModel(model);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -919,8 +885,7 @@ public class CLController {
 		try {
 			Terminal terminal = TerminalBuilder.builder().system(true).build();
 			CommandLine cmd = new CommandLine(this);
-			//Completer completer = new PicocliJLineCompleter(cmd.getCommandSpec());
-			Completer completer = new UMLCompleter(cmd.getCommandSpec(), model);
+			completer = new UMLCompleter(cmd.getCommandSpec(), model);
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build();
 
 			while ((input = reader.readLine(basePrompt)) != null) {
@@ -932,7 +897,6 @@ public class CLController {
 					if (input.equalsIgnoreCase("help")) {
 						input = "-h";
 					}
-					//cmd.execute(input.replaceAll("\\s", ""));
 					String[] cmds = input.split(" ");
 					cmd.execute(cmds);
 				} catch (CommandLine.ParameterException ex) {
