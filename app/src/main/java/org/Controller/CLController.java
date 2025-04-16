@@ -175,7 +175,7 @@ public class CLController {
                         || typeint.equals("4"))) {
                     view.show(
                             "Enter 1-4 to set the type of relationship (1. Aggregation | 2."
-                                + " Composition | 3. Inheritance | 4. Realization)");
+                                    + " Composition | 3. Inheritance | 4. Realization)");
                     typeint = sc.nextLine();
                     if (typeint.equals("1")) {
                         type = Type.AGGREGATION;
@@ -225,7 +225,7 @@ public class CLController {
                 view.show("What property of the relationship are you changing?\n");
                 view.show(
                         "You can edit the 'source', 'destination', or 'type' of this"
-                            + " relationship.");
+                                + " relationship.");
                 String field = sc.nextLine().toLowerCase();
                 String value = null;
                 switch (field) {
@@ -283,7 +283,7 @@ public class CLController {
                                 || typeint.equals("4"))) {
                             view.show(
                                     "Enter 1-4 to set the type of relationship (1. Aggregation | 2."
-                                        + " Composition | 3. Inheritance | 4. Realization)");
+                                            + " Composition | 3. Inheritance | 4. Realization)");
                             typeint = sc.nextLine();
                             if (typeint.equals("1")) {
                                 value = "AGGREGATION";
@@ -446,7 +446,7 @@ public class CLController {
             LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
             view.show(
                     "Type the name of a parameter you'd like to add to this new method (enter to"
-                        + " skip)");
+                            + " skip)");
             String paramName = sc.nextLine().replaceAll("\\s", "");
             String type;
 
@@ -810,7 +810,7 @@ public class CLController {
             Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
             view.show(
                     "Type 'All' to replace all of the parameters or type the name of the parameter"
-                        + " you'd like to replace:");
+                            + " you'd like to replace:");
             input = sc.nextLine().replaceAll("//s", "");
             Parameter oldParam = null;
             boolean changeAll = false;
@@ -828,7 +828,7 @@ public class CLController {
             String type = "";
             view.show(
                     "Type the name of a parameter you'd like to add to the new list. (enter to"
-                        + " stop):");
+                            + " stop):");
             while (loop) {
                 // Loops for adding
                 paramName = sc.nextLine().replaceAll("\\s", "");

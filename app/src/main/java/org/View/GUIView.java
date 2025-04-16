@@ -137,9 +137,9 @@ public class GUIView extends JFrame {
 
         String[] helpSteps = {
             "<html><h2>Overview</h2><p>This UML Diagram Editor lets you create, edit, and manage"
-                + " class diagrams. Use the tool panel on the left to add classes, define"
-                + " relationships, and manage class members such as fields, methods, and"
-                + " parameters.</p></html>",
+                    + " class diagrams. Use the tool panel on the left to add classes, define"
+                    + " relationships, and manage class members such as fields, methods, and"
+                    + " parameters.</p></html>",
             "<html><h2>Class Controls</h2><p><b>Add Class:</b> Create a new class box on the"
                 + " canvas.<br><b>Rename Class:</b> Modify the name of a selected"
                 + " class.<br><b>Delete Class:</b> Remove a class from your diagram.</p></html>",
@@ -148,18 +148,18 @@ public class GUIView extends JFrame {
                 + " destination, or type of an existing relationship.<br><b>Delete"
                 + " Relationship:</b> Remove a selected relationship from the diagram.</p></html>",
             "<html><h2>Field Controls</h2><p><b>Add Field:</b> Insert a new attribute into the"
-                + " selected class.<br><b>Delete Field:</b> Remove an attribute from the"
-                + " class.<br><b>Rename Field:</b> Change the name of an attribute.</p></html>",
+                    + " selected class.<br><b>Delete Field:</b> Remove an attribute from the"
+                    + " class.<br><b>Rename Field:</b> Change the name of an attribute.</p></html>",
             "<html><h2>Method Controls</h2><p><b>Add Method:</b> Add a new operation to the"
-                + " selected class.<br><b>Delete Method:</b> Remove an existing"
-                + " method.<br><b>Rename Method:</b> Modify the name of a method.</p></html>",
+                    + " selected class.<br><b>Delete Method:</b> Remove an existing"
+                    + " method.<br><b>Rename Method:</b> Modify the name of a method.</p></html>",
             "<html><h2>Parameter Controls</h2><p><b>Add Parameter:</b> Add a parameter to a"
-                + " method.<br><b>Delete Parameter:</b> Remove a method parameter.<br><b>Change"
-                + " Parameter:</b> Edit the details of a parameter.</p></html>",
+                    + " method.<br><b>Delete Parameter:</b> Remove a method parameter.<br><b>Change"
+                    + " Parameter:</b> Edit the details of a parameter.</p></html>",
             "<html><h2>File & Other Controls</h2><p><b>Save:</b> Save your current diagram to a"
-                + " file.<br><b>Load:</b> Open a saved diagram.<br><b>Help:</b> Open this help"
-                + " guide.<br><b>Exit:</b> Close the application (with an option to save"
-                + " changes).</p></html>"
+                    + " file.<br><b>Load:</b> Open a saved diagram.<br><b>Help:</b> Open this help"
+                    + " guide.<br><b>Exit:</b> Close the application (with an option to save"
+                    + " changes).</p></html>"
         };
 
         // Create a card for each help step.
