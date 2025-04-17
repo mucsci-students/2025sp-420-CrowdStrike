@@ -28,6 +28,7 @@ import org.Model.ClassObject;
 import org.Model.Method;
 import org.Model.Field;
 
+@Deprecated
 public class ClassBox extends JLayeredPane {
     private DefaultListModel<String> fieldModel;
     private JList<String> fieldsList;
