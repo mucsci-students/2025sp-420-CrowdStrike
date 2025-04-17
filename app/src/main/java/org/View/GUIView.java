@@ -23,7 +23,7 @@ public class GUIView extends JFrame {
     // Method Management Buttons
     private JButton addMethodButton;
     private JButton deleteMethodButton;
-    private JButton renameMethodButton;
+    private JButton editMethodButton;
 
     // Parameter Management Buttosn
     private JButton addParameterButton;
@@ -75,7 +75,7 @@ public class GUIView extends JFrame {
         // Method Controls
         addMethodButton = new JButton("Add Method");
         deleteMethodButton = new JButton("Delete Method");
-        renameMethodButton = new JButton("Rename Method");
+        editMethodButton = new JButton("Edit Method");
 
         // Parameter Controls
         addParameterButton = new JButton("Add Parameter");
@@ -108,7 +108,7 @@ public class GUIView extends JFrame {
         toolPanel.add(new JSeparator());
         toolPanel.add(addMethodButton);
         toolPanel.add(deleteMethodButton);
-        toolPanel.add(renameMethodButton);
+        toolPanel.add(editMethodButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(addParameterButton);
         toolPanel.add(deleteParameterButton);
@@ -240,8 +240,8 @@ public class GUIView extends JFrame {
         return deleteMethodButton;
     }
 
-    public JButton getRenameMethodButton() {
-        return renameMethodButton;
+    public JButton getEditMethodButton() {
+        return editMethodButton;
     }
 
     public JButton getAddParamButton() {
