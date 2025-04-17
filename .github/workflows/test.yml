@@ -15,10 +15,13 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: 'gradle'
+        
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
+      
     - name: Test with Gradle
       run: ./gradlew test --no-daemon
+      
     - name: Upload Test Reports
       uses: actions/upload-artifact@v4
       if: always()
@@ -27,6 +30,18 @@ jobs:
         path: app/build/reports/
         retention-days: 1
         overwrite: true
+    
+
+    - name: Check 100% Test Coverage
+      run: |
+        total=$(grep -A 1 "<counter type=\"INSTRUCTION\"" app/build/reports/jacoco/test/jacocoTestReport.xml | grep -o 'covered="[0-9]*"' | cut -d'"' -f2 | paste -sd+ - | bc)
+        missed=$(grep -A 1 "<counter type=\"INSTRUCTION\"" app/build/reports/jacoco/test/jacocoTestReport.xml | grep -o 'missed="[0-9]*"' | cut -d'"' -f2 | paste -sd+ - | bc)
+        coverage=$(echo "scale=2; 100 * $total / ($total + $missed)" | bc)
+        echo "Coverage: $coverage%"
+        if (( $(echo "$coverage < 100" | bc -l) )); then
+          echo "Coverage is less than 100%"
+          exit 1
+        fi
 
   build:
     runs-on: ubuntu-latest
