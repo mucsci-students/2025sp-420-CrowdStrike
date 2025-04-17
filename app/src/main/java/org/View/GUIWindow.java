@@ -1,14 +1,16 @@
 package org.View;
 
+import org.Controller.UMLEditor;
 import org.Model.UMLModel;
+import org.View.GUICmp.AddMenu;
+import org.View.GUICmp.EditMenu;
+import org.View.GUICmp.FileMenu;
 import org.View.GUICmp.UMLDiagram;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
@@ -16,7 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GUIWindow extends JFrame {
-	public GUIWindow(UMLModel m) {
+    //TODO add rick role
+    public GUIWindow(UMLModel m, UMLEditor e) {
 		UMLDiagram d = new UMLDiagram(m);
 
 		setTitle("UML CLASS DIAGRAM");
@@ -25,6 +28,9 @@ public class GUIWindow extends JFrame {
 
 		JMenuBar bar = new JMenuBar();
 		bar.add(getDebug(d, m));
+		bar.add(new FileMenu(e,d));
+		bar.add(new AddMenu(e));
+		bar.add(new EditMenu(e));
 
 		JScrollPane sp = new JScrollPane();
 		sp.setViewportView(d);
