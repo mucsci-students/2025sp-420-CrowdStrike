@@ -205,5 +205,24 @@ public class Method implements AttributeInterface {
         throw new IllegalArgumentException("Parameter not found: " + oldParamName);
     }
 
+	@Override
+	public String toString(){
+		StringBuilder r = new StringBuilder();
+		r.append(name);
+
+		r.append("(");
+		for(Parameter p : paramList){
+			r.append(p.getName());
+			r.append(":");
+			r.append(p.getType());
+			r.append(",");
+		}
+		if(r.lastIndexOf(",")>-1)
+		    r.deleteCharAt(r.lastIndexOf(","));
+		r.append(")");
+
+		return r.toString();
+	}
+
 
 }
