@@ -19,6 +19,8 @@ import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 
+import java.util.LinkedHashMap;
+
 /**
  * Implements a custom completer that supports the completion of 
  * picocli defined commands as well as classes, fields, methods,
