@@ -167,23 +167,28 @@ public class ClassObject implements ClassObjectInterface {
 	 */
 	public Method fetchMethod(String methodName, String paramTypes) throws Exception {
 		String[] types = paramTypes.split(",");
-		int index = 0;
-		while (index < attrMap.get("Method").size()) {
-			if (methodName.equals(attrMap.get("Method").get(index).getName())) {
-				Method activeMethod = (Method) attrMap.get("Method").get(index);
-				if (types.length != 0) {
-					// The method being searched for has parameters
-					int paramIndex = 0;
-					for (String curType : types) {
-						if (!curType.equalsIgnoreCase(activeMethod.getParamList().get(paramIndex).getType())) {
-							continue;
-						}
-						paramIndex++;
+		for (AttributeInterface attr : attrMap.get("Method")) {
+			Method activeMethod = (Method) attr;
+			if (activeMethod.getName().equals(methodName)) {
+				// Current method has matching name
+				// Check if activeMethod has the same number of params as the method being searched for
+				if (activeMethod.getParamList().size() == 0 || activeMethod.getParamList().size() != types.length) {
+					continue;
+				}
+				boolean match = true;
+				for (int i = 0; i < types.length; i++) {
+					if (!types[i].trim().equalsIgnoreCase(activeMethod.getParamList().get(i).getType())) {
+						match = false;
+						break;
 					}
 				}
+				if (match) {
+					return activeMethod;
+				}
+			} else if (types.length == 0 && activeMethod.getParamList().size() == 0) {
+				// activeMethod and method being searched for have same name & no params
 				return activeMethod;
 			}
-			index++;
 		}
 		// Class with className did not exist, return false
         throw new Exception ("Method " + methodName + " does not exist in " + name);
@@ -208,30 +213,32 @@ public class ClassObject implements ClassObjectInterface {
 	}
 
 	public Method fetchMethod(String methodName, LinkedHashMap<String, String> paramMap) throws Exception {
-		// Used to iterate through list of methods
-		int index = 0;
-		// Iterate through the array of classes
-		outerloop:
-        while (index < attrMap.get("Method").size()) {
-            // Check if the current method's name equals the given methodName
-            if (methodName.equals(attrMap.get("Method").get(index).getName())) {
-            	// If yes, Check if params have the same type
-				// Need to cast as a method to access paramList
-                Method activeMethod = (Method) attrMap.get("Method").get(index);
-                int paramIndex = 0;
-				for (Parameter param : activeMethod.getParamList()) {
-					if (!param.getType().equalsIgnoreCase(activeMethod.getParamList().get(paramIndex).getType())) {
-						// If parameters in the same position don't have the same type,
-						// methods are not the same, move on to the next
-						continue outerloop;
-					}
-					paramIndex++;
+		for (AttributeInterface attr : attrMap.get("Method")) {
+			Method activeMethod = (Method) attr;
+			if (activeMethod.getName().equals(methodName)) {
+				// Current method has matching name
+				// Check if activeMethod has the same number of params as the method being searched for
+				if (activeMethod.getParamList().size() == 0 || activeMethod.getParamList().size() != paramMap.size()) {
+					continue;
 				}
+				boolean match = true;
+				int index = 0;
+				for (String type : paramMap.values()) {
+					if (!type.trim().equalsIgnoreCase(activeMethod.getParamList().get(index).getType())) {
+						match = false;
+						break;
+					}
+					index++;
+				}
+				if (match) {
+					return activeMethod;
+				}
+			} else if (paramMap.size() == 0 && activeMethod.getParamList().size() == 0) {
+				// activeMethod and method being searched for have same name & no params
 				return activeMethod;
-            }
-            index++;
-        }
-        // Class with className did not exist, return false
+			}
+		}
+		// Class with className did not exist, return false
         throw new Exception ("Method " + methodName + " does not exist in " + name);
 	}
 
