@@ -7,6 +7,7 @@ import java.util.Scanner;
 import org.FileManager;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
+import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.Relationship.Type;
@@ -24,7 +25,7 @@ import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
 // editor to carry out change
-@Command(name = "CLController", mixinStandardHelpOptions = true, version = "CLController 1.0",
+@Command(name = "", mixinStandardHelpOptions = true, version = "CLController 1.0",
 		description = "CLI Controller for UML Editor")
 public class CLController {
 
@@ -41,7 +42,7 @@ public class CLController {
 	// Create a global class that can be used and passed into editor
 	ClassObject activeClass = null;
 	// Prompt to be displayed at beginning of every loop
-	private final String basePrompt = "Please type your command(Commands for list of commands): ";
+	private final String basePrompt = "Please type your command(Help for list of commands): ";
 
 	/**
 	 * Constructs an instance of the CLController
@@ -341,7 +342,13 @@ public class CLController {
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the field?");
 			input = sc.nextLine();
-			editor.addField(activeClass, input);
+			if (input.isEmpty()) {
+				view.show("Field name must not be blank");
+				return;
+			}
+			view.show("What do you want the type of the field to be?");
+			String fieldType = sc.nextLine();
+			editor.addField(activeClass, input, fieldType);
 			view.show("Field " + input + " successfully added to class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -369,24 +376,40 @@ public class CLController {
 	}
 
 	/**
-	 * Gets class and field info from user as well as what they want to rename it to
-	 * Returns whether or not the operation succeeds
+	 * Gets class and field info from user and allows them to change its name/type
 	 */
-	@Command(name = "renamefield", aliases = ("rf"), description = "Renames a field")
-	private void CL_renameField() {
+	@Command(name = "editfield", aliases = ("ef"), description = "Edits a field")
+	private void CL_editField() {
 		try {
 			view.show(model.listClassNames());
-			view.show("What class do you want to rename a field from?");
+			view.show("What class do you want to edit a field from?");
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
-			view.show("What is the name of the field you want to rename?");
+			view.show("What is the name of the field you want to edit?");
 			input = sc.nextLine();
-			AttributeInterface renameField = activeClass.fetchField(input);
-			view.show("What do you want to rename the field to?");
-			String newName = sc.nextLine();
-			editor.renameField(activeClass, renameField, newName);
-			view.show("Field " + input + " renamed to " + newName);
+			Field editField = activeClass.fetchField(input);
+			view.show("What part of " + input + " do you want to edit? (Name or Type)");
+			input = sc.nextLine().replaceAll("\\s", "");
+			while(true) {
+				if (input.equalsIgnoreCase("name")) {
+					// Edit name
+					view.show("What do you want to rename the field to?");
+					String newName = sc.nextLine();
+					editor.renameField(activeClass, editField, newName);
+					view.show("Field " + input + " renamed to " + newName);
+					break;
+				} else if (input.equalsIgnoreCase("type")) {
+					// Edit type
+					view.show("What do you want the field's new type to be?");
+					String newType = sc.nextLine();
+					editor.changeFieldType(editField, newType);
+					view.show("Type successfully changed to " + newType);
+					break;
+				}
+				view.show("Input did not match a changable value \nPlease try again");
+				input = sc.nextLine().replaceAll("\\s", "");
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -405,6 +428,11 @@ public class CLController {
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the method?");
 			input = sc.nextLine();
+			view.show("What would you like the method's return type to be?");
+			String retType = sc.nextLine().replaceAll("\\s", "");
+			if (retType.isEmpty()) {
+				retType = "void";
+			}
 			LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
 			view.show("Type the name of a parameter you'd like to add to this new method (enter to skip)");
 			String paramName = sc.nextLine().replaceAll("\\s", "");
@@ -443,7 +471,9 @@ public class CLController {
 				view.show("What would you like to name the next parameter?");
 				paramName = sc.nextLine().replaceAll("\\s", "");
 			}
-			editor.addMethod(activeClass, input, paramList);
+
+			
+			editor.addMethod(activeClass, input, retType, paramList);
 
 			if (paramList.size() == 0) {
 				view.show("Method " + input + "() successfully added to class " + className);
@@ -473,74 +503,95 @@ public class CLController {
 	private void CL_deleteMethod() {
 		try {
 			view.show(model.listClassNames());
-			view.show("What class would you like to delete a method from?");
+			view.show("What class do you want to rename a method from?");
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("What is the name of the method you want to delete?");
-			input = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, input));
-			int paramArity = -1;
-			view.show("How many parameters does " + input + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to delete('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
-			editor.deleteMethod(activeClass, input, paramArity);
-			view.show("Method " + input + " successfully deleted from class " + className);
+            Method delMethod = (Method) activeClass.getMethodList().get(methodNum);
+			editor.deleteMethod(activeClass, delMethod);
+			view.show("Method " + delMethod.getName() + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
 	}
 
 	/**
-	 * Gets class and method info from user as well as what they want to rename it
-	 * to Returns whether or not the operation succeeds
+	 * Gets class and method info from user and allows the to change name/return type
 	 */
-	@Command(name = "renamemethod", aliases = ("rm"), description = "Renames a method")
-	private void CL_renameMethod() {
+	@Command(name = "editmethod", aliases = {"em"}, description = "Edits a method")
+	private void CL_editMethod() {
 		try {
 			view.show(model.listClassNames());
 			view.show("What class do you want to rename a method from?");
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("What is the name of the method you want to rename?");
-			input = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, input));
-			int paramArity = -1;
-			view.show("How many parameters does " + input + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
-			Method renameMethod = activeClass.fetchMethod(input, paramArity);
-			view.show("What do you want to rename the method to?");
-			String newName = sc.nextLine();
-			editor.renameMethod(activeClass, renameMethod, newName);
-			view.show("Method " + input + " renamed to " + newName);
+            Method editMethod = (Method) activeClass.getMethodList().get(methodNum);
+			view.show("What part of " + editMethod.getName() + " do you want to change? (Name or Type)");
+			input = sc.nextLine().replaceAll("\\s", "");
+			while(true) {
+				if (input.equalsIgnoreCase("name")) {
+					// Edit name
+					String oldName = editMethod.getName();
+					view.show("What do you want to rename the method to?");
+					String newName = sc.nextLine();
+					editor.renameMethod(activeClass, editMethod, newName);
+					view.show("Method " + oldName + " renamed to " + newName);
+					break;
+				} else if (input.equalsIgnoreCase("type")) {
+					// Edit type
+					view.show("What do you want the method's new return type to be?");
+					String newType = sc.nextLine();
+					if (newType.isEmpty()) {
+						newType = "void";
+					}
+					editor.changeMethodType(editMethod, newType);
+					view.show("Type successfully changed to " + newType);
+					break;
+				}
+				view.show("Input did not match a changable value \nPlease try again");
+				input = sc.nextLine().replaceAll("\\s", "");
+			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -559,28 +610,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to add parameters to:");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
 			boolean loop = true;
 			String typeInput = "";
@@ -632,28 +684,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			ArrayList<Parameter> paramList = activeMethod.getParamList();
 			view.show("Type the name of the parameter you'd like to remove");
 			String paramName = sc.nextLine().replaceAll("\\s", "");
@@ -673,28 +726,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to remove parameter(s) from: ");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			editor.removeAllParams(activeMethod);
 			view.show("All parameters were removed");
 		} catch (Exception e) {
@@ -716,28 +770,29 @@ public class CLController {
 			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
-			view.show("Please type the name of the method you'd like to add parameters to:");
-			String methodName = sc.nextLine();
-			view.show(model.listMethodArities(activeClass, methodName));
-			int paramArity = -1;
-			view.show("How many parameters does " + methodName + " have?");
-			boolean validArity = false;
-			while (!validArity) {
+			view.show("Enter the number of the method you want to rename('stop' to cancel)");
+			int methodNum = -1;
+			boolean validNum = false;
+			while (!validNum) {
 				if (sc.hasNextInt()) {
-					paramArity = sc.nextInt();
-					try {
-						validArity = model.arityValid(paramArity);
-					} catch (Exception e) {
-						view.show(e.getMessage());
+					methodNum = sc.nextInt() - 1;
+					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
+						view.show("Number must be associated with a method");
+						continue;
 					}
+					validNum = true;
 				} else {
+					if (sc.nextLine().equalsIgnoreCase("stop")) {
+						return;
+					}
 					view.show("Invalid input. Please enter a positive number");
 				}
 				// Clear invalid input from buffer
 				sc.nextLine();
 			}
 
-			Method activeMethod = activeClass.fetchMethod(methodName, paramArity);
+
+			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
 			view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
 			input = sc.nextLine().replaceAll("//s", "");
 			Parameter oldParam = null;
@@ -804,6 +859,29 @@ public class CLController {
 		}
 	}
 
+	@Command(name = "undo", description = "undo change")
+	private void CL_undo(){
+		try {
+		editor.undo();
+		this.model = editor.getModel();
+		view.show("The last action was undone.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+		
+	}
+
+    	@Command(name = "redo", description = "redo change")
+	private void CL_redo(){
+		try {
+		editor.redo();
+		this.model = editor.getModel();
+		view.show("The last undone action was redone.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+	}
+
 	@Command(name = "save", description = "Saves model")
 	private void save() {
 		view.show("Where would you like to save:");
@@ -845,6 +923,9 @@ public class CLController {
 				}
 
 				try {
+					if (input.equalsIgnoreCase("help")) {
+						input = "-h";
+					}
 					cmd.execute(input.replaceAll("\\s", ""));
 				} catch (CommandLine.ParameterException ex) {
 					System.err.println(ex.getMessage());

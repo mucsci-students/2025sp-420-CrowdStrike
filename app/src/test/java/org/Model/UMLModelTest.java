@@ -28,10 +28,10 @@ public class UMLModelTest {
 		p.add(new Parameter("param1", "String"));
 		p.add(new Parameter("param2", "Int"));
 
-		b.addAttribute(new Field("zap"));
-		b.addAttribute(new Field("zoop"));
-		b.addAttribute(new Method("m", p));
-		b.addAttribute(new Method("m", new ArrayList<>()));
+		b.addAttribute(new Field("zap", "int"));
+		b.addAttribute(new Field("zoop", "String"));
+		b.addAttribute(new Method("m", "void", p));
+		b.addAttribute(new Method("m", "void", new ArrayList<>()));
 
 		rl.add(new Relationship(f, b, Type.INHERITANCE));
 
@@ -105,7 +105,7 @@ public class UMLModelTest {
 
 		/* cover new line after 6 fields branch */
 		for (Integer i = 0; i <= 12; i++)
-			b.addAttribute(new Field(i.toString()));
+			b.addAttribute(new Field(i.toString(), "String"));
 		assertDoesNotThrow(() -> m.listFields(b));
 	}
 
@@ -116,7 +116,7 @@ public class UMLModelTest {
 
 		/* cover new line after 6 fields branch */
 		for (Integer i = 0; i <= 12; i++)
-			b.addAttribute(new Method(i.toString(), new ArrayList<>()));
+			b.addAttribute(new Method(i.toString(), "int", new ArrayList<>()));
 		assertDoesNotThrow(() -> m.listMethods(b));
 	}
 

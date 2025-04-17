@@ -26,6 +26,7 @@ import org.Controller.GUIController;
 import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Method;
+import org.Model.Field;
 
 public class ClassBox extends JLayeredPane {
     private DefaultListModel<String> fieldModel;
@@ -63,6 +64,12 @@ public class ClassBox extends JLayeredPane {
     public ClassBox(ClassObject classObject, GUIController controller) {
         this.classObject = classObject;
         this.controller = controller;
+
+	myX = classObject.getPosition().x;
+        myY = classObject.getPosition().y;
+
+        setLocation(myX, myY);
+
         
         // Create the content holder panel with BorderLayout.
         // This panel contains the class label at the top and the fields/methods panels below.
@@ -95,7 +102,8 @@ public class ClassBox extends JLayeredPane {
         fieldsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         contentPanel.add(fieldsScrollPane);
         for (AttributeInterface f : classObject.getFieldList()) {
-            fieldModel.addElement(f.getName());
+            Field fld = (Field) f;
+            fieldModel.addElement(fld.getName() + ": " + fld.getVarType());
         }
         updateFieldsScrollPaneSize();
         
@@ -135,7 +143,8 @@ public class ClassBox extends JLayeredPane {
             public void mouseDragged(MouseEvent e) {
                 int deltaX = e.getXOnScreen() - screenX;
                 int deltaY = e.getYOnScreen() - screenY;
-                ClassBox.this.setLocation(myX + deltaX, myY + deltaY);
+                setLocation(myX + deltaX, myY + deltaY);
+		classObject.setPosition(myX + deltaX, myY + deltaY);
                 getParent().repaint();
                 e.consume();
             }
@@ -226,10 +235,10 @@ public class ClassBox extends JLayeredPane {
         repaint();
     }
     
-    public void addField(String field) {
+    public void addField(String fieldName, String fieldType) {
         try {
-            controller.getEditor().addField(classObject, field);
-            fieldModel.addElement(field);
+            controller.getEditor().addField(classObject, fieldName, fieldType);
+            fieldModel.addElement(fieldName + ": " + fieldType);
             updateFieldsScrollPaneSize();
             revalidate();
             repaint();
@@ -238,10 +247,10 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void removeField(AttributeInterface field) {
+    public void removeField(Field field) {
         try {
             controller.getEditor().deleteField(classObject, field.getName());
-            fieldModel.removeElement(field.getName());
+            fieldModel.removeElement(field.getName() + ": " + field.getVarType());
             updateFieldsScrollPaneSize();
             revalidate();
             repaint();
@@ -269,11 +278,33 @@ public class ClassBox extends JLayeredPane {
             displayErrorMessage(e.getMessage());
         }
     }
-    
-    public void addMethod(String method, LinkedHashMap<String, String> params) {
+
+    public void editField(String fs, String newName, String newType) {
         try {
-            controller.getEditor().addMethod(classObject, method, params);
-            Method mthd = classObject.fetchMethod(method, params.size());
+            if (classObject.fieldNameUsed(newName)) {
+                displayErrorMessage("Field with name " + newName + " already exists");
+                return;
+            }
+            Field fld = classObject.fetchField(fs);
+            int index = fieldModel.indexOf(fs + ": " + fld.getVarType());
+            controller.getEditor().renameField(classObject, fld, newName);
+            controller.getEditor().changeFieldType(fld, newType);
+            if (index != -1) {
+                String newDisplay = newName + ": " + newType;
+                fieldModel.set(index, newDisplay);
+            }
+            updateFieldsScrollPaneSize();
+            revalidate();
+            repaint();
+        } catch (Exception e) {
+            displayErrorMessage(e.getMessage());
+        }
+    }
+    
+    public void addMethod(String method, String methodType, LinkedHashMap<String, String> params) {
+        try {
+            controller.getEditor().addMethod(classObject, method, methodType, params);
+            Method mthd = classObject.fetchMethod(method, params);
             methodModel.addElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
             revalidate();
@@ -285,9 +316,14 @@ public class ClassBox extends JLayeredPane {
     
     public void removeMethod(String method) {
         try {
-            String[] parts = method.split(":"); // parts = {name, arity}
-            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
-            controller.getEditor().deleteMethod(classObject, mthd.getName(), mthd.getParamList().size());
+            String[] parts = method.split(":"); // parts = {name, paramTypes}
+            Method mthd;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                mthd = classObject.fetchMethod(parts[0]);
+            } else {
+                mthd = classObject.fetchMethod(parts[0], parts[1]);
+            }
+            controller.getEditor().deleteMethod(classObject, mthd);
             methodModel.removeElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
             revalidate();
@@ -297,14 +333,28 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void renameMethod(String method, String newName) {
+    public void renameMethod(String method, String newName, String newType) {
         try {
-            String[] parts = method.split(":"); // parts = {name, arity}
-            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+            String[] parts = method.split(":"); // parts = {name, paramTypes}
+            Method mthd;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                mthd = classObject.fetchMethod(parts[0]);
+            } else {
+                mthd = classObject.fetchMethod(parts[0], parts[1]);
+            }
             int index = methodModel.indexOf(displayMethod(mthd));
             //UMLeditor code
+            if (newType.isEmpty()) {
+                newType = "void";
+            }
             controller.getEditor().renameMethod(classObject, mthd, newName);
-            Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
+            controller.getEditor().changeMethodType(mthd, newType);
+            Method renamedMethod;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                renamedMethod = classObject.fetchMethod(newName);
+            } else {
+                renamedMethod = classObject.fetchMethod(newName, parts[1]);
+            }
             if (index != -1) {
                 methodModel.set(index, displayMethod(renamedMethod));
             }
@@ -327,7 +377,7 @@ public class ClassBox extends JLayeredPane {
     
     public String displayMethod(Method m) {
         if (m.getParamList().isEmpty()) {
-            return m.getName() + "()";
+            return m.getName() + "() -> " + m.getReturnType();
         }
         StringBuilder sig = new StringBuilder(m.getName() + "(");
         for (int i = 0; i < m.getParamList().size(); i++) {
@@ -336,7 +386,7 @@ public class ClassBox extends JLayeredPane {
                 sig.append(", ");
             }
         }
-        sig.append(")");
+        sig.append(") -> " + m.getReturnType());
         return sig.toString();
     }
     

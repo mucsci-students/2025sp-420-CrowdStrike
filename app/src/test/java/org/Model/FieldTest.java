@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.beans.Transient;
+
 import org.Model.UMLModel;
 import org.Model.ClassObject;
 import org.Model.Field;
@@ -22,7 +24,7 @@ public class FieldTest {
         try {
             testEditor.addClass("class1");
             class1 = testModel.fetchClass("class1");
-            testEditor.addField(class1, "field1");
+            testEditor.addField(class1, "field1", "int");
             fld = class1.fetchField("field1");
         } catch (Exception e) {
         }
@@ -43,6 +45,11 @@ public class FieldTest {
     }
 
     @Test
+    public void testGetVarType() {
+        assertEquals(fld.getVarType(), "int", "fld varType should be 'int");
+    }
+
+    @Test
     public void testGetType() {
         assertEquals(fld.getType(), "Field", "fld type should be 'Field'");
     }
@@ -54,5 +61,11 @@ public class FieldTest {
             assertEquals(fld.getName(), "newName", "fld name should be 'newName'");
         } catch (Exception e) {
         }
+    }
+
+    @Test
+    public void testSetVarType() {
+        fld.setVarType("String");
+        assertEquals(fld.getVarType(), "String", "fld varType should now be String");
     }
 }

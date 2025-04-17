@@ -17,17 +17,21 @@ public class GUIView extends JFrame {
     // Field Management Buttons
     private JButton addFieldButton;
     private JButton deleteFieldButton;
-    private JButton renameFieldButton;
+    private JButton editFieldButton;
 
     // Method Management Buttons
     private JButton addMethodButton;
     private JButton deleteMethodButton;
-    private JButton renameMethodButton;
+    private JButton editMethodButton;
 
     // Parameter Management Buttosn
     private JButton addParameterButton;
     private JButton deleteParameterButton;
     private JButton changeParameterButton;
+
+    // Undo/Redo buttons
+    private JButton undoButton;
+    private JButton redoButton;
 
     //Save/Load buttons
     private JButton saveButton;
@@ -65,17 +69,21 @@ public class GUIView extends JFrame {
         // Field Controls
         addFieldButton = new JButton("Add Field");
         deleteFieldButton = new JButton("Delete Field");
-        renameFieldButton = new JButton("Rename Field");
+        editFieldButton = new JButton("Edit Field");
 
         // Method Controls
         addMethodButton = new JButton("Add Method");
         deleteMethodButton = new JButton("Delete Method");
-        renameMethodButton = new JButton("Rename Method");
+        editMethodButton = new JButton("Edit Method");
 
         // Parameter Controls
         addParameterButton = new JButton("Add Parameter");
         deleteParameterButton = new JButton("Delete Parameter");
         changeParameterButton = new JButton("Change Parameter");
+
+        // Undo/Redo Controls
+        undoButton = new JButton("Undo");
+        redoButton = new JButton("Redo");
 
         //Save/Load Controls 
         saveButton = new JButton("Save");
@@ -95,15 +103,18 @@ public class GUIView extends JFrame {
         toolPanel.add(new JSeparator()); // UI Divider
         toolPanel.add(addFieldButton);
         toolPanel.add(deleteFieldButton);
-        toolPanel.add(renameFieldButton);
+        toolPanel.add(editFieldButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(addMethodButton);
         toolPanel.add(deleteMethodButton);
-        toolPanel.add(renameMethodButton);
+        toolPanel.add(editMethodButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(addParameterButton);
         toolPanel.add(deleteParameterButton);
         toolPanel.add(changeParameterButton);
+        toolPanel.add(new JSeparator());
+        toolPanel.add(undoButton);
+        toolPanel.add(redoButton);
         toolPanel.add(new JSeparator());
         toolPanel.add(saveButton);
         toolPanel.add(loadButton);
@@ -181,6 +192,9 @@ public class GUIView extends JFrame {
         add(drawingPanel, BorderLayout.CENTER);
     }
 
+    public JButton getUndoButton(){return undoButton;}
+    public JButton getRedoButton(){return redoButton;}
+
     public JButton getAddClassButton() {
         return addClassButton;
     }
@@ -213,8 +227,8 @@ public class GUIView extends JFrame {
         return deleteFieldButton;
     }
 
-    public JButton getRenameFieldButton() {
-        return renameFieldButton;
+    public JButton getEditFieldButton() {
+        return editFieldButton;
     }
 
     public JButton getAddMethodButton() {
@@ -225,8 +239,8 @@ public class GUIView extends JFrame {
         return deleteMethodButton;
     }
 
-    public JButton getRenameMethodButton() {
-        return renameMethodButton;
+    public JButton getEditMethodButton() {
+        return editMethodButton;
     }
 
     public JButton getAddParamButton() {

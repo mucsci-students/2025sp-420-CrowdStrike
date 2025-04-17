@@ -1,6 +1,6 @@
 package org.Model;
 import java.util.ArrayList;
-
+import org.Model.Relationship.Type;
 
 public class UMLModel implements UMLModelInterface{
 	
@@ -15,6 +15,27 @@ public class UMLModel implements UMLModelInterface{
     public UMLModel() {
     	classList = new ArrayList<>();
     	relationshipList = new ArrayList<>();
+    }
+
+    private UMLModel(UMLModel m){
+	classList = new ArrayList<>();
+	relationshipList = new ArrayList<>();
+
+	for(ClassObject o: m.getClassList())
+	    classList.add(new ClassObject(o));
+
+	for(Relationship r: m.getRelationshipList()){
+	    String s,d;
+	    Type t = r.getType();
+	    s = r.getSource().getName();
+	    d = r.getDestination().getName();
+
+	    try{
+		relationshipList.add(new Relationship(fetchClass(s),fetchClass(d),t));
+	    } catch (Exception e){
+	    }
+	}
+
     }
     
     /**
@@ -143,13 +164,15 @@ public class UMLModel implements UMLModelInterface{
         // Add class name to finalString
         String finalString = "Class Name: " + cls.getName() + "\n  Fields:\n";
         // Add Fields to finalString
+		Field fld;
         for (int i = 0; i < cls.getFieldList().size(); i++) {
-        	finalString = finalString + "   " +  cls.getFieldList().get(i).getName() + "\n";
+			fld = (Field) cls.getFieldList().get(i);
+        	finalString = finalString + "   " +  fld.getName() + ": " + fld.getVarType() + "\n";
         }
         finalString = finalString + "  Methods:\n";
 		for (AttributeInterface mthd : cls.getMethodList()) {
 			Method activeMethod = (Method) mthd;
-			finalString = finalString + "   " + activeMethod.getName() + listParams(activeMethod) + "\n";
+			finalString = finalString + "   " + activeMethod.getName() + listParams(activeMethod) + " -> " + activeMethod.getReturnType() + "\n";
 		}
 
         /*
@@ -269,29 +292,36 @@ public class UMLModel implements UMLModelInterface{
      * @return A string containing all methods in the class
 	 * @throws Exception
      */
-    public String listMethods(ClassObject cls) throws Exception{
-    	ArrayList<AttributeInterface> methodList = cls.getMethodList();
+	public String listMethods(ClassObject cls) throws Exception {
+		ArrayList<AttributeInterface> methodList = cls.getMethodList();
     	if (methodList.size() == 0) {
     		throw new Exception("No methods exist in class " + cls.getName());
     	}
     	int countNewLine = 0;
     	int index = 1;
-    	String finalString = "Available Methods:\n- " + methodList.get(0).getName() + listParams((Method) methodList.get(0));
+		int num = 0;
+    	String finalString = "Available Methods:\n1. " + methodList.get(0).getName() + listParams((Method) methodList.get(0));
     	AttributeInterface attr;
     	while (index < methodList.size()) {
+			num = index + 1;
     		attr = methodList.get(index);
     		if (countNewLine >= 5) {
     			// Create a new line after every six names
-    			finalString = finalString + "\n- " + attr.getName() + listParams((Method) attr);
+    			finalString = finalString + "\n" + num + ". " + attr.getName() + listParams((Method) attr);
     			countNewLine = 0;
     		} else {
-    			finalString = finalString + "   - " + attr.getName() + listParams((Method) attr);
+    			finalString = finalString + "   " + num + ". " + attr.getName() + listParams((Method) attr);
     			countNewLine++;
     		}
     		index++;
     	}
     	return finalString;
-    }
+	}
+
+
+
+
+
 
 	private String listParams(Method mthd) {
 		String str = "(";
@@ -368,4 +398,16 @@ public class UMLModel implements UMLModelInterface{
 			return true;
 		}
 	}
+
+	    /**
+     * Method A: Creates a deep copy of the model by converting it into a String 
+     * and then reconstructing a model from that string
+     *
+     * @param model the current UMLModel
+     * @return a deep copy of the provided UMLModel
+     */
+    public UMLModel deepCopy() {
+	return new UMLModel(this);
+    }
+
 }

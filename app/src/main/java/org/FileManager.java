@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.function.Function;
 import java.util.ArrayList;
 import java.lang.StringBuilder;
+import java.awt.Point;
 
 import org.Model.UMLModel;
 import org.Model.ClassObject;
@@ -135,6 +136,8 @@ public class FileManager {
 			throw new InvalidObjectException("Missing fields in class object");
 		if (!classJson.has("methods") && classJson.get("methods").isJsonArray())
 			throw new InvalidObjectException("Missing methods in class object");
+		if (!classJson.has("position"))
+			throw new InvalidObjectException("Missing position in class object");
 
 		classObject = new ClassObject(classJson.get("name").getAsString());
 		tmp = classJson.get("fields").getAsJsonArray();
@@ -142,6 +145,9 @@ public class FileManager {
 
 		tmp = classJson.get("methods").getAsJsonArray();
 		addMethods(tmp, classObject.getMethodList());
+		
+		JsonObject tmp2 = classJson.get("position").getAsJsonObject();
+		addPosition(tmp2, classObject);
 
 		return classObject;
 	}
@@ -152,8 +158,9 @@ public class FileManager {
 				throw new InvalidObjectException("Field is not an object");
 			if (!field.getAsJsonObject().has("name"))
 				throw new InvalidObjectException("Field is missing name");
-
-			fields.add(new Field(field.getAsJsonObject().get("name").getAsString()));
+			if (!field.getAsJsonObject().has("type"))
+				throw new InvalidObjectException("Field is missing type");
+			fields.add(new Field(field.getAsJsonObject().get("name").getAsString(), field.getAsJsonObject().get("type").getAsString()));
 		}
 	}
 
@@ -170,12 +177,15 @@ public class FileManager {
 
 			if (!(methodObject.has("name") && methodObject.has("params")))
 				throw new InvalidObjectException("method is missing nanme");
+			
+			if (!(methodObject.has("return_type") && methodObject.has("params")))
+				throw new InvalidObjectException("method is missing a return type");
 
 			if (!methodObject.has("params") && methodObject.get("params").isJsonArray())
 				throw new InvalidObjectException("method params are malformed");
 
 			addParameters(methodObject.get("params").getAsJsonArray(), parameterList);
-			method = new Method(methodObject.get("name").getAsString(), parameterList);
+			method = new Method(methodObject.get("name").getAsString(), methodObject.get("return_type").getAsString(), parameterList);
 			methods.add(method);
 		}
 	}
@@ -186,6 +196,14 @@ public class FileManager {
 				throw new InvalidObjectException("Parameter is malformed");
 			parameterList.add(new Parameter(parameter.getAsJsonObject().get("name").getAsString(), parameter.getAsJsonObject().get("type").getAsString() ));
 		}
+	}
+
+	private void addPosition(JsonObject json, ClassObject cls) throws Exception{
+	    if(!json.has("x") && !json.has("y"))
+		throw new InvalidObjectException("Position is malformed");
+	    int x = json.get("x").getAsInt();
+	    int y = json.get("y").getAsInt();
+	    cls.setPosition(x,y);
 	}
 
 	private <T> String jsonCommas(String begin, String end, ArrayList<T> data, Function<T, String> convert) {
@@ -204,18 +222,21 @@ public class FileManager {
 	private String classToJson(ClassObject classobj) {
 		StringBuilder ret = new StringBuilder("{\"name\": \"" + classobj.getName() + "\",");
 		ret.append(jsonCommas("\"fields\": [", "],", classobj.getFieldList(), this::FieldsToJson));
-		ret.append(jsonCommas("\"methods\": [", "]", classobj.getMethodList(), this::MethodsToJson));
+		ret.append(jsonCommas("\"methods\": [", "],", classobj.getMethodList(), this::MethodsToJson));
+		ret.append(PositionToJson(classobj.getPosition()));
 		ret.append("}");
 		return ret.toString();
 	}
 
 	private String FieldsToJson(AttributeInterface field) {
-		return String.format("{ \"name\": \"%s\"}", field.getName());
+		Field fld = (Field) field;
+		return String.format("{ \"name\": \"%s\", \"type\": \"%s\"}", fld.getName(), fld.getVarType());
 	}
 
 	private String MethodsToJson(AttributeInterface methodInterface) {
 		StringBuilder ret = new StringBuilder("{\"name\": \"" + methodInterface.getName() + "\",");
 		Method method = (Method) methodInterface;
+		ret.append("\"return_type\": \"" + method.getReturnType() + "\",");
 		ret.append(jsonCommas("\"params\": [", "]", method.getParamList(), this::ParamToJson));
 		ret.append("}");
 		return ret.toString();
@@ -230,5 +251,12 @@ public class FileManager {
 				relationship.getSource().getName(),
 				relationship.getDestination().getName(),
 				relationship.getTypeString());
+	}
+
+	private String PositionToJson(Point position) {
+		StringBuilder ret = new StringBuilder(String.format("\"position\": { \"x\": %d , \"y\": %d }", position.x, position.y));
+		return ret.toString();
+		
+		//return String.format("\"position\": { \"x\": %d , \"y\": %d }", position.x, position.y);
 	}
 }

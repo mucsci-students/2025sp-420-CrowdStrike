@@ -13,6 +13,7 @@ Created for MU's CSCI420 in the Spring semester of 2025.
   - [Model](#model)
   - [View](#view)
   - [Controller](#controller)
+  - [Design Patterns](#Design_Patterns)
 - [Developers](#devs)
 
 
@@ -35,8 +36,8 @@ This will generate a distribution file in app/build/distributions/app.zip
 
 ## Running
 ## distribution file
-Unpack the distribution file and run the proper command
-
+Unpack the distribution file located in app/build/distributions.
+There will be both a tar an a zip file (unzip or tar -xf) depending on which version you want to unpack.
 ## Linux/Macos
 ```sh
 ./bin/app
@@ -77,7 +78,33 @@ Unpack the distribution file and run the proper command
 ```sh
 .\gradlew.bat run-cli
 ```
-
+## Usage
+ Below is our available commands in command line 
+ ```
+Commands:
+  commands, com             Prints help list
+  addclass, ac              Add a new class
+  addfield, af              Adds a field
+  addmethod, am             Adds a method
+  addparameter, ap          Adds a parameter
+  addrelationship, ar       Add relationship between classes
+  changeparameter, cp       Replaces one or all params
+  delete class, dc          Delete a class
+  deletefield, df           Delete a field
+  deletemethod, dm          Deletes a method
+  deleterelationship, dr    Deletes a relationship
+  editrelationship, er      Edits a relationship
+  listclass, lc             List info for one class
+  listclasses, lcs          List all classes
+  listrelationships, lr     List all relationships
+  removeallparameters, rap  Removes all parameters
+  removeparameter, rp       Removes a parameter
+  renameclass, rc           Rename a class
+  renamefield, rf           Renames a field
+  renamemethod, rm          Renames a method
+  load                      Loads a saved model
+  save                      Saves model
+```
 ## Codebase
 We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow code.
 
@@ -97,6 +124,15 @@ In our setup, we have a controller that edits the data stored in the model calle
 We have a controller for our cli view called `CLController.java` that accepts text commands from the user and updates the command line interface.
 We also have a controller for our gui view call `GUIController.java` that accepts commands from the user and updates the model and view.
 
+## Design_Patterns
+### 1. Memento
+ Seen in the undo/redo the UMLMemento file to implement undo/redo by saving state on a stack.
+### 2. Iterator
+ Seen in the CLController as for:each loops to iterate through various lists. 
+### 3. Decorator
+ Seen in the CLI as we did not change the base functionality of calling commands, but rather added a command feature that allows users to tab complete.
+### 4. Composite
+ Seen in the classbox as we take in a class object and reference it later.
 ## Devs
 Brought to you by:  
 
