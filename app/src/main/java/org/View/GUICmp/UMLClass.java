@@ -13,6 +13,7 @@ import javax.swing.border.CompoundBorder;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
 import java.awt.event.MouseAdapter;
 
 import org.Model.Field;
@@ -20,7 +21,7 @@ import org.Model.Method;
 import org.Model.ClassObject;
 import org.Model.AttributeInterface;
 
-public class UMLClass extends JPanel {
+public class UMLClass extends JPanel implements PropertyChangeListener {
 	private int mouseX, mouseY;
 
 	public UMLClass(ClassObject c) {
@@ -112,5 +113,24 @@ public class UMLClass extends JPanel {
 
 		revalidate();
 		setSize(getPreferredSize());
+	}
+
+	@Override
+	public void propertyChange(java.beans.PropertyChangeEvent evt) {
+		Border border = getBorder();
+		CompoundBorder cb = (CompoundBorder) border;
+		TitledBorder tb = (TitledBorder) cb.getOutsideBorder();
+		switch (evt.getPropertyName()) {
+			case "DeleteClass":
+				ClassObject o = (ClassObject) evt.getOldValue();
+				if (o.getName() == tb.getTitle())
+					getParent().remove(this);
+				break;
+			case "RenameClass":
+				if (evt.getOldValue() == tb.getTitle())
+					tb.setTitle((String) evt.getNewValue());
+		}
+		revalidate();
+		repaint();
 	}
 }

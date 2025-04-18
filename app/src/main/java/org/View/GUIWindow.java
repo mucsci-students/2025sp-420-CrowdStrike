@@ -20,7 +20,7 @@ import java.awt.event.ActionListener;
 public class GUIWindow extends JFrame {
     //TODO add rick role
     public GUIWindow(UMLModel m, UMLEditor e) {
-		UMLDiagram d = new UMLDiagram(m);
+		UMLDiagram d = new UMLDiagram(e);
 
 		setTitle("UML CLASS DIAGRAM");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

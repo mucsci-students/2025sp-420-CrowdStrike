@@ -46,6 +46,18 @@ public class Relationship{
         this.type = Type.REALIZATION;
     }
 
+    /**
+     * Construct a new relationship from an existing
+     *
+     * @param r the relationship to clone.
+     */
+    public Relationship(Relationship r){
+	source = r.source;
+	destination = r.destination;
+	ID = r.ID;
+	type = r.type;
+    }
+
 
     // Accssor methods
 

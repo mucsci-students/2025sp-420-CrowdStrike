@@ -13,6 +13,8 @@ import org.Model.UMLMemento;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 
 public class UMLEditor {
@@ -22,6 +24,7 @@ public class UMLEditor {
 	private ClassObject activeClass;
 	// Memento object keeps track of previous states
 	private UMLMemento memento = new UMLMemento();
+    	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 
 	/**
@@ -51,6 +54,7 @@ public class UMLEditor {
 		ClassObject newClass = new ClassObject(newClassName);
 		model.getClassList().add(newClass);
 		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, newClass);
 	}
 
 	/**
@@ -83,8 +87,9 @@ public class UMLEditor {
 				}
 			}
 			model.getClassList().remove(activeClass);
-			resetActiveClass();
 			memento.saveState(this.model);
+			pcs.firePropertyChange("DeleteClass", activeClass, null);
+			resetActiveClass();
 			return true;
 		}
 		return false;
@@ -97,8 +102,10 @@ public class UMLEditor {
 	 * @param newName     | New name to give the class
 	 */
 	public void renameClass(ClassObject renameClass, String newName) {
+		String oldName = renameClass.getName();
 		renameClass.setName(newName);
 		memento.saveState(this.model);
+		pcs.firePropertyChange("RenameClass", oldName, newName);
 	}
 
 	/**
@@ -121,6 +128,7 @@ public class UMLEditor {
 						Relationship newRel = new Relationship(sourceClass, destClass, type);
 						model.getRelationshipList().add(newRel);
 						memento.saveState(this.model);
+						pcs.firePropertyChange("AddRelationship", null, newRel);
 						return true;
 					}
 			// Adding relationship failed
@@ -144,6 +152,7 @@ public class UMLEditor {
 				// Relationship does exist
 				model.getRelationshipList().remove(relExist);
 				memento.saveState(this.model);
+				pcs.firePropertyChange("DeleteRelationship", relExist, null);
 				return true;
 			}
 		} catch (Exception e) {
@@ -154,6 +163,7 @@ public class UMLEditor {
 	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue) throws Exception{
 		try {
 			Relationship relExist = model.fetchRelationship(source, dest);
+			Relationship tmp = new Relationship(relExist);
 			if (fieldToUpdate.equals("source")){
 				if(model.fetchClass(newValue)!=null)
 					relExist.setSource(model.fetchClass(newValue));
@@ -179,6 +189,7 @@ public class UMLEditor {
 				}
 			}
 			memento.saveState(this.model);
+			pcs.firePropertyChange("EditRelationship", tmp, relExist);
 		} catch (Exception e) {
 		}
 	}
@@ -438,5 +449,13 @@ public class UMLEditor {
 
 	public UMLModel getModel()
 	{return this.model;}
-	
+
+    	/**
+	 * Subscribe to changes to the model made by the edditor.
+	 *
+	 * @param listener the object trying to subscribe
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
 }
