@@ -130,10 +130,12 @@ public class UMLClass extends JPanel implements PropertyChangeListener {
 					tb.setTitle((String) evt.getNewValue());
 				break;
 			case "UpdatedFields":
+				@SuppressWarnings("unchecked")
 				ArrayList<AttributeInterface> a = (ArrayList<AttributeInterface>) evt.getNewValue();
 				updateSub("fields", a);
 				break;
 			case "UpdatedMethods":
+				@SuppressWarnings("unchecked")
 				ArrayList<AttributeInterface> b = (ArrayList<AttributeInterface>) evt.getNewValue();
 				updateSub("methods", b);
 				break;
