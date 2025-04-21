@@ -208,6 +208,8 @@ public class Method implements AttributeInterface {
 	@Override
 	public String toString(){
 		StringBuilder r = new StringBuilder();
+		r.append(returnType);
+		r.append(" ");
 		r.append(name);
 
 		r.append("(");
