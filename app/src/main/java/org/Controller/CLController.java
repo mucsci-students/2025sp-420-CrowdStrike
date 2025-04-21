@@ -249,6 +249,7 @@ public class CLController {
 					default:
 						view.show("We do not support changing the " + editField
 								+ " of a relationship right now");
+						return;
 				}
 
 				try {
@@ -289,19 +290,16 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	@Command(name = "addfield", aliases = ("af"), description = "Adds a field")
-	private void CL_addField(@Parameters(paramLabel = "className", description = "The class the field is being added to") String className) {
+	private void CL_addField(@Parameters(paramLabel = "className", description = "The class the field is being added to") String className,
+							 @Parameters(paramLabel = "fieldName", description = "The field being added") String fieldName,
+							 @Parameters(paramLabel = "fieldType", description = "The type of the field") String fieldType) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show("What do you want to name the field?");
-			input = sc.nextLine();
-			if (input.isEmpty()) {
-				view.show("Field name must not be blank");
-				return;
+			if (fieldName.isEmpty() || fieldType.isEmpty()) {
+				view.show("Fields must have a name and type");
 			}
-			view.show("What do you want the type of the field to be?");
-			String fieldType = sc.nextLine();
-			editor.addField(activeClass, input, fieldType);
-			view.show("Field " + input + " successfully added to class " + className);
+			editor.addField(activeClass, fieldName, fieldType);
+			view.show("Field " + fieldName + " successfully added to class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -311,14 +309,12 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletefield", aliases = ("df"), description = "Delete a field")
-	private void CL_deleteField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
+	private void CL_deleteField(@Parameters(paramLabel = "className", description = "The class containing the field") String className,
+								@Parameters(paramLabel = "fieldName", description = "The field being deleted") String fieldName) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listFields(activeClass));
-			view.show("What is the name of the field you want to delete?");
-			input = sc.nextLine();
-			editor.deleteField(activeClass, input);
-			view.show("Field " + input + " successfully deleted from class " + className);
+			editor.deleteField(activeClass, fieldName);
+			view.show("Field " + fieldName + " successfully deleted from class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -328,33 +324,26 @@ public class CLController {
 	 * Gets class and field info from user and allows them to change its name/type
 	 */
 	@Command(name = "editfield", aliases = ("ef"), description = "Edits a field")
-	private void CL_editField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
+	private void CL_editField(@Parameters(paramLabel = "className", description = "The class containing the field") String className,
+							  @Parameters(paramLabel = "fieldName", description = "The field being changed") String fieldName,
+							  @Parameters(paramLabel = "editField", description = "The part of the field being edited") String editField,
+							  @Parameters(paramLabel = "newValue", description = "The value being updated in the field being changed") String newValue) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listFields(activeClass));
-			view.show("What is the name of the field you want to edit?");
-			input = sc.nextLine();
-			Field editField = activeClass.fetchField(input);
-			view.show("What part of " + input + " do you want to edit? (Name or Type)");
-			input = sc.nextLine().replaceAll("\\s", "");
-			while(true) {
-				if (input.equalsIgnoreCase("name")) {
-					// Edit name
-					view.show("What do you want to rename the field to?");
-					String newName = sc.nextLine();
-					editor.renameField(activeClass, editField, newName);
-					view.show("Field " + input + " renamed to " + newName);
+			Field activeField = activeClass.fetchField(fieldName);
+			switch(editField.toLowerCase()) {
+				case "name":
+					editor.renameField(activeClass, activeField, newValue);
+					view.show("Field " + fieldName + " renamed to " + newValue);
 					break;
-				} else if (input.equalsIgnoreCase("type")) {
-					// Edit type
-					view.show("What do you want the field's new type to be?");
-					String newType = sc.nextLine();
-					editor.changeFieldType(editField, newType);
-					view.show("Type successfully changed to " + newType);
+				case "type":
+					editor.changeFieldType(activeField, newValue);
+					view.show("Type successfully changed to " + newValue);
 					break;
-				}
-				view.show("Input did not match a changable value \nPlease try again");
-				input = sc.nextLine().replaceAll("\\s", "");
+				default:
+					view.show("We do not support changing the " + editField
+							+ " of a field right now");
+					return;
 			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
