@@ -37,7 +37,7 @@ public class Field implements AttributeInterface {
 
 	@Override
 	public String toString() {
-		return name+":"+varType;
+		return varType+" "+name;
 	}
 
 	public void setVarType(String newType) {
