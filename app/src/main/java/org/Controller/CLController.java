@@ -147,30 +147,30 @@ public class CLController {
 	 */
 	@Command(name = "addrelationship", aliases = ("ar"), description = "Add relationship between classes")
 	private void CL_addRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
-									@Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
+									@Parameters(paramLabel = "dest", description = "The destination class' name") String dest,
+									@Parameters(paramLabel = "relType", description = "The type of the relationship") String relType) {
 		try {
 			model.fetchClass(source);
 			model.fetchClass(dest);
 			if (!model.relationshipExist(source, dest)) {
 				// Relationship does not already exist
-				String typeint = "0";
 				Type type = null;
-				while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3") || typeint.equals("4"))) {
-					view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
-					typeint = sc.nextLine();
-					if (typeint.equals("1")) {
+				switch(relType.toLowerCase()) {
+					case "aggregation":
 						type = Type.AGGREGATION;
-					} else if (typeint.equals("2")) {
+						break;
+					case "composition":
 						type = Type.COMPOSITION;
-					} else if (typeint.equals("3")) {
+						break;
+					case "inheritance":
 						type = Type.INHERITANCE;
-					} else if (typeint.equals("4")) {
+						break;
+					case "realization":
 						type = Type.REALIZATION;
-					} else if (typeint.equalsIgnoreCase("cancel")) {
+						break;
+					default:
+						view.show("Invalid type given, relationship could not be created");
 						return;
-					} else {
-						view.show("Invalid input! Try again (or 'cancel' the creation).");
-					}
 				}
 				if (type != null && editor.addRelationship(source, dest, type)) {
 					view.show(type + " Relationship successfully created from " + source + " to " + dest);
@@ -191,26 +191,21 @@ public class CLController {
 	 */
 	@Command(name = "editrelationship", aliases = ("er"), description = "Edits a relationship")
 	private void CL_editRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
-									 @Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
+									 @Parameters(paramLabel = "dest", description = "The destination class' name") String dest,
+									 @Parameters(paramLabel = "editField", description = "The field being edited by the user") String editField,
+									 @Parameters(paramLabel = "newValue", description = "The value being updated into the field being changed") String newValue) {
 		try {
 			model.fetchClass(source);
 			model.fetchClass(dest);
 			if (model.relationshipExist(source, dest)) {
-				view.show("What property of the relationship are you changing?\n");
-				view.show("You can edit the 'source', 'destination', or 'type' of this relationship.");
-				String field = sc.nextLine().toLowerCase();
-				String value = null;
-				switch (field) {
+				switch(editField.toLowerCase()) {
 					case "source":
 						try {
-							view.show(model.listClassNames());
-							view.show("Which class do you want to name as the new source?");
-							value = sc.nextLine();
-							model.fetchClass(value);
+							model.fetchClass(newValue);
 							// Need to check if Relationship w/ new source and current dest
 							// already exists and abort if yes
-							if (model.relationshipExist(value, dest)) {
-								view.show("Relationship between " + value + " and " + dest + " already exists");
+							if (model.relationshipExist(newValue, dest)) {
+								view.show("Relationship between " + newValue + " and " + dest + " already exists");
 								return;
 							}
 						} catch (Exception e) {
@@ -218,17 +213,13 @@ public class CLController {
 							return;
 						}
 						break;
-	
 					case "destination":
 						try {
-							view.show(model.listClassNames());
-							view.show("What class do you want to name as the new destination?");
-							value = sc.nextLine();
-							model.fetchClass(value);
+							model.fetchClass(newValue);
 							// Need to check if Relationship w/ current source and new dest
 							// already exists and abort if yes
-							if (model.relationshipExist(source, value)) {
-								view.show("Relationship between " + source + " and " + value + " already exists");
+							if (model.relationshipExist(source, newValue)) {
+								view.show("Relationship between " + source + " and " + newValue + " already exists");
 								return;
 							}
 						} catch (Exception e) {
@@ -236,38 +227,34 @@ public class CLController {
 							return;
 						}
 						break;
-	
 					case "type":
-						String typeint = "0";
-						while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3")
-								|| typeint.equals("4"))) {
-							view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
-							typeint = sc.nextLine();
-							if (typeint.equals("1")) {
-								value = "AGGREGATION";
-							} else if (typeint.equals("2")) {
-								value = "COMPOSITION";
-							} else if (typeint.equals("3")) {
-								value = "INHERITANCE";
-							} else if (typeint.equals("4")) {
-								value = "REALIZATION";
-							} else if (typeint.equalsIgnoreCase("cancel")) {
-								view.show("Operation canceled by user. Aborting.");
+						switch(newValue.toLowerCase()) {
+							case "aggregation":
+								newValue = "AGGREGATION";
+								break;
+							case "composition":
+								newValue = "COMPOSITION";
+								break;
+							case "inheritance":
+								newValue = "INHERITANCE";
+								break;
+							case "realization":
+								newValue = "REALIZATION";
+								break;
+							default:
+								view.show("Invalid type given, relationship could not be edited");
 								return;
-							} else {
-								view.show("Invalid input! Try again (or 'cancel' the update).");
-							}
 						}
-						view.show("Relationship's type successfully set to " + value);
 						break;
 					default:
-						view.show("Unfortunately, we don't support changing the " + field
-								+ " of a relationship right now. Aborting.");
-						break;
+						view.show("We do not support changing the " + editField
+								+ " of a relationship right now");
 				}
+
 				try {
-					if (value != null) {
-						editor.editRelationship(source, dest, field, value);
+					if (newValue != null) {
+						editor.editRelationship(source, dest, editField, newValue);
+						view.show("Relationship successfully updated");
 					}
 				} catch (Exception e) {
 					//Temp Try-Catch block
