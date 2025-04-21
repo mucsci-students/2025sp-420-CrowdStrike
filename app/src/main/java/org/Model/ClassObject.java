@@ -116,7 +116,11 @@ public class ClassObject implements ClassObjectInterface {
 	
 	@Override
 	public void removeAttribute(AttributeInterface attr) {
-		attrMap.get(attr.getType()).remove(attr);
+		ArrayList<AttributeInterface> n = attrMap.get(attr.getType());
+		ArrayList<AttributeInterface> o = new ArrayList<>(n);
+		n.remove(attr);
+
+		pcs.firePropertyChange("Updated"+attr.getType()+"s", o, n);
 	}
 	
 	@Override
