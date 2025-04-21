@@ -214,9 +214,9 @@ public class Method implements AttributeInterface {
 
 		r.append("(");
 		for(Parameter p : paramList){
-			r.append(p.getName());
-			r.append(":");
 			r.append(p.getType());
+			r.append(" ");
+			r.append(p.getName());
 			r.append(",");
 		}
 		if(r.lastIndexOf(",")>-1)
