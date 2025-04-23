@@ -69,6 +69,12 @@ public class UMLCompleter implements Completer {
         this.model = model;
     }
 
+    /**
+     * Handles tab-completion of commands
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on (used to track cursor location)
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void commandCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         List<CharSequence> cs = new ArrayList<CharSequence>();
         AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
@@ -77,6 +83,13 @@ public class UMLCompleter implements Completer {
         }
     }
 
+    /**
+     * Handles tab-completion of classes
+     * @param words          | Array of Strings containing what has already been typed
+     * @param line           | The parsed line being worked on
+     * @param candidates     | Struct that contains the list of completion candidates
+     * @param stringLocation | The location of the String being completed in the array
+     */
     private void classCompletion(String[] words, ParsedLine line, List<Candidate> candidates, int stringLocation) {
         if (words.length == stringLocation) {
             // List all classes if user has not started class input yet
@@ -93,6 +106,12 @@ public class UMLCompleter implements Completer {
         }
     }
 
+    /**
+     * Handles tab-completion of fields
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void fieldCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         try {
             ClassObject cls = model.fetchClass(words[1]);
@@ -113,6 +132,12 @@ public class UMLCompleter implements Completer {
         }
     }
 
+    /**
+     * Handles tab-completion of methods
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void methodCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         try {
             ClassObject cls = model.fetchClass(words[1]);
@@ -153,6 +178,12 @@ public class UMLCompleter implements Completer {
         return str + ")";
 	}
 
+    /**
+     * Handles tab-completion of parameters
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void paramCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         try {
             ClassObject cls = model.fetchClass(words[1]);

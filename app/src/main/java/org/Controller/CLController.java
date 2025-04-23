@@ -24,10 +24,11 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 import picocli.shell.jline3.PicocliJLineCompleter;
+import picocli.CommandLine.HelpCommand;
 
 // Checks validity of action then calls function in
 // editor to carry out change
-@Command(name = "", mixinStandardHelpOptions = true, version = "CLController 1.0",
+@Command(name = "", mixinStandardHelpOptions = true, subcommands = {HelpCommand.class}, version = "CLController 1.0",
 		description = "CLI Controller for UML Editor")
 public class CLController {
 
@@ -484,6 +485,9 @@ public class CLController {
 		}
 	}
 
+	/*
+	 * Removes all parameters from the given method
+	 */
 	@Command(name = "removeallparameters", aliases = ("rap"), description = "Removes all parameters")
 	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
 								   @Parameters(paramLabel = "methodSig", description = "The method having params removed") String methodSig) {
@@ -498,10 +502,7 @@ public class CLController {
 	}
 
 	/*
-	 * Gets the class, and method that the parameters belongs to and asks the user if they'd like to change
-	 * one or all of the parameters. If its all parameters it replaces everything after index 0 with a new list.
-	 * if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
-	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
+	 * Replaces the specefied param in the given method with the list of params given
 	 */
 	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one param")
 	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
@@ -520,6 +521,9 @@ public class CLController {
 		}
 	}
 
+	/*
+	 * Replaces all parameters in the given method with the new list
+	 */
 	@Command(name = "changeallparameters", aliases = ("cap"), description = "Replaces all params")
 	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
 								@Parameters(paramLabel = "methodSig", description = "The method having a param changed") String methodSig,
