@@ -1,6 +1,5 @@
 package org.View.GUICmp;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -8,7 +7,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.FileManager;
@@ -78,8 +77,7 @@ public class FileMenu extends JMenu {
 			e.undo();
 			d.updatemdl(e.getModel());
 		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
+			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
 
@@ -88,8 +86,7 @@ public class FileMenu extends JMenu {
 			e.redo();
 			d.updatemdl(e.getModel());
 		} catch (Exception e) {
-			// TODO
-			System.out.println(e);
+			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
 
@@ -99,7 +96,7 @@ public class FileMenu extends JMenu {
 		try {
 			d.updatemdl(m.load(f.getPath()));
 		} catch (Exception e) {
-			// TODO
+			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
 
@@ -109,7 +106,7 @@ public class FileMenu extends JMenu {
 		try {
 			m.save(f.getPath(), e.getModel());
 		} catch (Exception e) {
-			// TODO
+			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
 
