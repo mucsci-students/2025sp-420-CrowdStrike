@@ -26,7 +26,8 @@ public class AddMenu extends JMenu {
 		addRelationship.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			    //TODO
+			    AddRelationshipInput ar = new AddRelationshipInput(edit);
+			    ar.setVisible(ar.ok());
 			}
 		});
 
