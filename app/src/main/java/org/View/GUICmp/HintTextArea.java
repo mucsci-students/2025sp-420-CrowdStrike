@@ -9,9 +9,11 @@ import javax.swing.UIManager;
 
 public class HintTextArea extends JTextArea {
 	private boolean showingHint;
+    private String hint;
 
 	public HintTextArea(String hint) {
 		showingHint = true;
+		this.hint = hint;
 
 		setText(hint);
 		setForeground(Color.GRAY);
@@ -41,4 +43,10 @@ public class HintTextArea extends JTextArea {
 	public String getText() {
 		return showingHint ? "" : super.getText();
 	}
+
+    public void reset(){
+	setText(hint);
+	setForeground(Color.GRAY);
+	showingHint=true;
+    }
 }
