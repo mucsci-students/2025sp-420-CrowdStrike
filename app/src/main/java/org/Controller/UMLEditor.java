@@ -1,6 +1,7 @@
 package org.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -55,6 +56,29 @@ public class UMLEditor {
 		model.getClassList().add(newClass);
 		memento.saveState(this.model);
 		pcs.firePropertyChange("AddClass", null, newClass);
+	}
+
+	//this fn a bit to gui spasific sssssh dont tell
+	public void addClass(String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+		ClassObject nc = new ClassObject(name);
+
+		for(Map.Entry<String,String> e: fields.entrySet()){
+			Field tmp = new Field(e.getKey(),e.getValue());
+			nc.addAttribute(tmp);
+		}
+
+		for(ArrayList<String> a : methods){
+			ArrayList<Parameter> p = new ArrayList<>();
+			for(int i = 2; i<a.size();i+=2){
+				p.add(new Parameter(a.get(i+1),a.get(i)));
+			}
+			Method m = new Method(a.get(1),a.get(0),p);
+			nc.addAttribute(m);
+		}
+
+		model.getClassList().add(nc);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, nc);
 	}
 
 	/**

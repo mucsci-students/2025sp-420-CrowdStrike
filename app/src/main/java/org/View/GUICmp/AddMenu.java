@@ -18,7 +18,7 @@ public class AddMenu extends JMenu {
 		addClass.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
-				AddClassInput ac = new AddClassInput();
+				AddClassInput ac = new AddClassInput(edit);
 				ac.setVisible(true);
 			}
 		});

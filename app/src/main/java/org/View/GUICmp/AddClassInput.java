@@ -3,6 +3,9 @@ package org.View.GUICmp;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -10,9 +13,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.Controller.UMLEditor;
+
 public class AddClassInput extends JFrame {
 
-	public AddClassInput() {
+	public AddClassInput(UMLEditor edit) {
 		super();
 		setTitle("Add Class");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -28,6 +33,17 @@ public class AddClassInput extends JFrame {
 
 		JButton tmp = new JButton();
 		tmp.setText("Add Class");
+		tmp.addActionListener(e -> {
+			NameFrame n = (NameFrame) name;
+			FieldFrame f = (FieldFrame) fields;
+			MethodFrame m = (MethodFrame) methods;
+			edit.addClass(n.getData(), f.getData(), m.getData());
+
+			f.reset();
+			n.reset();
+			m.reset();
+			pack();
+		});
 		control.add(tmp);
 
 		tmp = new JButton();
@@ -35,7 +51,7 @@ public class AddClassInput extends JFrame {
 		tmp.addActionListener(e -> {
 			setVisible(false);
 			dispose();
-		    });
+		});
 		control.add(tmp);
 
 		p.add(name);
@@ -47,21 +63,32 @@ public class AddClassInput extends JFrame {
 	}
 
 	private class NameFrame extends JPanel {
+		private HintTextArea txt = new HintTextArea("Name");
+
 		public NameFrame() {
 			super();
 			setBorder(BorderFactory.createTitledBorder("Name"));
-			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			add(new HintTextArea("Name"));
+			add(txt);
+		}
+
+		public String getData() {
+			return txt.getText();
+		}
+
+		public void reset() {
+			txt.reset();
 		}
 	}
 
 	private class FieldFrame extends JPanel {
+		private JPanel grid;
+
 		public FieldFrame() {
 			super();
 			setBorder(BorderFactory.createTitledBorder("Fields"));
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-			JPanel grid = new JPanel();
+			grid = new JPanel();
 			grid.setLayout(new GridLayout(0, 2, 5, 5));
 			add(grid);
 
@@ -84,7 +111,7 @@ public class AddClassInput extends JFrame {
 			tmp = new JButton("-");
 			tmp.addActionListener(e -> {
 				GridLayout g = (GridLayout) grid.getLayout();
-				if (g.getRows() < 2)
+				if (g.getRows() < 1)
 					return;
 				g.setRows(g.getRows() - 1);
 				int cnt = grid.getComponentCount();
@@ -97,9 +124,35 @@ public class AddClassInput extends JFrame {
 			control.add(tmp);
 			add(control);
 		}
+
+		public HashMap<String, String> getData() {
+			HashMap<String, String> h = new HashMap<>();
+			int cnt = grid.getComponentCount();
+			if (cnt < 2)
+				return h;
+			for (int i = 0; i < cnt; i += 2) {
+				String type, name;
+				HintTextArea a = (HintTextArea) grid.getComponent(i);
+				type = a.getText();
+				a = (HintTextArea) grid.getComponent(i + 1);
+				name = a.getText();
+				h.put(name, type);
+			}
+			return h;
+		}
+
+		public void reset() {
+			GridLayout l = (GridLayout) grid.getLayout();
+			if (l.getRows() < 1)
+				return;
+			grid.removeAll();
+			l.setRows(0);
+		}
 	}
 
 	private class MethodFrame extends JPanel {
+		private JPanel mar;
+
 		public MethodFrame() {
 			super();
 			setBorder(BorderFactory.createTitledBorder("Methods"));
@@ -107,6 +160,7 @@ public class AddClassInput extends JFrame {
 			JPanel mar = new JPanel();
 			mar.setLayout(new BoxLayout(mar, BoxLayout.Y_AXIS));
 			add(mar);
+			this.mar = mar;
 
 			JPanel control = new JPanel();
 
@@ -153,12 +207,26 @@ public class AddClassInput extends JFrame {
 			method.add(tmp);
 			mar.add(method);
 		}
+
+		public ArrayList<ArrayList<String>> getData() {
+			ArrayList<ArrayList<String>> r = new ArrayList<>();
+			for (Component c : mar.getComponents()) {
+				JPanel tmp = (JPanel) c;
+				ParamFrame p = (ParamFrame) tmp.getComponent(0);
+				r.add(p.getData());
+			}
+			return r;
+		}
+
+		public void reset() {
+			mar.removeAll();
+		}
 	}
 
 	private class ParamFrame extends JPanel {
 		public ParamFrame() {
 			super();
-			setLayout(new FlowLayout(FlowLayout.RIGHT,5,5));
+			setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 			add(new HintTextArea("Return type"));
 			add(new HintTextArea("Name"));
 			add(new JLabel("("));
@@ -184,6 +252,17 @@ public class AddClassInput extends JFrame {
 			remove(a);
 			remove(b);
 			pack();
+		}
+
+		public ArrayList<String> getData() {
+			ArrayList<String> m = new ArrayList<>();
+			for (Component c : getComponents()) {
+				if (c.getClass() != HintTextArea.class)
+					continue;
+				HintTextArea h = (HintTextArea) c;
+				m.add(h.getText());
+			}
+			return m;
 		}
 	}
 }
