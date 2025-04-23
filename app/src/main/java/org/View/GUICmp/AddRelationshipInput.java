@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 import org.Controller.UMLEditor;
 import org.Model.ClassObject;
+import org.Model.Relationship;
 
 public class AddRelationshipInput extends JFrame {
 	private Boolean ok = true;
@@ -37,13 +38,25 @@ public class AddRelationshipInput extends JFrame {
 			ok = false;
 		System.out.println(a.length < 1);
 
-		select.add(new JComboBox<>(a));
+		JComboBox<String> src, dest;
+		src = new JComboBox<>(a);
+		dest = new JComboBox<>(a);
+		select.add(src);
 		select.add(new JLabel("->"));
-		select.add(new JComboBox<>(a));
+		select.add(dest);
+
+		JComboBox<Relationship.Type> t = new JComboBox<>(
+				new Relationship.Type[] { Relationship.Type.AGGREGATION, Relationship.Type.COMPOSITION,
+						Relationship.Type.INHERITANCE, Relationship.Type.REALIZATION });
+		type.add(t);
+
+		select.setBorder(BorderFactory.createTitledBorder("Select classes"));
+		type.setBorder(BorderFactory.createTitledBorder("Relationship type"));
 
 		JButton tmp = new JButton("add relationship");
 		tmp.addActionListener(e -> {
-			// TODO
+			edit.addRelationship((String) src.getSelectedItem(), (String) dest.getSelectedItem(),
+					(Relationship.Type) t.getSelectedItem());
 		});
 		control.add(tmp);
 
@@ -53,13 +66,6 @@ public class AddRelationshipInput extends JFrame {
 			dispose();
 		});
 		control.add(tmp);
-
-		JComboBox<String> t = new JComboBox<>(
-				new String[] { "AGGREGATION", "COMPOSITION", "INHERITANCE", "REALIZATION" });
-		type.add(t);
-
-		select.setBorder(BorderFactory.createTitledBorder("Select classes"));
-		type.setBorder(BorderFactory.createTitledBorder("Relationship type"));
 
 		p.add(select);
 		p.add(type);
