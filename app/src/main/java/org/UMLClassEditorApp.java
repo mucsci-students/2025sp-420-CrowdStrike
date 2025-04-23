@@ -21,6 +21,7 @@ class UMLClassEditorApp {
         UMLModel model = new UMLModel();
         UMLEditor editor = new UMLEditor(model);
         if(args.length != 0 && args[0].equals("--cli")) {
+	    System.setProperty("java.awt.headless", "false");
             CLView view = new CLView();
             CLController controller = new CLController(model, editor, view);
             controller.init();

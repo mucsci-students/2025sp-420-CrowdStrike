@@ -20,9 +20,9 @@ public class UMLDiagram extends JPanel implements PropertyChangeListener {
 
 	public UMLDiagram(UMLEditor e) {
 		super(null);
+		this.e = e;
 		updatemdl(e.getModel());
 		e.addPropertyChangeListener(this);
-		this.e = e;
 	}
 
 	public void save(String pth) {
