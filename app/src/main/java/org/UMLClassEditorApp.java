@@ -27,9 +27,6 @@ class UMLClassEditorApp {
             controller.init();
         } else {
 	    GUIWindow window = new GUIWindow(model,editor);
-            GUIView view = new GUIView();
-            GUIController controller = new GUIController(model, editor, view);
-            controller.initController();
 	    window.setVisible(true);
         }
         
