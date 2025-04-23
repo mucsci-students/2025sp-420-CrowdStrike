@@ -36,16 +36,16 @@ public class UMLCompleter implements Completer {
                                                                     "addrelationship", "ar", "editrelationship", "er", "deleterelationship", "dr",
                                                                     "addfield", "af", "deletefield", "df", "editfield", "ef", "addmethod", "am",
                                                                     "deletemethod", "dm", "editmethod", "em", "addparameter", "ap", "removeparameter",
-                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp"));
+                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp", "changeallparameters", "cap"));
 
     private final ArrayList<String> relCommands = new ArrayList<>(Arrays.asList("addrelationship", "ar", "editrelationship", "er", "deleterelationship", "dr"));
 
     private final ArrayList<String> fieldCommands = new ArrayList<>(Arrays.asList("deletefield", "df", "editfield", "ef"));
 
     private final ArrayList<String> methodCommands = new ArrayList<>(Arrays.asList("deletemethod", "dm", "editmethod", "em", "addparameter", "ap", "removeparameter",
-                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp"));
+                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp", "changeallparameters", "cap"));
 
-    private final ArrayList<String> paramCommands = new ArrayList<>(Arrays.asList("removeparameter","rp", "removeallparameters", "rap", "changeparameter", "cp"));
+    private final ArrayList<String> paramCommands = new ArrayList<>(Arrays.asList("removeparameter", "rp", "changeparameter", "cp"));
 
     /**
      * Constructs a new completer for the given command spec

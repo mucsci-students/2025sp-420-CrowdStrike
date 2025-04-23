@@ -449,64 +449,14 @@ public class CLController {
 	 * to the list of parameters attached to the method.
 	 */
 	@Command(name = "addparameter", aliases = ("ap"), description = "Adds a parameter")
-	private void CL_addParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_addParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+							 @Parameters(paramLabel = "methodSig", description = "The method having params added") String methodSig,
+							 @Parameters(paramLabel = "paramList", description = "The parameters being added") String paramList) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
-			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
-			boolean loop = true;
-			String typeInput = "";
-			view.show("Type the name of a parameter you'd like to add (enter to stop)");
-			while(loop) {
-				input = sc.nextLine().replaceAll("\\s", "");
-				if (input.equalsIgnoreCase("stop") || input.equals("")) {
-					loop = false;
-				} else {
-					if (activeMethod.paramUsed(input)) {
-						view.show("This parameter is already in the method.");
-						view.show("Please type the name of the next parameter (enter to stop): ");
-						continue;
-					}
-					if (editor.nameAlrAdded(input, parameterList)) {
-						view.show("This parameter has already been added.");
-						view.show("Please type the name of the next parameter (enter to stop):");
-						continue;
-					}
-					view.show("Enter the parameter's type");
-					typeInput = sc.nextLine().replaceAll("\\s", "");
-					if(typeInput.equals("")) {
-						view.show("Parameters must have a type");
-						view.show("Please type the name of the next parameter:");
-						continue;					
-					}
-					parameterList.put(input, typeInput);
-				}
-				view.show("Please type the name of the next parameter (enter to stop):");
-			}
-			editor.addParam(parameterList, activeMethod);
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			LinkedHashMap<String, String> paramMap = parseParamList(activeMethod, paramList);
+			editor.addParam(paramMap, activeMethod);
 			view.show("The parameter(s) were added to " + activeMethod.getName());
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -520,36 +470,12 @@ public class CLController {
 	 * the named parameter.
 	 */
 	@Command(name = "removeparameter", aliases = ("rp"), description = "Removes a parameter")
-	private void CL_removeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_removeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								@Parameters(paramLabel = "methodSig", description = "The method having a param deleted") String methodSig,
+								@Parameters(paramLabel = "paramName", description = "The parameter to be removed") String paramName) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
-			ArrayList<Parameter> paramList = activeMethod.getParamList();
-			view.show("Type the name of the parameter you'd like to remove");
-			String paramName = sc.nextLine().replaceAll("\\s", "");
+			Method activeMethod = parseMethod(activeClass, methodSig);
 			Parameter param = activeMethod.fetchParameter(paramName);
 			editor.removeParam(activeMethod, param);
 			view.show("Success! Parameter " + paramName + " has been removed.");
@@ -559,33 +485,11 @@ public class CLController {
 	}
 
 	@Command(name = "removeallparameters", aliases = ("rap"), description = "Removes all parameters")
-	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								   @Parameters(paramLabel = "methodSig", description = "The method having params removed") String methodSig) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
+			Method activeMethod = parseMethod(activeClass, methodSig);
 			editor.removeAllParams(activeMethod);
 			view.show("All parameters were removed");
 		} catch (Exception e) {
@@ -599,95 +503,33 @@ public class CLController {
 	 * if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
 	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
 	 */
-	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one or all params")
-	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one param")
+	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								@Parameters(paramLabel = "methodSig", description = "The method having a param changed") String methodSig,
+								@Parameters(paramLabel = "paramName", description = "The parameter to be changed") String paramName,
+								@Parameters(paramLabel = "paramList", description = "The new parameters") String paramList) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			Parameter param = activeMethod.fetchParameter(paramName);
+			LinkedHashMap<String, String> paramMap = parseParamList(activeMethod, param, paramList);
+			editor.changeParameter(activeMethod, param, paramMap);
+			view.show("Parameter " + param.getName() + " was replaced with new parameter list.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+	}
 
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
-			view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
-			input = sc.nextLine().replaceAll("//s", "");
-			Parameter oldParam = null;
-			boolean changeAll = false;
-			if (input.equalsIgnoreCase("all")) {
-				// Changing all parameters
-				changeAll = true;
-			} else {
-				// Changing one parameter
-				oldParam = activeMethod.fetchParameter(input);
-			}
-			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
-			boolean loop = true;
-			boolean changeParamReadded = false;
-			String paramName = "";
-			String type = "";
-			view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
-			while (loop) {
-				// Loops for adding
-				paramName = sc.nextLine().replaceAll("\\s", "");
-				if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
-					loop = false;
-				} else {
-					if (!input.equalsIgnoreCase("all")) {
-						// Only need to check if new paramName is in method if all parameters are not
-						// being replaced
-						if (activeMethod.paramUsed(paramName)) {
-							if (!changeParamReadded && paramName.equals(input)) {
-								parameterList.put(paramName, type);
-								view.show("Please type the name then type of the next parameter:");
-								changeParamReadded = true;
-								continue;
-							}
-							view.show("This parameter is already in the method.");
-							view.show("Please type the name then type of the next parameter:");
-							continue;
-						}
-					}
-					if (editor.nameAlrAdded(paramName, parameterList)) {
-						view.show("This parameter has already been added.");
-						view.show("Please type the name then type of the next parameter:");
-						continue;
-					}
-					view.show("Enter the parameter's type");
-					type = sc.nextLine().replaceAll("\\s", "");
-					if(type.equals("")) {
-						view.show("Parameters must have a type");
-						view.show("Please type the name of the next parameter:");
-						continue;					
-					}
-					parameterList.put(paramName, type);
-				}
-				view.show("Please type the name of the next parameter:");
-			}
-			if (changeAll) {
-				editor.changeAllParams(activeMethod, parameterList);
-				view.show("All parameters were replaced.");
-			} else {
-				editor.changeParameter(activeMethod, oldParam, parameterList);
-				view.show("Parameter " + oldParam.getName() + " was replaced with new parameter list.");
-			}
+	@Command(name = "changeallparameters", aliases = ("cap"), description = "Replaces all params")
+	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								@Parameters(paramLabel = "methodSig", description = "The method having a param changed") String methodSig,
+								@Parameters(paramLabel = "paramList", description = "The new parameters") String paramList) {
+		try {
+			activeClass = model.fetchClass(className);
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			LinkedHashMap<String, String> paramMap = parseParamList(paramList);
+			editor.changeAllParams(activeMethod, paramMap);
+			view.show("All parameters were replaced.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -760,6 +602,10 @@ public class CLController {
 		return cls.fetchMethod(mthdName, parameters);
 	}
 
+	/**
+	 * Used when adding methods or replacing all params, just skips any params with the same name
+	 * in the list being made
+	 */
 	private LinkedHashMap<String, String> parseParamList(String lst) {
 		// Format for paramList --> (name1: type1,name2: type2,etc)
 		LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
@@ -775,6 +621,59 @@ public class CLController {
 			 * Add a check to avoid duplicate params
 			 */
 			if (paramList.keySet().contains(param[0].trim())) {
+				continue;
+			}
+			paramList.put(param[0].trim(), param[1].trim());
+		}
+		return paramList;
+	}
+
+	/**
+	 * Used when adding params to an existsing method
+	 */
+	private LinkedHashMap<String, String> parseParamList(Method mthd, String lst) {
+		// Format for paramList --> (name1: type1,name2: type2,etc)
+		LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
+		if (lst.equals("()")) {
+			return paramList;
+		}
+		// Create an array of Strings with "name1: type1" at each index
+		//String[] paramArr = lst.substring(1, lst.lastIndexOf(")")).split(",");
+		String[] paramArr = lst.substring(1, lst.length() - 1).split(",");
+		for (int i = 0; i < paramArr.length; i++) {
+			String[] param = paramArr[i].split(":");
+			// Makes sure duplicate params are skipped(in current list and method list)
+			if (paramList.keySet().contains(param[0].trim()) || mthd.paramUsed(param[0].trim())) {
+				continue;
+			}
+			paramList.put(param[0].trim(), param[1].trim());
+		}
+		return paramList;
+	}
+
+	/**
+	 * Used when changing one parameter, so that it can be added back in if needed
+	 */
+	private LinkedHashMap<String, String> parseParamList(Method mthd, Parameter changeParam, String lst) {
+		// Format for paramList --> (name1: type1,name2: type2,etc)
+		LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
+		if (lst.equals("()")) {
+			return paramList;
+		}
+		// Create an array of Strings with "name1: type1" at each index
+		//String[] paramArr = lst.substring(1, lst.lastIndexOf(")")).split(",");
+		String[] paramArr = lst.substring(1, lst.length() - 1).split(",");
+		boolean paramReadded = false;
+		for (int i = 0; i < paramArr.length; i++) {
+			String[] param = paramArr[i].split(":");
+			// Allow the param being changed to be readded once
+			if (param[0].equals(changeParam.getName()) && !paramReadded) {
+				paramList.put(param[0].trim(), param[1].trim());
+				paramReadded = true;
+				continue;
+			}
+			// Makes sure duplicate params are skipped(in current list and method list)
+			if (paramList.keySet().contains(param[0].trim()) || mthd.paramUsed(param[0].trim())) {
 				continue;
 			}
 			paramList.put(param[0].trim(), param[1].trim());
