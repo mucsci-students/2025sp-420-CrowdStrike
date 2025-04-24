@@ -26,4 +26,4 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Formated code"
+          commit_message: "Formatted code using google-java v1.26"
