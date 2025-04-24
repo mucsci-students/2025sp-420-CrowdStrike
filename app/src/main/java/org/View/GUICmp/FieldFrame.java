@@ -1,9 +1,11 @@
 package org.View.GUICmp;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+
 import java.awt.GridLayout;
 import java.util.HashMap;
 
@@ -23,6 +25,7 @@ public class FieldFrame extends JPanel {
 		control.setLayout(new BoxLayout(control, BoxLayout.X_AXIS));
 
 		JButton tmp;
+
 		tmp = new JButton("+");
 		tmp.addActionListener(e -> {
 			GridLayout g = (GridLayout) grid.getLayout();
@@ -31,6 +34,7 @@ public class FieldFrame extends JPanel {
 			grid.add(new HintTextArea("Name"));
 			grid.revalidate();
 			grid.repaint();
+			SwingUtilities.getWindowAncestor(this).pack();
 		});
 		control.add(tmp);
 
@@ -45,6 +49,7 @@ public class FieldFrame extends JPanel {
 			grid.remove(grid.getComponent(cnt - 2));
 			grid.revalidate();
 			grid.repaint();
+			SwingUtilities.getWindowAncestor(this).pack();
 		});
 		control.add(tmp);
 		add(control);

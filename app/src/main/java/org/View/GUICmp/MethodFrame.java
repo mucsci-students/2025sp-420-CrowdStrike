@@ -1,6 +1,7 @@
 package org.View.GUICmp;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -26,11 +27,13 @@ public class MethodFrame extends JPanel {
 
 		JButton tmp = new JButton("+");
 		tmp.addActionListener(e -> {
-			addMethod(mar);
+			addMethod();
 			revalidate();
 			repaint();
+			SwingUtilities.getWindowAncestor(this).pack();
 		});
 		control.add(tmp);
+
 		tmp = new JButton("-");
 		tmp.addActionListener(e -> {
 			int cnt = mar.getComponentCount();
@@ -39,12 +42,13 @@ public class MethodFrame extends JPanel {
 			mar.remove(mar.getComponent(cnt - 1));
 			revalidate();
 			repaint();
+			SwingUtilities.getWindowAncestor(this).pack();
 		});
 		control.add(tmp);
 		add(control);
 	}
 
-	private void addMethod(JPanel mar) {
+	private void addMethod() {
 		JPanel method = new JPanel();
 		method.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
@@ -96,6 +100,9 @@ public class MethodFrame extends JPanel {
 			add(new HintTextArea("Type"));
 			add(new HintTextArea("Name"));
 			add(new JLabel(")"));
+			revalidate();
+			repaint();
+			SwingUtilities.getWindowAncestor(this).pack();
 		}
 
 		public void remBox() {
@@ -107,6 +114,9 @@ public class MethodFrame extends JPanel {
 			b = getComponent(getComponentCount() - 3);
 			remove(a);
 			remove(b);
+			revalidate();
+			repaint();
+			SwingUtilities.getWindowAncestor(this).pack();
 		}
 
 		public ArrayList<String> getData() {
