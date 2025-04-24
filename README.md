@@ -79,7 +79,7 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 .\gradlew.bat run-cli
 ```
 ## Usage
- Below is our available commands in command line
+ Below is our available commands in command line  
  Use help [command] to get usage information for each command
  ```
 Commands:
@@ -108,10 +108,10 @@ Commands:
   save                      Saves model
   exit                      Exits the application
 ```
-Command Line Parameter Formatting:
-paramList - () or (paramName1: paramType1, paramName2: paramtype2, ...)
-methodSig - methodName or methodName() (if no parameters)
-            methodName(paramName1: paramType1, paramName2: paramtype2, ...) (has parameters)
+Command Line Parameter Formatting:  
+paramList - () or (paramName1: paramType1, paramName2: paramtype2, ...)  
+methodSig - methodName or methodName() (if no parameters)  
+            methodName(paramName1: paramType1, paramName2: paramtype2, ...) (has parameters)  
 When adding a method if it does not have parameters, but you want to give it a type specify paramList as ()
 
 ## Codebase
