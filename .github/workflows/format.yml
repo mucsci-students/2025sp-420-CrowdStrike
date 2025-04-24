@@ -1,0 +1,29 @@
+name: Format Java Code
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Download java format
+        run: wget https://github.com/google/google-java-format/releases/download/v1.26.0/google-java-format-1.26.0-all-deps.jar
+      - name: Format code
+        run: java -jar google-java-format-1.26.0-all-deps.jar --aosp --replace $(find . -name "*.java")
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Formatted code using google-java v1.26"
