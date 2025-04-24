@@ -4,6 +4,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.Controller.UMLEditor;
@@ -44,7 +45,22 @@ public class EditClassInput extends JFrame {
 			n.reset();
 			m.reset();
 			pack();
-		    });
+		});
+		control.add(tmp);
+
+		tmp = new JButton();
+		tmp.setText("Remove");
+		tmp.addActionListener(e -> {
+			ClassObject co = (ClassObject) cl.getSelectedItem();
+			try {
+				edit.deleteClass(co.getName());
+				cl.removeItem(co);
+				cl.revalidate();
+				cl.repaint();
+			} catch (Exception err) {
+				JOptionPane.showMessageDialog(null, err.getMessage());
+			}
+		});
 		control.add(tmp);
 
 		tmp = new JButton();
