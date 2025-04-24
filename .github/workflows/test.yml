@@ -78,4 +78,22 @@ jobs:
       # in the GitHub actions
       # UI
       - name: Upload JaCoCo Report
-        if: github.server_url == 'https://github.co
+        if: github.server_url == 'https://github.com'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/test/html/
+      # uploads the jacoco report
+      # to the GitHub actions
+      # uses madrapps/jacoco-report to enforce a minimum coverage rule
+      # and to generate a coverage report
+      # that can be viewed in the GitHub actions UI
+      - name: Check 100% Coverage for Model
+        uses: madrapps/jacoco-report@v1
+        with:
+          paths: app/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 100
+          title: Model Coverage Report
+          classes: |
+            org.Model.*
