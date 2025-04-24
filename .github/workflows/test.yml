@@ -81,9 +81,6 @@ jobs:
       - name: Check 100% Coverage for Model
         uses: madrapps/jacoco-report@v1
         with:
-          paths: ${{ github.workspace }}/**/app/build/reports/jacoco/test/jacocoTestReport.xml
+          path: ${{ github.workspace }}/**/app/build/reports/jacoco/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 100
-          title: Model Coverage Report
-          classes: |
-            org.Model.*
