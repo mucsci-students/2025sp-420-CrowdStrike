@@ -35,7 +35,7 @@ public class EditClassInput extends JFrame {
 		JButton tmp = new JButton();
 		tmp.setText("Update Class");
 		tmp.addActionListener(e -> {
-		});			NameFrame n = (NameFrame) name;
+			NameFrame n = (NameFrame) name;
 			FieldFrame f = (FieldFrame) fields;
 			MethodFrame m = (MethodFrame) methods;
 			edit.addClass(n.getData(), f.getData(), m.getData());
@@ -44,7 +44,8 @@ public class EditClassInput extends JFrame {
 			n.reset();
 			m.reset();
 			pack();
-			control.add(tmp);
+		    });
+		control.add(tmp);
 
 		tmp = new JButton();
 		tmp.setText("Exit");
