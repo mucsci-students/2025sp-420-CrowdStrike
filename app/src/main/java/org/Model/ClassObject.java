@@ -309,4 +309,9 @@ public class ClassObject implements ClassObjectInterface {
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
+
+    @Override
+    public String toString(){
+	return name;
+    }
 }
