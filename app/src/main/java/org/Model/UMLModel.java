@@ -199,8 +199,10 @@ public class UMLModel implements UMLModelInterface{
             }
             index++;
         }
-        // Add Relationships to finalString
-        finalString = finalString + "  Relationships:" + sourceRelationships + destRelationships + "\n";
+        // Add Relationships to finalString if there are any
+		if (!sourceRelationships.isEmpty() || !destRelationships.isEmpty()) {
+			finalString = finalString + "  Relationships:" + sourceRelationships + destRelationships + "\n";
+		}
         return finalString;
 	}
 	
