@@ -22,6 +22,7 @@ import org.jline.terminal.TerminalBuilder;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
@@ -35,6 +36,8 @@ public class CLController {
 	private UMLEditor editor;
 
 	private CLView view;
+
+	private UMLCompleter completer;
 
 	// Create scanner to read user input
 	private Scanner sc;
@@ -61,15 +64,6 @@ public class CLController {
 	}
 
 	/**
-	 * Prints help list
-	 */
-	@Command(name = "commands", aliases = {"com"}, description = "Prints help list")
-	private void CL_Help() {
-		view.showHelp();
-		//view.show(basePrompt);
-	}
-
-	/**
 	 * Checks if any classes exist before printing them
 	 */
 	@Command(name = "listclasses", aliases = ("lcs"), description = "List all classes")
@@ -85,12 +79,9 @@ public class CLController {
 	 * Gets the class to be listed and tells user if action failed
 	 */
 	@Command(name = "listclass", aliases = ("lc"), description = "List info for one class")
-	private void CL_listClassInfo() {
+	private void CL_listClassInfo(@Parameters(paramLabel = "className", description = "The class being listed") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like printed?");
-			input = sc.nextLine();
-			activeClass = model.fetchClass(input);
+			activeClass = model.fetchClass(className);
 			view.show(model.listClassInfo(activeClass));
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -113,13 +104,11 @@ public class CLController {
 	 * Gets name of new class from user and displays if it was added successfully
 	 */
 	@Command(name = "addclass", aliases = ("ac"), description = "Add a new class")
-	private void CL_addClass() {
+	private void CL_addClass(@Parameters(paramLabel = "className", description = "The class being added") String className) {
 		try {
-			view.show("Enter the new class' name: ");
-			input = sc.nextLine();
-			model.isValidClassName(input);
-			editor.addClass(input);
-			view.show("Class " + input + " succesfully added");
+			model.isValidClassName(className);
+			editor.addClass(className);
+			view.show("Class " + className + " succesfully added");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -128,14 +117,11 @@ public class CLController {
 	/**
 	 * Gets class info from user and displays if class was deleted
 	 */
-	@Command(name = "delete class", aliases = ("dc"), description = "Delete a class")
-	private void CL_deleteClass() {
+	@Command(name = "deleteclass", aliases = ("dc"), description = "Delete a class")
+	private void CL_deleteClass(@Parameters(paramLabel = "className", description = "The class being deleted") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to delete?");
-			input = sc.nextLine();
-			editor.deleteClass(input);
-			view.show("Class " + input + " successfully deleted");
+			editor.deleteClass(className);
+			view.show("Class " + className + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -145,17 +131,13 @@ public class CLController {
 	 * Gets class info from user and displays if class was renamed
 	 */
 	@Command(name = "renameclass", aliases = ("rc"), description = "Rename a class")
-	private void CL_renameClass() {
+	private void CL_renameClass(@Parameters(paramLabel = "className", description = "The class being renamed") String className,
+								@Parameters(paramLabel = "newName", description = "New name for class") String newName) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to rename?");
-			input = sc.nextLine();
-			activeClass = model.fetchClass(input);
-			view.show("What would you like the new name to be?");
-			String newName = sc.nextLine();
+			activeClass = model.fetchClass(className);
 			model.isValidClassName(newName);
 			editor.renameClass(activeClass, newName);
-			view.show("Class " + input + " renamed to " + newName);
+			view.show("Class " + className + " renamed to " + newName);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -165,15 +147,10 @@ public class CLController {
 	 * Gets relationship info from user and returns if action succeeded or failed
 	 */
 	@Command(name = "addrelationship", aliases = ("ar"), description = "Add relationship between classes")
-	private void CL_addRelationship() {
+	private void CL_addRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
+									@Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
 		try {
-			view.show(model.listClassNames());
-			view.show("Enter the source class");
-			String source = sc.nextLine();
 			model.fetchClass(source);
-			view.show(model.listClassNames());
-			view.show("Enter the destination class");
-			String dest = sc.nextLine();
 			model.fetchClass(dest);
 			if (!model.relationshipExist(source, dest)) {
 				// Relationship does not already exist
@@ -214,15 +191,10 @@ public class CLController {
 	 * Loops until the
 	 */
 	@Command(name = "editrelationship", aliases = ("er"), description = "Edits a relationship")
-	private void CL_editRelationship() {
+	private void CL_editRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
+									 @Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
 		try {
-			view.show(model.listRelationships());
-			view.show("What is the source of the relationship are you changing?");
-			String source = sc.nextLine();
 			model.fetchClass(source);
-			view.show(model.listClassNames());
-			view.show("What is the destination of the relationship are you changing?");
-			String dest = sc.nextLine();
 			model.fetchClass(dest);
 			if (model.relationshipExist(source, dest)) {
 				view.show("What property of the relationship are you changing?\n");
@@ -314,18 +286,14 @@ public class CLController {
 	 * Gets relationship info from user and returns if it was deleted
 	 */
 	@Command(name = "deleterelationship", aliases = ("dr"), description = "Deletes a relationship")
-	private void CL_deleteRelationship() {
+	private void CL_deleteRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
+									   @Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
 		try {
-			view.show(model.listRelationships());
-			view.show("What is the source of the relationship are you deleting?");
-			String source = sc.nextLine();
 			model.fetchClass(source);
-			view.show(model.listClassNames());
-			view.show("What is the destination of the relationship are you deleting?");
-			String dest = sc.nextLine();
 			model.fetchClass(dest);
 			model.fetchRelationship(source, dest);
 			editor.deleteRelationship(source, dest);
+			view.show("Relationship between " + source + " and " + dest + " successfully deleted");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -335,11 +303,8 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	@Command(name = "addfield", aliases = ("af"), description = "Adds a field")
-	private void CL_addField() {
+	private void CL_addField(@Parameters(paramLabel = "className", description = "The class the field is being added to") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to add a field to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the field?");
 			input = sc.nextLine();
@@ -360,11 +325,8 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletefield", aliases = ("df"), description = "Delete a field")
-	private void CL_deleteField() {
+	private void CL_deleteField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to delete a field from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to delete?");
@@ -380,11 +342,8 @@ public class CLController {
 	 * Gets class and field info from user and allows them to change its name/type
 	 */
 	@Command(name = "editfield", aliases = ("ef"), description = "Edits a field")
-	private void CL_editField() {
+	private void CL_editField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class do you want to edit a field from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listFields(activeClass));
 			view.show("What is the name of the field you want to edit?");
@@ -421,11 +380,8 @@ public class CLController {
 	 * or not
 	 */
 	@Command(name = "addmethod", aliases = ("am"), description = "Adds a method")
-	private void CL_addMethod() {
+	private void CL_addMethod(@Parameters(paramLabel = "className", description = "The class the method is being added to") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class would you like to add a method to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show("What do you want to name the method?");
 			input = sc.nextLine();
@@ -501,11 +457,8 @@ public class CLController {
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletemethod", aliases = ("dm"), description = "Deletes a method")
-	private void CL_deleteMethod() {
+	private void CL_deleteMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class do you want to rename a method from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to delete('stop' to cancel)");
@@ -540,11 +493,8 @@ public class CLController {
 	 * Gets class and method info from user and allows the to change name/return type
 	 */
 	@Command(name = "editmethod", aliases = {"em"}, description = "Edits a method")
-	private void CL_editMethod() {
+	private void CL_editMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class do you want to rename a method from?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -604,11 +554,8 @@ public class CLController {
 	 * to the list of parameters attached to the method.
 	 */
 	@Command(name = "addparameter", aliases = ("ap"), description = "Adds a parameter")
-	private void CL_addParam() {
+	private void CL_addParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to add the parameter to belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -678,11 +625,8 @@ public class CLController {
 	 * the named parameter.
 	 */
 	@Command(name = "removeparameter", aliases = ("rp"), description = "Removes a parameter")
-	private void CL_removeParam() {
+	private void CL_removeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to remove the parameter from belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -720,11 +664,8 @@ public class CLController {
 	}
 
 	@Command(name = "removeallparameters", aliases = ("rap"), description = "Removes all parameters")
-	private void CL_removeAllParam() {
+	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to remove the parameter from belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -764,11 +705,8 @@ public class CLController {
 	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
 	 */
 	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one or all params")
-	private void CL_changeParam() {
+	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
 		try {
-			view.show(model.listClassNames());
-			view.show("What class does the method you want to add the parameter to belong to?");
-			String className = sc.nextLine();
 			activeClass = model.fetchClass(className);
 			view.show(model.listMethods(activeClass));
 			view.show("Enter the number of the method you want to rename('stop' to cancel)");
@@ -865,6 +803,7 @@ public class CLController {
 		try {
 		editor.undo();
 		this.model = editor.getModel();
+		completer.setModel(editor.getModel());
 		view.show("The last action was undone.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -877,6 +816,7 @@ public class CLController {
 		try {
 		editor.redo();
 		this.model = editor.getModel();
+		completer.setModel(editor.getModel());
 		view.show("The last undone action was redone.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -911,6 +851,7 @@ public class CLController {
 			FileManager file = new FileManager();
 			model = file.load(path);
 			editor = new UMLEditor(model);
+			completer.setModel(model);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -923,7 +864,7 @@ public class CLController {
 		try {
 			Terminal terminal = TerminalBuilder.builder().system(true).build();
 			CommandLine cmd = new CommandLine(this);
-			Completer completer = new PicocliJLineCompleter(cmd.getCommandSpec());
+			completer = new UMLCompleter(cmd.getCommandSpec(), model);
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build();
 
 			while ((input = reader.readLine(basePrompt)) != null) {
@@ -935,7 +876,8 @@ public class CLController {
 					if (input.equalsIgnoreCase("help")) {
 						input = "-h";
 					}
-					cmd.execute(input.replaceAll("\\s", ""));
+					String[] cmds = input.split(" ");
+					cmd.execute(cmds);
 				} catch (CommandLine.ParameterException ex) {
 					System.err.println(ex.getMessage());
 					ex.getCommandLine().usage(System.err);
