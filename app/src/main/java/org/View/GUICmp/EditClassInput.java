@@ -43,8 +43,8 @@ public class EditClassInput extends JFrame {
 			f.reset();
 			n.reset();
 			m.reset();
-			pack();bt
-		control.add(tmp);
+			pack();
+			control.add(tmp);
 
 		tmp = new JButton();
 		tmp.setText("Exit");
