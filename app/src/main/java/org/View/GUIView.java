@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.*;
 
+@Deprecated
 public class GUIView extends JFrame {
 
     private JButton addClassButton;
