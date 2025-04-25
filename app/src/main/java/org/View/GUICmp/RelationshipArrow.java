@@ -1,32 +1,11 @@
 package org.View.GUICmp;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.BoxLayout;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-
-
-
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.*;
 
 import java.awt.geom.AffineTransform;
-
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FontMetrics;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.awt.event.MouseAdapter;
 
 import org.Model.ClassObject;
 import org.Model.Relationship;
@@ -37,13 +16,25 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 
     public RelationshipArrow(Relationship relationship){
         super();
-//System.out.println("TRYNNA PAINT" + rel.getSource() + "->" + rel.getDestination());  
         this.rel = new Relationship(relationship);
-		relationship.addPropertyChangeListener(this);
+	relationship.addPropertyChangeListener(this);
         setVisible(true);
+	setBackground(new Color(0, 0, 0, 0));
         revalidate();
+	setSize(getPreferredSize());
         repaint();
-        
+    }
+
+    @Override
+    public Dimension getPreferredSize(){
+	//Quick hack to get working
+	int x,y;
+	ClassObject src,dst;
+	src = rel.getSource();
+	dst = rel.getDestination();
+	x = Math.max(src.getPosition().x,src.getPosition().x);
+	y = Math.max(src.getPosition().y,dst.getPosition().y);
+	return new Dimension(x,y);
     }
 
     /**
@@ -57,8 +48,8 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
         Point center = cls.getPosition();
         double dx = target.x - center.x;
         double dy = target.y - center.y;
-double halfWidth = 100 / 2.0;
-double halfHeight = 100 / 2.0;
+	double halfWidth = 100 / 2.0;
+	double halfHeight = 100 / 2.0;
 
         if (dx == 0 && dy == 0) {
             return center; // if both centers coincide, return center
@@ -105,7 +96,6 @@ double halfHeight = 100 / 2.0;
         } else {
             g.setColor(Color.BLACK);
         }
-System.out.println("TRYNNA PAINT" + rel.getSource() + "->" + rel.getDestination());  
         if(rel.getSource() != rel.getDestination()){
             // Calculate the intersection points at the boundaries of the ClassBoxes
             Point sourceCenter = rel.getSource().getPosition();
