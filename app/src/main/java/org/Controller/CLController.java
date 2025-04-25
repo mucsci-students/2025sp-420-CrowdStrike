@@ -730,12 +730,12 @@ public class CLController {
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build();
 
 			while ((input = reader.readLine(basePrompt)) != null) {
-				if (input.equalsIgnoreCase("exit") || input.equalsIgnoreCase("q")) {
+				if (input.trim().equalsIgnoreCase("exit") || input.trim().equalsIgnoreCase("q")) {
 					break;
 				}
 
 				try {
-					if (input.equalsIgnoreCase("help")) {
+					if (input.trim().equalsIgnoreCase("help")) {
 						input = "-h";
 					}
 					List<String> lst = tokenizeCommands(input);
