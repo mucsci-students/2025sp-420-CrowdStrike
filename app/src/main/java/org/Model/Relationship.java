@@ -1,11 +1,8 @@
 package org.Model;
-//relationship.java
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
-//Class to represent a single relationship object
-/* 
-*/
-
-
+// Creates a relationship object
 public class Relationship{
     // The source and destination classes involved in this relationship
     private ClassObject source;
@@ -17,6 +14,9 @@ public class Relationship{
     // Each relationship must be associated with one of four predetermined types
     public enum Type {AGGREGATION, COMPOSITION, INHERITANCE, REALIZATION};
     private Type type;
+
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
 
     /**
      * Constructor for a relationship
@@ -133,5 +133,14 @@ public class Relationship{
      */
     public void setType(Type newType)
         {this.type = newType;}
+
+    	/**
+	 * Subscribe to changes to the model made by the edditor.
+	 *
+	 * @param listener the object trying to subscribe
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
 
 }

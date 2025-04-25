@@ -5,6 +5,7 @@ import java.io.File;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 
@@ -14,6 +15,7 @@ import javax.imageio.ImageIO;
 import org.Model.UMLModel;
 import org.Controller.UMLEditor;
 import org.Model.ClassObject;
+import org.Model.Relationship;
 
 public class UMLDiagram extends JPanel implements PropertyChangeListener {
 	private UMLEditor e;
@@ -39,6 +41,7 @@ public class UMLDiagram extends JPanel implements PropertyChangeListener {
 		}
 	}
 
+
 	public void updatemdl(UMLModel m) {
 		removeAll();
 		for (ClassObject c : m.getClassList()) {
@@ -46,6 +49,14 @@ public class UMLDiagram extends JPanel implements PropertyChangeListener {
 			add(uc);
 			e.addPropertyChangeListener(uc);
 		}
+		for(Relationship r: m.getRelationshipList()){
+			RelationshipArrow relArrow = new RelationshipArrow(r);
+			add(relArrow);
+			
+System.out.println("DREW ARROW " + r.getSource() + "->" + r.getDestination());  //fucking liar
+			setVisible(true);
+			e.addPropertyChangeListener(relArrow);
+	}
 		setSize(getPreferredSize());
 		revalidate();
 		repaint();
@@ -73,6 +84,12 @@ public class UMLDiagram extends JPanel implements PropertyChangeListener {
 				// UMLClass managed this
 				break;
 			case "AddRelationship":
+				Relationship rel = (Relationship) evt.getNewValue();
+				RelationshipArrow r = new RelationshipArrow(rel);
+System.out.println("CREATED ARROW " + rel.getSource() + "->" + rel.getDestination());  
+				add(r);
+				e.addPropertyChangeListener(r);
+				updatemdl(e.getModel());
 				break;
 			case "DeleteRelationship":
 				break;
