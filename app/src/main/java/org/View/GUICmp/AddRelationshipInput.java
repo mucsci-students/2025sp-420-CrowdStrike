@@ -36,7 +36,6 @@ public class AddRelationshipInput extends JFrame {
 		String[] a = l.toArray(new String[0]);
 		if (a.length < 1)
 			ok = false;
-		System.out.println(a.length < 1);
 
 		JComboBox<String> src, dest;
 		src = new JComboBox<>(a);
