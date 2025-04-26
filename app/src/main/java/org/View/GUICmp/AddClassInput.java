@@ -16,9 +16,9 @@ public class AddClassInput extends JFrame {
 
 		JPanel p, name, fields, methods, control;
 		p = new JPanel();
-		name = new NameFrame();
-		fields = new FieldFrame();
-		methods = new MethodFrame();
+		name = new NamePanel();
+		fields = new FieldPanel();
+		methods = new MethodPanel();
 		control = new JPanel();
 
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -26,9 +26,9 @@ public class AddClassInput extends JFrame {
 		JButton tmp = new JButton();
 		tmp.setText("Add Class");
 		tmp.addActionListener(e -> {
-			NameFrame n = (NameFrame) name;
-			FieldFrame f = (FieldFrame) fields;
-			MethodFrame m = (MethodFrame) methods;
+			NamePanel n = (NamePanel) name;
+			FieldPanel f = (FieldPanel) fields;
+			MethodPanel m = (MethodPanel) methods;
 			edit.addClass(n.getData(), f.getData(), m.getData());
 
 			f.reset();

@@ -15,35 +15,39 @@ public class EditClassInput extends JFrame {
 		super();
 		setTitle("Edit class");
 
-		JPanel p, sel, name, fields, methods, control;
-
-		p = new JPanel();
-		name = new NameFrame();
-		fields = new FieldFrame();
-		methods = new MethodFrame();
-		control = new JPanel();
-		sel = new JPanel();
+		JPanel p = new JPanel();
+		NamePanel name = new NamePanel();
+		FieldPanel fields = new FieldPanel();
+		MethodPanel methods = new MethodPanel();
+		JPanel control = new JPanel();
+		JPanel sel = new JPanel();
 
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
 		ClassObject a[] = edit.getModel().getClassList().toArray(new ClassObject[0]);
 		JComboBox<ClassObject> cl = new JComboBox<>(a);
-		JButton set = new JButton("set");
+		JButton tmp = new JButton();
+		tmp.setText("Set");
+		tmp.addActionListener(e -> {
+			ClassObject co = (ClassObject) cl.getSelectedItem();
+			name.set(co);
+			fields.set(co);
+			methods.set(co);
+		});
 
 		sel.add(cl);
-		sel.add(set);
+		sel.add(tmp);
 
-		JButton tmp = new JButton();
+		tmp = new JButton();
 		tmp.setText("Update Class");
 		tmp.addActionListener(e -> {
-			NameFrame n = (NameFrame) name;
-			FieldFrame f = (FieldFrame) fields;
-			MethodFrame m = (MethodFrame) methods;
-			edit.addClass(n.getData(), f.getData(), m.getData());
+			ClassObject co = (ClassObject) cl.getSelectedItem();
 
-			f.reset();
-			n.reset();
-			m.reset();
+			edit.updateClass(co, name.getData(), fields.getData(), methods.getData());
+
+			fields.reset();
+			name.reset();
+			methods.reset();
 			pack();
 		});
 		control.add(tmp);
@@ -57,6 +61,10 @@ public class EditClassInput extends JFrame {
 				cl.removeItem(co);
 				cl.revalidate();
 				cl.repaint();
+				fields.reset();
+				name.reset();
+				methods.reset();
+				pack();
 			} catch (Exception err) {
 				JOptionPane.showMessageDialog(null, err.getMessage());
 			}

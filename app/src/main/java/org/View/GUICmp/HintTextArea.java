@@ -9,13 +9,13 @@ import javax.swing.UIManager;
 
 public class HintTextArea extends JTextArea {
 	private boolean showingHint;
-    private String hint;
+	private String hint;
 
-	public HintTextArea(String hint) {
+	public HintTextArea(String h) {
 		showingHint = true;
-		this.hint = hint;
+		hint = h;
 
-		setText(hint);
+		super.setText(hint);
 		setForeground(Color.GRAY);
 
 		addFocusListener(new FocusAdapter() {
@@ -23,20 +23,22 @@ public class HintTextArea extends JTextArea {
 			public void focusGained(FocusEvent e) {
 				if (showingHint) {
 					setText("");
-					setForeground(UIManager.getColor("TextField.foreground"));
-					showingHint = false;
 				}
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (getText().isEmpty()) {
-					setText(hint);
-					setForeground(Color.GRAY);
-					showingHint = true;
-				}
+				setHint();
 			}
 		});
+	}
+
+	private void setHint() {
+		if (getText().isEmpty()) {
+			super.setText(hint);
+			setForeground(Color.GRAY);
+			showingHint = true;
+		}
 	}
 
 	@Override
@@ -44,9 +46,17 @@ public class HintTextArea extends JTextArea {
 		return showingHint ? "" : super.getText();
 	}
 
-    public void reset(){
-	setText(hint);
-	setForeground(Color.GRAY);
-	showingHint=true;
-    }
+	@Override
+	public void setText(String s) {
+		super.setText(s);
+		setForeground(UIManager.getColor("TextField.foreground"));
+		showingHint = false;
+		repaint();
+	}
+
+	public void reset() {
+		setText(hint);
+		setForeground(Color.GRAY);
+		showingHint = true;
+	}
 }

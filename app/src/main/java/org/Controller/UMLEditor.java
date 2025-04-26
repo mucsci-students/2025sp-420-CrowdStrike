@@ -58,10 +58,26 @@ public class UMLEditor {
 		pcs.firePropertyChange("AddClass", null, newClass);
 	}
 
-	//this fn a bit to gui spasific sssssh dont tell
+	//this aria is very gui spisifc dont tell no body
+	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+		ClassObject old = new ClassObject(co);
+		co.getFieldList().clear();
+		co.getMethodList().clear();
+		buildClassFromGUI(co,name,fields,methods);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("FullUpdateClass", old, co);
+	}
+
 	public void addClass(String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
 		ClassObject nc = new ClassObject(name);
+		buildClassFromGUI(nc,name,fields,methods);
+		model.getClassList().add(nc);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, nc);
+	}
 
+	public void buildClassFromGUI(ClassObject nc, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+		nc.setName(name);
 		for(Map.Entry<String,String> e: fields.entrySet()){
 			Field tmp = new Field(e.getKey(),e.getValue());
 			nc.addAttribute(tmp);
@@ -75,11 +91,7 @@ public class UMLEditor {
 			Method m = new Method(a.get(1),a.get(0),p);
 			nc.addAttribute(m);
 		}
-
-		model.getClassList().add(nc);
-		memento.saveState(this.model);
-		pcs.firePropertyChange("AddClass", null, nc);
-	}
+    }
 
 	/**
 	 * Deletes specified class from classList

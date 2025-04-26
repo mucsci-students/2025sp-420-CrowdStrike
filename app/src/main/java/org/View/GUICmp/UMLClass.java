@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.awt.event.MouseAdapter;
@@ -139,10 +140,24 @@ public class UMLClass extends JPanel implements PropertyChangeListener {
 				ArrayList<AttributeInterface> b = (ArrayList<AttributeInterface>) evt.getNewValue();
 				updateSub("methods", b);
 				break;
+
+			case "FullUpdateClass":
+				fullUpdate(evt, tb);
+
 		}
 		revalidate();
 		setSize(getPreferredSize());
 		repaint();
+	}
+
+	private void fullUpdate(PropertyChangeEvent evt, TitledBorder tb) {
+		ClassObject co = (ClassObject) evt.getOldValue();
+		ClassObject cn = (ClassObject) evt.getNewValue();
+		if (co.getName() != tb.getTitle())
+			return;
+		tb.setTitle(cn.getName());
+		updateSub("fields", cn.getFieldList());
+		updateSub("methods", cn.getMethodList());
 	}
 
 	private void updateSub(String name, ArrayList<AttributeInterface> a) {

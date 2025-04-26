@@ -2,6 +2,11 @@ package org.View.GUICmp;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import org.Model.AttributeInterface;
+import org.Model.ClassObject;
+import org.Model.Field;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -9,10 +14,10 @@ import javax.swing.JButton;
 import java.awt.GridLayout;
 import java.util.HashMap;
 
-public class FieldFrame extends JPanel {
+public class FieldPanel extends JPanel {
 	private JPanel grid;
 
-	public FieldFrame() {
+	public FieldPanel() {
 		super();
 		setBorder(BorderFactory.createTitledBorder("Fields"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -28,31 +33,52 @@ public class FieldFrame extends JPanel {
 
 		tmp = new JButton("+");
 		tmp.addActionListener(e -> {
-			GridLayout g = (GridLayout) grid.getLayout();
-			g.setRows(g.getRows() + 1);
-			grid.add(new HintTextArea("Type"));
-			grid.add(new HintTextArea("Name"));
-			grid.revalidate();
-			grid.repaint();
-			SwingUtilities.getWindowAncestor(this).pack();
+			addGrid();
 		});
 		control.add(tmp);
 
 		tmp = new JButton("-");
 		tmp.addActionListener(e -> {
-			GridLayout g = (GridLayout) grid.getLayout();
-			if (g.getRows() < 1)
-				return;
-			g.setRows(g.getRows() - 1);
-			int cnt = grid.getComponentCount();
-			grid.remove(grid.getComponent(cnt - 1));
-			grid.remove(grid.getComponent(cnt - 2));
-			grid.revalidate();
-			grid.repaint();
-			SwingUtilities.getWindowAncestor(this).pack();
+			removeGrid();
 		});
 		control.add(tmp);
 		add(control);
+	}
+
+	private void addGrid() {
+		addGrid(null, null);
+	}
+
+	private void addGrid(String name, String type) {
+		GridLayout g = (GridLayout) grid.getLayout();
+		g.setRows(g.getRows() + 1);
+
+		HintTextArea tmp = new HintTextArea("Type");
+		if (type != null)
+			tmp.setText(type);
+		grid.add(tmp);
+
+		tmp = new HintTextArea("Name");
+		if (name != null)
+			tmp.setText(name);
+		grid.add(tmp);
+
+		grid.revalidate();
+		grid.repaint();
+		SwingUtilities.getWindowAncestor(this).pack();
+	}
+
+	private void removeGrid() {
+		GridLayout g = (GridLayout) grid.getLayout();
+		if (g.getRows() < 1)
+			return;
+		g.setRows(g.getRows() - 1);
+		int cnt = grid.getComponentCount();
+		grid.remove(grid.getComponent(cnt - 1));
+		grid.remove(grid.getComponent(cnt - 2));
+		grid.revalidate();
+		grid.repaint();
+		SwingUtilities.getWindowAncestor(this).pack();
 	}
 
 	public HashMap<String, String> getData() {
@@ -77,5 +103,12 @@ public class FieldFrame extends JPanel {
 			return;
 		grid.removeAll();
 		l.setRows(0);
+	}
+
+	public void set(ClassObject c) {
+		for (AttributeInterface i : c.getFieldList()) {
+			Field f = (Field) i;
+			addGrid(f.getName(), f.getVarType());
+		}
 	}
 }
