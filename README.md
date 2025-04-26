@@ -140,8 +140,12 @@ We also have a controller for our gui view call `GUIController.java` that accept
  Seen in the CLController as for:each loops to iterate through various lists. 
 ### 3. Decorator
  Seen in the CLI as we did not change the base functionality of calling commands, but rather added a command feature that allows users to tab complete.
-### 4. Composite
- Seen in the classbox as we take in a class object and reference it later.
+### 4. Builder
+ Seen in UMLToJson file using string builder to build out the save file.
+### 5. Adapter
+ Seen in the FileManager file where it takes in an adapter for save and load.
+### 6. 
+ Seen in the GUIView where each box in the view subscribes to one relative item in the model.
 ## Devs
 Brought to you by:  
 
