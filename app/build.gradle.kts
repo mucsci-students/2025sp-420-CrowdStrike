@@ -65,3 +65,40 @@ tasks.register<JavaExec>("run-cli") {
     mainClass.set(application.mainClass.get())
     args("--cli")
 }
+
+tasks.register("checkModelCoverage") {
+    dependsOn("jacocoTestReport")
+    doLast {
+        val reportFile = file("app/build/reports/jacoco/test/jacocoTestReport.xml")
+        if (!reportFile.exists()) throw GradleException("Coverage report not found")
+
+        val xml = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+            .newDocumentBuilder().parse(reportFile)
+        xml.documentElement.normalize()
+
+        val counters = xml.getElementsByTagName("package")
+        var totalMissed = 0
+        var totalCovered = 0
+
+        for (i in 0 until counters.length) {
+            val pkg = counters.item(i)
+            val name = pkg.attributes.getNamedItem("name").nodeValue
+            if (name.startsWith("org/Model")) {
+                val children = pkg.childNodes
+                for (j in 0 until children.length) {
+                    val node = children.item(j)
+                    if (node.nodeName == "counter" && node.attributes.getNamedItem("type").nodeValue == "INSTRUCTION") {
+                        totalMissed += node.attributes.getNamedItem("missed").nodeValue.toInt()
+                        totalCovered += node.attributes.getNamedItem("covered").nodeValue.toInt()
+                    }
+                }
+            }
+        }
+
+        if (totalMissed > 0) {
+            throw GradleException("Model package coverage is not 100%! Missed: $totalMissed, Covered: $totalCovered")
+        } else {
+            println("Model package has 100% instruction coverage.")
+        }
+    }
+}
