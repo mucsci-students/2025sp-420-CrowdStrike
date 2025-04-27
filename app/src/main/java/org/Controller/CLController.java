@@ -565,9 +565,7 @@ public class CLController {
 	}
 
 	@Command(name = "save", description = "Saves model")
-	private void save() {
-		view.show("Where would you like to save:");
-		String path = sc.nextLine();
+	private void save(@Parameters(paramLabel = "path", description = "Location to save UML") String path) {
 		UMLToJsonAdapter adapter = new UMLToJsonAdapter();
 		try {
 			FileManager file = new FileManager();
@@ -578,19 +576,14 @@ public class CLController {
 	}
 
     	@Command(name = "saveimg", description = "Saves model image")
-	private void saveing() {
-		view.show("Where would you like to save:");
-		String path = sc.nextLine();
+	private void saveing(@Parameters(paramLabel = "path", description = "Location to save UML image") String path) {
 		UMLDiagram d = new UMLDiagram(editor);
 		d.save(path);
 	}
 
 	@Command(name = "load", description = "Loads a saved model")
-	private void load() {
-		view.show("Where would you like to load from:");
-		String path = sc.nextLine();
+	private void load(@Parameters(paramLabel = "path", description = "Location of saved UML to load") String path) {
 		UMLToJsonAdapter adapter = new UMLToJsonAdapter();
-
 		try {
 			FileManager file = new FileManager();
 			model = file.load(adapter ,path);
@@ -741,12 +734,12 @@ public class CLController {
 			LineReader reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build();
 
 			while ((input = reader.readLine(basePrompt)) != null) {
-				if (input.equalsIgnoreCase("exit") || input.equalsIgnoreCase("q")) {
+				if (input.trim().equalsIgnoreCase("exit") || input.trim().equalsIgnoreCase("q")) {
 					break;
 				}
 
 				try {
-					if (input.equalsIgnoreCase("help")) {
+					if (input.trim().equalsIgnoreCase("help")) {
 						input = "-h";
 					}
 					List<String> lst = tokenizeCommands(input);

@@ -77,9 +77,27 @@ public class UMLCompleter implements Completer {
      */
     private void commandCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         List<CharSequence> cs = new ArrayList<CharSequence>();
-        AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
-        for (CharSequence c : cs) {
-            candidates.add(new Candidate((String) c));
+        if (words[0].trim().equalsIgnoreCase("help")) {
+            for (int i = 0; i < classCommands.size(); i++) {
+                candidates.add(new Candidate(classCommands.get(i)));
+            }
+            candidates.add(new Candidate("listclasses"));
+            candidates.add(new Candidate("lcs"));
+            candidates.add(new Candidate("listrelationships"));
+            candidates.add(new Candidate("lr"));
+            candidates.add(new Candidate("addclass"));
+            candidates.add(new Candidate("ac"));
+            candidates.add(new Candidate("save"));
+            candidates.add(new Candidate("load"));
+            candidates.add(new Candidate("undo"));
+            candidates.add(new Candidate("redo"));
+        } else {
+            cs.add("help");
+            cs.add("exit");
+            AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
+            for (CharSequence c : cs) {
+                candidates.add(new Candidate((String) c));
+            }
         }
     }
 
@@ -240,7 +258,7 @@ public class UMLCompleter implements Completer {
         // the command that has been entered
 
         // If no input or working on first inputautocomplete commands
-        if (words.length == 1 || line.line().isEmpty()) {
+        if (words.length == 1 || line.line().isEmpty() || words[0].trim().equalsIgnoreCase("help")) {
             // Completion function for commands
             commandCompletion(words, line, candidates);
         } else if (words.length == 2 && isValidClassCommand(words[0])) {
