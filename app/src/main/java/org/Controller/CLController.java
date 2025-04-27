@@ -2,16 +2,17 @@ package org.Controller;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import org.FileManager;
-import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
+import org.UMLToJsonAdapter;
 import org.View.CLView;
 import org.View.GUICmp.UMLDiagram;
 import org.jline.reader.Completer;
@@ -22,12 +23,12 @@ import org.jline.terminal.TerminalBuilder;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Parameters;
-import picocli.shell.jline3.PicocliJLineCompleter;
 
 // Checks validity of action then calls function in
 // editor to carry out change
-@Command(name = "", mixinStandardHelpOptions = true, version = "CLController 1.0",
+@Command(name = "", mixinStandardHelpOptions = true, subcommands = {HelpCommand.class}, version = "CLController 1.0",
 		description = "CLI Controller for UML Editor")
 public class CLController {
 
@@ -148,30 +149,30 @@ public class CLController {
 	 */
 	@Command(name = "addrelationship", aliases = ("ar"), description = "Add relationship between classes")
 	private void CL_addRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
-									@Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
+									@Parameters(paramLabel = "dest", description = "The destination class' name") String dest,
+									@Parameters(paramLabel = "relType", description = "The type of the relationship") String relType) {
 		try {
 			model.fetchClass(source);
 			model.fetchClass(dest);
 			if (!model.relationshipExist(source, dest)) {
 				// Relationship does not already exist
-				String typeint = "0";
 				Type type = null;
-				while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3") || typeint.equals("4"))) {
-					view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
-					typeint = sc.nextLine();
-					if (typeint.equals("1")) {
+				switch(relType.toLowerCase()) {
+					case "aggregation":
 						type = Type.AGGREGATION;
-					} else if (typeint.equals("2")) {
+						break;
+					case "composition":
 						type = Type.COMPOSITION;
-					} else if (typeint.equals("3")) {
+						break;
+					case "inheritance":
 						type = Type.INHERITANCE;
-					} else if (typeint.equals("4")) {
+						break;
+					case "realization":
 						type = Type.REALIZATION;
-					} else if (typeint.equalsIgnoreCase("cancel")) {
+						break;
+					default:
+						view.show("Invalid type given, relationship could not be created");
 						return;
-					} else {
-						view.show("Invalid input! Try again (or 'cancel' the creation).");
-					}
 				}
 				if (type != null && editor.addRelationship(source, dest, type)) {
 					view.show(type + " Relationship successfully created from " + source + " to " + dest);
@@ -192,26 +193,21 @@ public class CLController {
 	 */
 	@Command(name = "editrelationship", aliases = ("er"), description = "Edits a relationship")
 	private void CL_editRelationship(@Parameters(paramLabel = "source", description = "The source class' name") String source,
-									 @Parameters(paramLabel = "dest", description = "The destination class' name") String dest) {
+									 @Parameters(paramLabel = "dest", description = "The destination class' name") String dest,
+									 @Parameters(paramLabel = "editField", description = "The field being edited by the user") String editField,
+									 @Parameters(paramLabel = "newValue", description = "The value being updated into the field being changed") String newValue) {
 		try {
 			model.fetchClass(source);
 			model.fetchClass(dest);
 			if (model.relationshipExist(source, dest)) {
-				view.show("What property of the relationship are you changing?\n");
-				view.show("You can edit the 'source', 'destination', or 'type' of this relationship.");
-				String field = sc.nextLine().toLowerCase();
-				String value = null;
-				switch (field) {
+				switch(editField.toLowerCase()) {
 					case "source":
 						try {
-							view.show(model.listClassNames());
-							view.show("Which class do you want to name as the new source?");
-							value = sc.nextLine();
-							model.fetchClass(value);
+							model.fetchClass(newValue);
 							// Need to check if Relationship w/ new source and current dest
 							// already exists and abort if yes
-							if (model.relationshipExist(value, dest)) {
-								view.show("Relationship between " + value + " and " + dest + " already exists");
+							if (model.relationshipExist(newValue, dest)) {
+								view.show("Relationship between " + newValue + " and " + dest + " already exists");
 								return;
 							}
 						} catch (Exception e) {
@@ -219,17 +215,13 @@ public class CLController {
 							return;
 						}
 						break;
-	
 					case "destination":
 						try {
-							view.show(model.listClassNames());
-							view.show("What class do you want to name as the new destination?");
-							value = sc.nextLine();
-							model.fetchClass(value);
+							model.fetchClass(newValue);
 							// Need to check if Relationship w/ current source and new dest
 							// already exists and abort if yes
-							if (model.relationshipExist(source, value)) {
-								view.show("Relationship between " + source + " and " + value + " already exists");
+							if (model.relationshipExist(source, newValue)) {
+								view.show("Relationship between " + source + " and " + newValue + " already exists");
 								return;
 							}
 						} catch (Exception e) {
@@ -237,38 +229,35 @@ public class CLController {
 							return;
 						}
 						break;
-	
 					case "type":
-						String typeint = "0";
-						while (!(typeint.equals("1") || typeint.equals("2") || typeint.equals("3")
-								|| typeint.equals("4"))) {
-							view.show("Enter 1-4 to set the type of relationship (1. Aggregation | 2. Composition | 3. Inheritance | 4. Realization)");
-							typeint = sc.nextLine();
-							if (typeint.equals("1")) {
-								value = "AGGREGATION";
-							} else if (typeint.equals("2")) {
-								value = "COMPOSITION";
-							} else if (typeint.equals("3")) {
-								value = "INHERITANCE";
-							} else if (typeint.equals("4")) {
-								value = "REALIZATION";
-							} else if (typeint.equalsIgnoreCase("cancel")) {
-								view.show("Operation canceled by user. Aborting.");
+						switch(newValue.toLowerCase()) {
+							case "aggregation":
+								newValue = "AGGREGATION";
+								break;
+							case "composition":
+								newValue = "COMPOSITION";
+								break;
+							case "inheritance":
+								newValue = "INHERITANCE";
+								break;
+							case "realization":
+								newValue = "REALIZATION";
+								break;
+							default:
+								view.show("Invalid type given, relationship could not be edited");
 								return;
-							} else {
-								view.show("Invalid input! Try again (or 'cancel' the update).");
-							}
 						}
-						view.show("Relationship's type successfully set to " + value);
 						break;
 					default:
-						view.show("Unfortunately, we don't support changing the " + field
-								+ " of a relationship right now. Aborting.");
-						break;
+						view.show("We do not support changing the " + editField
+								+ " of a relationship right now");
+						return;
 				}
+
 				try {
-					if (value != null) {
-						editor.editRelationship(source, dest, field, value);
+					if (newValue != null) {
+						editor.editRelationship(source, dest, editField, newValue);
+						view.show("Relationship successfully updated");
 					}
 				} catch (Exception e) {
 					//Temp Try-Catch block
@@ -303,19 +292,16 @@ public class CLController {
 	 * Gets class and field info from user and returns if action succeeded or not
 	 */
 	@Command(name = "addfield", aliases = ("af"), description = "Adds a field")
-	private void CL_addField(@Parameters(paramLabel = "className", description = "The class the field is being added to") String className) {
+	private void CL_addField(@Parameters(paramLabel = "className", description = "The class the field is being added to") String className,
+							 @Parameters(paramLabel = "fieldName", description = "The field being added") String fieldName,
+							 @Parameters(paramLabel = "fieldType", description = "The type of the field") String fieldType) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show("What do you want to name the field?");
-			input = sc.nextLine();
-			if (input.isEmpty()) {
-				view.show("Field name must not be blank");
-				return;
+			if (fieldName.isEmpty() || fieldType.isEmpty()) {
+				view.show("Fields must have a name and type");
 			}
-			view.show("What do you want the type of the field to be?");
-			String fieldType = sc.nextLine();
-			editor.addField(activeClass, input, fieldType);
-			view.show("Field " + input + " successfully added to class " + className);
+			editor.addField(activeClass, fieldName, fieldType);
+			view.show("Field " + fieldName + " successfully added to class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -325,14 +311,12 @@ public class CLController {
 	 * Gets class and field info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletefield", aliases = ("df"), description = "Delete a field")
-	private void CL_deleteField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
+	private void CL_deleteField(@Parameters(paramLabel = "className", description = "The class containing the field") String className,
+								@Parameters(paramLabel = "fieldName", description = "The field being deleted") String fieldName) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listFields(activeClass));
-			view.show("What is the name of the field you want to delete?");
-			input = sc.nextLine();
-			editor.deleteField(activeClass, input);
-			view.show("Field " + input + " successfully deleted from class " + className);
+			editor.deleteField(activeClass, fieldName);
+			view.show("Field " + fieldName + " successfully deleted from class " + className);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -342,33 +326,26 @@ public class CLController {
 	 * Gets class and field info from user and allows them to change its name/type
 	 */
 	@Command(name = "editfield", aliases = ("ef"), description = "Edits a field")
-	private void CL_editField(@Parameters(paramLabel = "className", description = "The class containing the field") String className) {
+	private void CL_editField(@Parameters(paramLabel = "className", description = "The class containing the field") String className,
+							  @Parameters(paramLabel = "fieldName", description = "The field being changed") String fieldName,
+							  @Parameters(paramLabel = "editField", description = "The part of the field being edited") String editField,
+							  @Parameters(paramLabel = "newValue", description = "The value being updated in the field being changed") String newValue) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listFields(activeClass));
-			view.show("What is the name of the field you want to edit?");
-			input = sc.nextLine();
-			Field editField = activeClass.fetchField(input);
-			view.show("What part of " + input + " do you want to edit? (Name or Type)");
-			input = sc.nextLine().replaceAll("\\s", "");
-			while(true) {
-				if (input.equalsIgnoreCase("name")) {
-					// Edit name
-					view.show("What do you want to rename the field to?");
-					String newName = sc.nextLine();
-					editor.renameField(activeClass, editField, newName);
-					view.show("Field " + input + " renamed to " + newName);
+			Field activeField = activeClass.fetchField(fieldName);
+			switch(editField.toLowerCase()) {
+				case "name":
+					editor.renameField(activeClass, activeField, newValue);
+					view.show("Field " + fieldName + " renamed to " + newValue);
 					break;
-				} else if (input.equalsIgnoreCase("type")) {
-					// Edit type
-					view.show("What do you want the field's new type to be?");
-					String newType = sc.nextLine();
-					editor.changeFieldType(editField, newType);
-					view.show("Type successfully changed to " + newType);
+				case "type":
+					editor.changeFieldType(activeField, newValue);
+					view.show("Type successfully changed to " + newValue);
 					break;
-				}
-				view.show("Input did not match a changable value \nPlease try again");
-				input = sc.nextLine().replaceAll("\\s", "");
+				default:
+					view.show("We do not support changing the " + editField
+							+ " of a field right now");
+					return;
 			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -380,66 +357,33 @@ public class CLController {
 	 * or not
 	 */
 	@Command(name = "addmethod", aliases = ("am"), description = "Adds a method")
-	private void CL_addMethod(@Parameters(paramLabel = "className", description = "The class the method is being added to") String className) {
+	private void CL_addMethod(@Parameters(paramLabel = "className", description = "The class the method is being added to") String className,
+							  @Parameters(paramLabel = "methodName", description = "The name of the method being added") String methodName,
+							  @Parameters(paramLabel = "paramList", arity = "0..1", description = "The parameters of the method") String paramList,
+							  @Parameters(paramLabel = "returnType", arity = "0..1", description = "The return type of the method") String returnType) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show("What do you want to name the method?");
-			input = sc.nextLine();
-			view.show("What would you like the method's return type to be?");
-			String retType = sc.nextLine().replaceAll("\\s", "");
-			if (retType.isEmpty()) {
-				retType = "void";
+			// Format for paramList --> (name1: type1,name2: type2,etc)
+			// If user did not 
+			if (paramList == null) {
+				paramList = "()";
 			}
-			LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
-			view.show("Type the name of a parameter you'd like to add to this new method (enter to skip)");
-			String paramName = sc.nextLine().replaceAll("\\s", "");
-			String type;
+			LinkedHashMap<String, String> paramMap = parseParamList(paramList);
 
-			boolean empty_input = paramName.equalsIgnoreCase("");
-			while (!empty_input) {
-				if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
-					empty_input = true;
-					break;
-				} else {
-					boolean exist = false;
-					for (String str : paramList.keySet()) {
-						if (paramName.equals(str)) {
-							// Parameter name has already been added
-							exist = true;
-							break;
-						} else {
-							// Do nothing
-						}
-					}
-					if (exist) {
-						view.show("Parameter " + paramName + " has already been added");
-					} else {
-						view.show("Enter the parameter's type");
-						type = sc.nextLine().replaceAll("\\s", "");
-						if (type.isEmpty()) {
-							// Will restart loop which will immediately come back to this point b/c paramName is still stored
-							view.show("Parameters must have a type, please try again");
-							continue;
-						}
-						paramList.put(paramName, type);
-						view.show("Parameter " + paramName + " added to method " + input);
-					}
-				}
-				view.show("What would you like to name the next parameter?");
-				paramName = sc.nextLine().replaceAll("\\s", "");
+			if (returnType == null) {
+				returnType = "void";
 			}
-
 			
-			editor.addMethod(activeClass, input, retType, paramList);
+			editor.addMethod(activeClass, methodName, returnType, paramMap);
 
-			if (paramList.size() == 0) {
-				view.show("Method " + input + "() successfully added to class " + className);
+			if (paramMap.size() == 0) {
+				view.show("Method " + methodName + "() successfully added to class " + className);
 			} else {
 				int i = 0;
-				String message = "Method " + input + "(";
-				for (String str : paramList.keySet()) {
+				String message = "Method " + methodName + "(";
+				for (String str : paramMap.keySet()) {
 					message += str;
-					if (i < paramList.size() - 1) {
+					if (i < paramMap.size() - 1) {
 						message += ", ";
 					}
 					i++;
@@ -457,31 +401,11 @@ public class CLController {
 	 * Gets class and method info from user and returns if deletion succeeded
 	 */
 	@Command(name = "deletemethod", aliases = ("dm"), description = "Deletes a method")
-	private void CL_deleteMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_deleteMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								 @Parameters(paramLabel = "methodSig", description = "The method name and param types") String methodSig) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to delete('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-            Method delMethod = (Method) activeClass.getMethodList().get(methodNum);
+			Method delMethod = parseMethod(activeClass, methodSig);
 			editor.deleteMethod(activeClass, delMethod);
 			view.show("Method " + delMethod.getName() + " successfully deleted");
 		} catch (Exception e) {
@@ -493,55 +417,27 @@ public class CLController {
 	 * Gets class and method info from user and allows the to change name/return type
 	 */
 	@Command(name = "editmethod", aliases = {"em"}, description = "Edits a method")
-	private void CL_editMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_editMethod(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+							   @Parameters(paramLabel = "methodSig", description = "The method name and param types") String methodSig,
+							   @Parameters(paramLabel = "editField", description = "The part of the method being edited") String editField,
+							   @Parameters(paramLabel = "newValue", description = "The value being updated in the method") String newValue) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-            Method editMethod = (Method) activeClass.getMethodList().get(methodNum);
-			view.show("What part of " + editMethod.getName() + " do you want to change? (Name or Type)");
-			input = sc.nextLine().replaceAll("\\s", "");
-			while(true) {
-				if (input.equalsIgnoreCase("name")) {
-					// Edit name
-					String oldName = editMethod.getName();
-					view.show("What do you want to rename the method to?");
-					String newName = sc.nextLine();
-					editor.renameMethod(activeClass, editMethod, newName);
-					view.show("Method " + oldName + " renamed to " + newName);
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			switch(editField.toLowerCase()) {
+				case "name":
+					String oldName = activeMethod.getName();
+					editor.renameMethod(activeClass, activeMethod, newValue);
+					view.show("Method " + oldName + " renamed to " + newValue);
 					break;
-				} else if (input.equalsIgnoreCase("type")) {
-					// Edit type
-					view.show("What do you want the method's new return type to be?");
-					String newType = sc.nextLine();
-					if (newType.isEmpty()) {
-						newType = "void";
-					}
-					editor.changeMethodType(editMethod, newType);
-					view.show("Type successfully changed to " + newType);
+				case "type":
+					editor.changeMethodType(activeMethod, newValue);
+					view.show("Return type successfully changed to " + newValue);
 					break;
-				}
-				view.show("Input did not match a changable value \nPlease try again");
-				input = sc.nextLine().replaceAll("\\s", "");
+				default:
+					view.show("We do not support changing the " + editField
+							+ " of a method right now");
+					return;
 			}
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -554,64 +450,14 @@ public class CLController {
 	 * to the list of parameters attached to the method.
 	 */
 	@Command(name = "addparameter", aliases = ("ap"), description = "Adds a parameter")
-	private void CL_addParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_addParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+							 @Parameters(paramLabel = "methodSig", description = "The method having params added") String methodSig,
+							 @Parameters(paramLabel = "paramList", description = "The parameters being added") String paramList) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
-			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
-			boolean loop = true;
-			String typeInput = "";
-			view.show("Type the name of a parameter you'd like to add (enter to stop)");
-			while(loop) {
-				input = sc.nextLine().replaceAll("\\s", "");
-				if (input.equalsIgnoreCase("stop") || input.equals("")) {
-					loop = false;
-				} else {
-					if (activeMethod.paramUsed(input)) {
-						view.show("This parameter is already in the method.");
-						view.show("Please type the name of the next parameter (enter to stop): ");
-						continue;
-					}
-					if (editor.nameAlrAdded(input, parameterList)) {
-						view.show("This parameter has already been added.");
-						view.show("Please type the name of the next parameter (enter to stop):");
-						continue;
-					}
-					view.show("Enter the parameter's type");
-					typeInput = sc.nextLine().replaceAll("\\s", "");
-					if(typeInput.equals("")) {
-						view.show("Parameters must have a type");
-						view.show("Please type the name of the next parameter:");
-						continue;					
-					}
-					parameterList.put(input, typeInput);
-				}
-				view.show("Please type the name of the next parameter (enter to stop):");
-			}
-			editor.addParam(parameterList, activeMethod);
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			LinkedHashMap<String, String> paramMap = parseParamList(activeMethod, paramList);
+			editor.addParam(paramMap, activeMethod);
 			view.show("The parameter(s) were added to " + activeMethod.getName());
 		} catch (Exception e) {
 			view.show(e.getMessage());
@@ -625,36 +471,12 @@ public class CLController {
 	 * the named parameter.
 	 */
 	@Command(name = "removeparameter", aliases = ("rp"), description = "Removes a parameter")
-	private void CL_removeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_removeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								@Parameters(paramLabel = "methodSig", description = "The method having a param deleted") String methodSig,
+								@Parameters(paramLabel = "paramName", description = "The parameter to be removed") String paramName) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
-			ArrayList<Parameter> paramList = activeMethod.getParamList();
-			view.show("Type the name of the parameter you'd like to remove");
-			String paramName = sc.nextLine().replaceAll("\\s", "");
+			Method activeMethod = parseMethod(activeClass, methodSig);
 			Parameter param = activeMethod.fetchParameter(paramName);
 			editor.removeParam(activeMethod, param);
 			view.show("Success! Parameter " + paramName + " has been removed.");
@@ -663,34 +485,15 @@ public class CLController {
 		}
 	}
 
+	/*
+	 * Removes all parameters from the given method
+	 */
 	@Command(name = "removeallparameters", aliases = ("rap"), description = "Removes all parameters")
-	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	private void CL_removeAllParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								   @Parameters(paramLabel = "methodSig", description = "The method having params removed") String methodSig) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
-
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
+			Method activeMethod = parseMethod(activeClass, methodSig);
 			editor.removeAllParams(activeMethod);
 			view.show("All parameters were removed");
 		} catch (Exception e) {
@@ -699,100 +502,38 @@ public class CLController {
 	}
 
 	/*
-	 * Gets the class, and method that the parameters belongs to and asks the user if they'd like to change
-	 * one or all of the parameters. If its all parameters it replaces everything after index 0 with a new list.
-	 * if its one parameter it replaces everything after the parameter to be changed with a new list of parameters
-	 * containing all of the new parameters as well as the old parameters at their locations prior to the change.
+	 * Replaces the specefied param in the given method with the list of params given
 	 */
-	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one or all params")
-	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className) {
+	@Command(name = "changeparameter", aliases = ("cp"), description = "Replaces one param")
+	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								@Parameters(paramLabel = "methodSig", description = "The method having a param changed") String methodSig,
+								@Parameters(paramLabel = "paramName", description = "The parameter to be changed") String paramName,
+								@Parameters(paramLabel = "paramList", description = "The new parameters") String paramList) {
 		try {
 			activeClass = model.fetchClass(className);
-			view.show(model.listMethods(activeClass));
-			view.show("Enter the number of the method you want to rename('stop' to cancel)");
-			int methodNum = -1;
-			boolean validNum = false;
-			while (!validNum) {
-				if (sc.hasNextInt()) {
-					methodNum = sc.nextInt() - 1;
-					if (!(0 <= methodNum && methodNum < activeClass.getMethodList().size())) {
-						view.show("Number must be associated with a method");
-						continue;
-					}
-					validNum = true;
-				} else {
-					if (sc.nextLine().equalsIgnoreCase("stop")) {
-						return;
-					}
-					view.show("Invalid input. Please enter a positive number");
-				}
-				// Clear invalid input from buffer
-				sc.nextLine();
-			}
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			Parameter param = activeMethod.fetchParameter(paramName);
+			LinkedHashMap<String, String> paramMap = parseParamList(activeMethod, param, paramList);
+			editor.changeParameter(activeMethod, param, paramMap);
+			view.show("Parameter " + param.getName() + " was replaced with new parameter list.");
+		} catch (Exception e) {
+			view.show(e.getMessage());
+		}
+	}
 
-
-			Method activeMethod = (Method) activeClass.getMethodList().get(methodNum);
-			view.show("Type 'All' to replace all of the parameters or type the name of the parameter you'd like to replace:");
-			input = sc.nextLine().replaceAll("//s", "");
-			Parameter oldParam = null;
-			boolean changeAll = false;
-			if (input.equalsIgnoreCase("all")) {
-				// Changing all parameters
-				changeAll = true;
-			} else {
-				// Changing one parameter
-				oldParam = activeMethod.fetchParameter(input);
-			}
-			LinkedHashMap<String, String> parameterList = new LinkedHashMap<>();
-			boolean loop = true;
-			boolean changeParamReadded = false;
-			String paramName = "";
-			String type = "";
-			view.show("Type the name of a parameter you'd like to add to the new list. (enter to stop):");
-			while (loop) {
-				// Loops for adding
-				paramName = sc.nextLine().replaceAll("\\s", "");
-				if (paramName.equalsIgnoreCase("stop") || paramName.equals("")) {
-					loop = false;
-				} else {
-					if (!input.equalsIgnoreCase("all")) {
-						// Only need to check if new paramName is in method if all parameters are not
-						// being replaced
-						if (activeMethod.paramUsed(paramName)) {
-							if (!changeParamReadded && paramName.equals(input)) {
-								parameterList.put(paramName, type);
-								view.show("Please type the name then type of the next parameter:");
-								changeParamReadded = true;
-								continue;
-							}
-							view.show("This parameter is already in the method.");
-							view.show("Please type the name then type of the next parameter:");
-							continue;
-						}
-					}
-					if (editor.nameAlrAdded(paramName, parameterList)) {
-						view.show("This parameter has already been added.");
-						view.show("Please type the name then type of the next parameter:");
-						continue;
-					}
-					view.show("Enter the parameter's type");
-					type = sc.nextLine().replaceAll("\\s", "");
-					if(type.equals("")) {
-						view.show("Parameters must have a type");
-						view.show("Please type the name of the next parameter:");
-						continue;					
-					}
-					parameterList.put(paramName, type);
-				}
-				view.show("Please type the name of the next parameter:");
-			}
-			if (changeAll) {
-				editor.changeAllParams(activeMethod, parameterList);
-				view.show("All parameters were replaced.");
-			} else {
-				editor.changeParameter(activeMethod, oldParam, parameterList);
-				view.show("Parameter " + oldParam.getName() + " was replaced with new parameter list.");
-			}
+	/*
+	 * Replaces all parameters in the given method with the new list
+	 */
+	@Command(name = "changeallparameters", aliases = ("cap"), description = "Replaces all params")
+	private void CL_changeParam(@Parameters(paramLabel = "className", description = "The class containing the method") String className,
+								@Parameters(paramLabel = "methodSig", description = "The method having a param changed") String methodSig,
+								@Parameters(paramLabel = "paramList", description = "The new parameters") String paramList) {
+		try {
+			activeClass = model.fetchClass(className);
+			Method activeMethod = parseMethod(activeClass, methodSig);
+			LinkedHashMap<String, String> paramMap = parseParamList(paramList);
+			editor.changeAllParams(activeMethod, paramMap);
+			view.show("All parameters were replaced.");
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -827,9 +568,10 @@ public class CLController {
 	private void save() {
 		view.show("Where would you like to save:");
 		String path = sc.nextLine();
+		UMLToJsonAdapter adapter = new UMLToJsonAdapter();
 		try {
 			FileManager file = new FileManager();
-			file.save(path, model);
+			file.save(adapter, model, path);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -847,14 +589,145 @@ public class CLController {
 	private void load() {
 		view.show("Where would you like to load from:");
 		String path = sc.nextLine();
+		UMLToJsonAdapter adapter = new UMLToJsonAdapter();
+
 		try {
 			FileManager file = new FileManager();
-			model = file.load(path);
+			model = file.load(adapter ,path);
 			editor = new UMLEditor(model);
 			completer.setModel(model);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
+	}
+
+	private Method parseMethod(ClassObject cls, String methodSig) throws Exception {
+		String mthdName = "";
+        String parameters = "";
+        // Find the index of the paren that splits name and params
+        int parenIndex = methodSig.indexOf("(");
+        if (parenIndex != -1) {
+            // Create Strings of method name and paramTypes seperated by commas
+            mthdName = methodSig.substring(0, parenIndex);
+            parameters = methodSig.substring(parenIndex + 1, methodSig.lastIndexOf(")"));
+        } else {
+            // Method has no parameters so call fetch on methodSig
+            return cls.fetchMethod(methodSig);
+        }
+		return cls.fetchMethod(mthdName, parameters);
+	}
+
+	/**
+	 * Used when adding methods or replacing all params, just skips any params with the same name
+	 * in the list being made
+	 */
+	private LinkedHashMap<String, String> parseParamList(String lst) {
+		// Format for paramList --> (name1: type1,name2: type2,etc)
+		LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
+		if (lst.equals("()")) {
+			return paramList;
+		}
+		// Create an array of Strings with "name1: type1" at each index
+		//String[] paramArr = lst.substring(1, lst.lastIndexOf(")")).split(",");
+		String[] paramArr = lst.substring(1, lst.length() - 1).split(",");
+		for (int i = 0; i < paramArr.length; i++) {
+			String[] param = paramArr[i].split(":");
+			/*
+			 * Add a check to avoid duplicate params
+			 */
+			if (paramList.keySet().contains(param[0].trim())) {
+				continue;
+			}
+			paramList.put(param[0].trim(), param[1].trim());
+		}
+		return paramList;
+	}
+
+	/**
+	 * Used when adding params to an existsing method
+	 */
+	private LinkedHashMap<String, String> parseParamList(Method mthd, String lst) {
+		// Format for paramList --> (name1: type1,name2: type2,etc)
+		LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
+		if (lst.equals("()")) {
+			return paramList;
+		}
+		// Create an array of Strings with "name1: type1" at each index
+		//String[] paramArr = lst.substring(1, lst.lastIndexOf(")")).split(",");
+		String[] paramArr = lst.substring(1, lst.length() - 1).split(",");
+		for (int i = 0; i < paramArr.length; i++) {
+			String[] param = paramArr[i].split(":");
+			// Makes sure duplicate params are skipped(in current list and method list)
+			if (paramList.keySet().contains(param[0].trim()) || mthd.paramUsed(param[0].trim())) {
+				continue;
+			}
+			paramList.put(param[0].trim(), param[1].trim());
+		}
+		return paramList;
+	}
+
+	/**
+	 * Used when changing one parameter, so that it can be added back in if needed
+	 */
+	private LinkedHashMap<String, String> parseParamList(Method mthd, Parameter changeParam, String lst) {
+		// Format for paramList --> (name1: type1,name2: type2,etc)
+		LinkedHashMap<String, String> paramList = new LinkedHashMap<>();
+		if (lst.equals("()")) {
+			return paramList;
+		}
+		// Create an array of Strings with "name1: type1" at each index
+		//String[] paramArr = lst.substring(1, lst.lastIndexOf(")")).split(",");
+		String[] paramArr = lst.substring(1, lst.length() - 1).split(",");
+		boolean paramReadded = false;
+		for (int i = 0; i < paramArr.length; i++) {
+			String[] param = paramArr[i].split(":");
+			// Allow the param being changed to be readded once
+			if (param[0].equals(changeParam.getName()) && !paramReadded) {
+				paramList.put(param[0].trim(), param[1].trim());
+				paramReadded = true;
+				continue;
+			}
+			// Makes sure duplicate params are skipped(in current list and method list)
+			if (paramList.keySet().contains(param[0].trim()) || mthd.paramUsed(param[0].trim())) {
+				continue;
+			}
+			paramList.put(param[0].trim(), param[1].trim());
+		}
+		return paramList;
+	}
+
+	private List<String> tokenizeCommands(String commands) {
+		List<String> cmds = new ArrayList<>();
+		StringBuilder current = new StringBuilder();
+		boolean inParens = false;
+		for (int i = 0; i < commands.length(); i++) {
+			char c = input.charAt(i);
+
+			if (c == '(') {
+				inParens = true;
+				current.append(c);
+			} else if (c == ')') {
+				current.append(c);
+				inParens = false;
+			} else if (Character.isWhitespace(c)) {
+				if (inParens) {
+					current.append(c);
+				} else {
+					if (current.length() > 0) {
+						cmds.add(current.toString());
+						current.setLength(0);
+					}
+				}
+			} else {
+				current.append(c);
+			}
+		}
+
+		if (current.length() > 0) {
+			cmds.add(current.toString());
+		}
+
+		return cmds;
 	}
 
 	/**
@@ -876,7 +749,11 @@ public class CLController {
 					if (input.equalsIgnoreCase("help")) {
 						input = "-h";
 					}
-					String[] cmds = input.split(" ");
+					List<String> lst = tokenizeCommands(input);
+					String[] cmds = new String[lst.size()];
+					for (int i = 0; i < lst.size(); i++) {
+						cmds[i] = lst.get(i);
+					}
 					cmd.execute(cmds);
 				} catch (CommandLine.ParameterException ex) {
 					System.err.println(ex.getMessage());
