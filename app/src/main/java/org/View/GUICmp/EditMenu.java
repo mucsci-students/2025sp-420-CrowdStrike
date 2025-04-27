@@ -18,15 +18,16 @@ public class EditMenu extends JMenu {
 		editClass.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
-			    EditClassInput ac = new EditClassInput(edit);
-			    ac.setVisible(true);
+			    EditClassInput ec = new EditClassInput(edit);
+			    ec.setVisible(true);
 			}
 		});
 
 		editRelationship.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+			    EditRelationshipsInput er = new EditRelationshipsInput(edit);
+			    er.setVisible(true);
 			}
 		});
 

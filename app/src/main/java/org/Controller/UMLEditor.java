@@ -230,6 +230,16 @@ public class UMLEditor {
 		}
 	}
 
+	//I dont love this fn but it's ez n I dont have time
+	public void updateRelationship(String src, String dst, Type t, Relationship r) throws Exception{
+		Relationship tmp = new Relationship(r);
+		r.setType(t);
+		r.setSource(model.fetchClass(src));
+		r.setDestination(model.fetchClass(dst));
+		memento.saveState(this.model);
+		pcs.firePropertyChange("EditRelationship", tmp, r);
+	}
+
 
 	/**
 	 * Adds a field to the designated ClassObject

@@ -143,4 +143,15 @@ public class Relationship{
 		pcs.addPropertyChangeListener(listener);
 	}
 
+    @Override
+    public String toString(){
+	String s = "";
+	s += source.toString();
+	s += "--";
+	s += getTypeString();
+	s += "->";
+	s += destination.toString();
+	return s;
+    }
+
 }
