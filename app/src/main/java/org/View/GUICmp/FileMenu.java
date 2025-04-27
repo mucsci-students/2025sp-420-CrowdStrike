@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.FileManager;
+import org.UMLToJsonAdapter;
 import org.Controller.UMLEditor;
 
 //TODO finish mock
@@ -93,8 +94,9 @@ public class FileMenu extends JMenu {
 	private void LoadJsonHelp() {
 		File f = getFileHelp(true, new FileNameExtensionFilter("JSON file", "json", "JSON"));
 		FileManager m = new FileManager();
+		UMLToJsonAdapter a = new UMLToJsonAdapter();
 		try {
-			d.updatemdl(m.load(f.getPath()));
+		    d.updatemdl(m.load(a,f.getPath()));
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
@@ -103,8 +105,9 @@ public class FileMenu extends JMenu {
 	private void SaveJsonHelp() {
 		File f = getFileHelp(false, new FileNameExtensionFilter("JSON file", "json", "JSON"));
 		FileManager m = new FileManager();
+		UMLToJsonAdapter a = new UMLToJsonAdapter();
 		try {
-			m.save(f.getPath(), e.getModel());
+		    m.save(a, e.getModel(),f.getPath());
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
