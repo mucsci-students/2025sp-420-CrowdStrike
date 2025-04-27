@@ -88,6 +88,7 @@ public class UMLCompleter implements Completer {
             candidates.add(new Candidate("addclass"));
             candidates.add(new Candidate("ac"));
             candidates.add(new Candidate("save"));
+            candidates.add(new Candidate("saveimg"));
             candidates.add(new Candidate("load"));
             candidates.add(new Candidate("undo"));
             candidates.add(new Candidate("redo"));
