@@ -1,20 +1,19 @@
 package org.Controller;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import org.FileManager;
-import org.Model.AttributeInterface;
 import org.Model.ClassObject;
 import org.Model.Field;
 import org.Model.Method;
 import org.Model.Parameter;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
+import org.UMLToJsonAdapter;
 import org.View.CLView;
-import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -22,9 +21,8 @@ import org.jline.terminal.TerminalBuilder;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
-import picocli.shell.jline3.PicocliJLineCompleter;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
 
 // Checks validity of action then calls function in
 // editor to carry out change
@@ -568,9 +566,10 @@ public class CLController {
 	private void save() {
 		view.show("Where would you like to save:");
 		String path = sc.nextLine();
+		UMLToJsonAdapter adapter = new UMLToJsonAdapter();
 		try {
 			FileManager file = new FileManager();
-			file.save(path, model);
+			file.save(adapter, model, path);
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
@@ -580,9 +579,11 @@ public class CLController {
 	private void load() {
 		view.show("Where would you like to load from:");
 		String path = sc.nextLine();
+		UMLToJsonAdapter adapter = new UMLToJsonAdapter();
+
 		try {
 			FileManager file = new FileManager();
-			model = file.load(path);
+			model = file.load(adapter ,path);
 			editor = new UMLEditor(model);
 			completer.setModel(model);
 		} catch (Exception e) {
