@@ -79,16 +79,18 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 .\gradlew.bat run-cli
 ```
 ## Usage
- Below is our available commands in command line 
+ Below is our available commands in command line  
+ Use help [command] to get usage information for each command
  ```
 Commands:
-  commands, com             Prints help list
+  help                      Displays available commands
   addclass, ac              Add a new class
   addfield, af              Adds a field
   addmethod, am             Adds a method
   addparameter, ap          Adds a parameter
   addrelationship, ar       Add relationship between classes
-  changeparameter, cp       Replaces one or all params
+  changeparameter, cp       Replaces one param
+  changeallparameters, cap  Replaces all params
   delete class, dc          Delete a class
   deletefield, df           Delete a field
   deletemethod, dm          Deletes a method
@@ -104,7 +106,14 @@ Commands:
   renamemethod, rm          Renames a method
   load                      Loads a saved model
   save                      Saves model
+  exit                      Exits the application
 ```
+Command Line Parameter Formatting:  
+paramList - () or (paramName1: paramType1, paramName2: paramtype2, ...)  
+methodSig - methodName or methodName() (if no parameters)  
+            methodName(paramName1: paramType1, paramName2: paramtype2, ...) (has parameters)  
+When adding a method if it does not have parameters, but you want to give it a type specify paramList as ()
+
 ## Codebase
 We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow code.
 

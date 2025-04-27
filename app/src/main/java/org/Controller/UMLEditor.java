@@ -1,6 +1,7 @@
 package org.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import org.Model.UMLMemento;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 
 public class UMLEditor {
@@ -22,6 +25,7 @@ public class UMLEditor {
 	private ClassObject activeClass;
 	// Memento object keeps track of previous states
 	private UMLMemento memento = new UMLMemento();
+    	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 
 	/**
@@ -51,7 +55,45 @@ public class UMLEditor {
 		ClassObject newClass = new ClassObject(newClassName);
 		model.getClassList().add(newClass);
 		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, newClass);
 	}
+
+	//this aria is very gui spisifc dont tell no body
+	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
+		ClassObject old = new ClassObject(co);
+		model.isValidClassName(name);
+		co.getFieldList().clear();
+		co.getMethodList().clear();
+		buildClassFromGUI(co,name,fields,methods);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("FullUpdateClass", old, co);
+	}
+
+	public void addClass(String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
+		ClassObject nc = new ClassObject(name);
+		model.isValidClassName(name);
+		buildClassFromGUI(nc,name,fields,methods);
+		model.getClassList().add(nc);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, nc);
+	}
+
+	public void buildClassFromGUI(ClassObject nc, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+		nc.setName(name);
+		for(Map.Entry<String,String> e: fields.entrySet()){
+			Field tmp = new Field(e.getKey(),e.getValue());
+			nc.addAttribute(tmp);
+		}
+
+		for(ArrayList<String> a : methods){
+			ArrayList<Parameter> p = new ArrayList<>();
+			for(int i = 2; i<a.size();i+=2){
+				p.add(new Parameter(a.get(i+1),a.get(i)));
+			}
+			Method m = new Method(a.get(1),a.get(0),p);
+			nc.addAttribute(m);
+		}
+    }
 
 	/**
 	 * Deletes specified class from classList
@@ -83,8 +125,9 @@ public class UMLEditor {
 				}
 			}
 			model.getClassList().remove(activeClass);
-			resetActiveClass();
 			memento.saveState(this.model);
+			pcs.firePropertyChange("DeleteClass", activeClass, null);
+			resetActiveClass();
 			return true;
 		}
 		return false;
@@ -97,8 +140,10 @@ public class UMLEditor {
 	 * @param newName     | New name to give the class
 	 */
 	public void renameClass(ClassObject renameClass, String newName) {
+		String oldName = renameClass.getName();
 		renameClass.setName(newName);
 		memento.saveState(this.model);
+		pcs.firePropertyChange("RenameClass", oldName, newName);
 	}
 
 	/**
@@ -121,6 +166,7 @@ public class UMLEditor {
 						Relationship newRel = new Relationship(sourceClass, destClass, type);
 						model.getRelationshipList().add(newRel);
 						memento.saveState(this.model);
+						pcs.firePropertyChange("AddRelationship", null, newRel);
 						return true;
 					}
 			// Adding relationship failed
@@ -144,6 +190,7 @@ public class UMLEditor {
 				// Relationship does exist
 				model.getRelationshipList().remove(relExist);
 				memento.saveState(this.model);
+				pcs.firePropertyChange("DeleteRelationship", relExist, null);
 				return true;
 			}
 		} catch (Exception e) {
@@ -154,6 +201,7 @@ public class UMLEditor {
 	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue) throws Exception{
 		try {
 			Relationship relExist = model.fetchRelationship(source, dest);
+			Relationship tmp = new Relationship(relExist);
 			if (fieldToUpdate.equals("source")){
 				if(model.fetchClass(newValue)!=null)
 					relExist.setSource(model.fetchClass(newValue));
@@ -179,8 +227,19 @@ public class UMLEditor {
 				}
 			}
 			memento.saveState(this.model);
+			pcs.firePropertyChange("EditRelationship", tmp, relExist);
 		} catch (Exception e) {
 		}
+	}
+
+	//I dont love this fn but it's ez n I dont have time
+	public void updateRelationship(String src, String dst, Type t, Relationship r) throws Exception{
+		Relationship tmp = new Relationship(r);
+		r.setType(t);
+		r.setSource(model.fetchClass(src));
+		r.setDestination(model.fetchClass(dst));
+		memento.saveState(this.model);
+		pcs.firePropertyChange("EditRelationship", tmp, r);
 	}
 
 
@@ -438,5 +497,13 @@ public class UMLEditor {
 
 	public UMLModel getModel()
 	{return this.model;}
-	
+
+    	/**
+	 * Subscribe to changes to the model made by the edditor.
+	 *
+	 * @param listener the object trying to subscribe
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
 }
