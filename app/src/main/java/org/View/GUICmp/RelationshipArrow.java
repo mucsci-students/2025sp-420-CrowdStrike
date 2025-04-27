@@ -20,8 +20,8 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 	relationship.addPropertyChangeListener(this);
         setVisible(true);
 	setBackground(new Color(0, 0, 0, 0));
-        revalidate();
 	setSize(getPreferredSize());
+        revalidate();
         repaint();
     }
 
@@ -32,7 +32,7 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 	ClassObject src,dst;
 	src = rel.getSource();
 	dst = rel.getDestination();
-	x = Math.max(src.getPosition().x,src.getPosition().x);
+	x = Math.max(src.getPosition().x,dst.getPosition().x);
 	y = Math.max(src.getPosition().y,dst.getPosition().y);
 	return new Dimension(x,y);
     }
@@ -81,17 +81,17 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 
     @Override
     protected void paintComponent(Graphics g) {
-        
+        setSize(getPreferredSize());
         super.paintComponent(g);
         FontMetrics metrics = g.getFontMetrics();
         // Set color based on relationship type
-        if (rel.getType().equals("Aggregation")) {
+        if (rel.getTypeString().equals("Aggregation")) {
             g.setColor(Color.RED);
-        } else if (rel.getType().equals("Composition")) {
+        } else if (rel.getTypeString().equals("Composition")) {
             g.setColor(new Color(0, 128, 0));
-        } else if (rel.getType().equals("Inheritance")) {
+        } else if (rel.getTypeString().equals("Inheritance")) {
             g.setColor(Color.BLUE);
-        } else if (rel.getType().equals("Realization")) {
+        } else if (rel.getTypeString().equals("Realization")) {
             g.setColor(new Color(255, 140, 0));
         } else {
             g.setColor(Color.BLACK);
