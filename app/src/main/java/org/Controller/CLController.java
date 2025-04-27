@@ -565,9 +565,7 @@ public class CLController {
 	}
 
 	@Command(name = "save", description = "Saves model")
-	private void save() {
-		view.show("Where would you like to save:");
-		String path = sc.nextLine();
+	private void save(@Parameters(paramLabel = "path", description = "Location to save UML") String path) {
 		try {
 			FileManager file = new FileManager();
 			file.save(path, model);
@@ -577,9 +575,7 @@ public class CLController {
 	}
 
 	@Command(name = "load", description = "Loads a saved model")
-	private void load() {
-		view.show("Where would you like to load from:");
-		String path = sc.nextLine();
+	private void load(@Parameters(paramLabel = "path", description = "Location of saved UML to load") String path) {
 		try {
 			FileManager file = new FileManager();
 			model = file.load(path);
