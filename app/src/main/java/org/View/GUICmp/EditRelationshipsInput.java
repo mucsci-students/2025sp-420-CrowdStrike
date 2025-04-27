@@ -6,7 +6,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -15,6 +14,8 @@ import org.Model.ClassObject;
 import org.Model.Relationship;
 
 public class EditRelationshipsInput extends JFrame {
+	private Boolean ok;
+
 	public EditRelationshipsInput(UMLEditor edit) {
 		super();
 		setTitle("Edit Relationship");
@@ -26,6 +27,7 @@ public class EditRelationshipsInput extends JFrame {
 		JPanel sel = new JPanel();
 		p.add(sel);
 		ArrayList<Relationship> rs = edit.getModel().getRelationshipList();
+		ok = rs.size() >= 1;
 		JComboBox<Relationship> rbox = new JComboBox<>(rs.toArray(new Relationship[0]));
 		JButton bttn = new JButton("set");
 
@@ -98,5 +100,9 @@ public class EditRelationshipsInput extends JFrame {
 		revalidate();
 		repaint();
 		pack();
+	}
+
+	public Boolean ok() {
+		return ok;
 	}
 }

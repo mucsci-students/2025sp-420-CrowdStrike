@@ -11,6 +11,8 @@ import org.Controller.UMLEditor;
 import org.Model.ClassObject;
 
 public class EditClassInput extends JFrame {
+	Boolean ok;
+
 	public EditClassInput(UMLEditor edit) {
 		super();
 		setTitle("Edit class");
@@ -26,6 +28,7 @@ public class EditClassInput extends JFrame {
 
 		ClassObject a[] = edit.getModel().getClassList().toArray(new ClassObject[0]);
 		JComboBox<ClassObject> cl = new JComboBox<>(a);
+		ok = a.length >= 1;
 		JButton tmp = new JButton();
 		tmp.setText("Set");
 		tmp.addActionListener(e -> {
@@ -89,5 +92,9 @@ public class EditClassInput extends JFrame {
 		revalidate();
 		repaint();
 		pack();
+	}
+
+	public Boolean ok() {
+		return ok;
 	}
 }
