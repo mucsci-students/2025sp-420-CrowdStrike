@@ -150,6 +150,13 @@ public class UMLClass extends JPanel implements PropertyChangeListener {
 		repaint();
 	}
 
+	public boolean representsClassObject(ClassObject cls){
+		Border border = getBorder();
+		CompoundBorder cb = (CompoundBorder) border;
+		TitledBorder tb = (TitledBorder) cb.getOutsideBorder();
+		return tb.getTitle() == cls.getName();
+	}
+
 	private void fullUpdate(PropertyChangeEvent evt, TitledBorder tb) {
 		ClassObject co = (ClassObject) evt.getOldValue();
 		ClassObject cn = (ClassObject) evt.getNewValue();
