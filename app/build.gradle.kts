@@ -107,7 +107,7 @@ tasks.register("checkModelCoverage") {
             0.0
         }
 
-        println(" Model Package Coverage: ${"1.f".format(coveragePercent)}% (Covered: $totalCovered, Missed: $totalMissed)")
+        println(" Model Package Coverage: ${String.format("%.1f", coveragePercent)}% (Covered: $totalCovered, Missed: $totalMissed)")
 
         if(coveragePercent < 100.0){
             throw GradleException("Model package coverage is less than 100%! Please add more test.")

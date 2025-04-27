@@ -58,13 +58,12 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
     - name: Generate Coverage Report
       run: ./gradlew jacocoTestReport --no-daemon
-    - name: Generate JaCoco Report
-      run: ./gradlew jacocoTestReport --no-daemon
+
     - name: Verify Model Coverage Only
-      run: ./gradlew jacocoTestCoverageVerification --no-daemon
+      run: ./gradlew checkModelCoverage --no-daemon
     - name: Upload JaCoCo Report HTML
       if: github.server_url == 'https://github.com'
       uses: actions/upload-artifact@v4
       with:
         name: jacoco-html-report
-        path: app/build/reports/jacoco/jacocoTestReport/html/
+        path: app/build/reports/jacoco/test/html/
