@@ -1,14 +1,9 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.Model.UMLMemento;
 import org.Controller.UMLEditor;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MementoTest{
 
