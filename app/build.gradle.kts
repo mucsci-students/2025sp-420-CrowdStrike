@@ -68,12 +68,16 @@ tasks.register<JavaExec>("run-cli") {
 
 tasks.register("checkModelCoverage") {
     dependsOn("jacocoTestReport")
+    mustRunAfter("jacocoTestReport") // <-- this fixes the timing issue
+
     doLast {
-        val reportFile = file("app/build/reports/jacoco/test/jacocoTestReport.xml")
+        val reportFile = file("$buildDir/reports/jacoco/test/jacocoTestReport.xml")
         if (!reportFile.exists()) throw GradleException("Coverage report not found")
 
-        val xml = javax.xml.parsers.DocumentBuilderFactory.newInstance()
-            .newDocumentBuilder().parse(reportFile)
+        val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        val builder = factory.newDocumentBuilder()
+        val xml = builder.parse(reportFile)
         xml.documentElement.normalize()
 
         val counters = xml.getElementsByTagName("package")
@@ -95,10 +99,18 @@ tasks.register("checkModelCoverage") {
             }
         }
 
-        if (totalMissed > 0) {
-            throw GradleException("Model package coverage is not 100%! Missed: $totalMissed, Covered: $totalCovered")
-        } else {
-            println("Model package has 100% instruction coverage.")
+
+        val totalInstructions = totalMissed + totalCovered
+        val coveragePercent = if(totalInstructions > 0) {
+            (100.0 * totalCovered / totalInstructions)
+        } else{
+            0.0
+        }
+
+        println(" Model Package Coverage: ${"1.f".format(coveragePercent)}% (Covered: $totalCovered, Missed: $totalMissed)")
+
+        if(coveragePercent < 100.0){
+            throw GradleException("Model package coverage is less than 100%! Please add more test.")
         }
     }
 }
