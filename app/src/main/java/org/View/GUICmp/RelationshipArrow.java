@@ -26,6 +26,7 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
         setVisible(true);
 	setBackground(new Color(0, 0, 0, 0));
 	setSize(getPreferredSize());
+	setOpaque(false);
         revalidate();
         repaint();
     }
@@ -120,8 +121,8 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 
     @Override
     protected void paintComponent(Graphics g) {
+	super.paintComponent(g);
         setSize(getPreferredSize());
-        super.paintComponent(g);
         FontMetrics metrics = g.getFontMetrics();
         // Set color based on relationship type
         if (rel.getTypeString().equals("Aggregation")) {
@@ -168,7 +169,8 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
             top.y -= 10;
             arrowhead((Graphics2D)g,top,new Point(top.x+2,top.y+5));
         }
-        repaint();
+	getParent().revalidate();
+	getParent().repaint();
     }
 
     @Override
