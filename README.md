@@ -37,16 +37,13 @@ This will generate a distribution file in app/build/distributions/app.zip
 ## Running
 ## distribution file
 Unpack the distribution file located in app/build/distributions.
-There will be both a tar an a zip file (unzip or tar -xf) depending on which version you want to unpack.
-## Linux/Macos
+There will be both a tar and a zip file (unzip or tar -xf), depending on which version you want to unpack.
+## Linux/Macos/Windows
 ```sh
-./bin/app
-```
-## Window
-```sh
-.\bin\app.bat
-```
+cd app/build/distributions
 
+tar -xf app.tar
+```
 ### Tests
 #### Linux/Macos
 ```sh
@@ -58,26 +55,6 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 .\gradlew.bat test
 ```
 
-### Project (develop)
-#### Linux/Macos
-#### GUI
-```sh
-./gradlew run
-```
-#### CLI
-```sh
-./gradlew run-cli
-```
-
-#### Windows
-#### GUI
-```sh
-.\gradlew.bat run
-```
-#### CLI
-```sh
-.\gradlew.bat run-cli
-```
 ## Usage
  Below is our available commands in command line  
  Use help [command] to get usage information for each command
@@ -106,6 +83,7 @@ Commands:
   renamemethod, rm          Renames a method
   load                      Loads a saved model
   save                      Saves model
+  saveimg                   Saves the UML editor as an image
   exit                      Exits the application
 ```
 Command Line Parameter Formatting:  
