@@ -1,14 +1,19 @@
 package org.View.GUICmp;
 
 import javax.swing.JPanel;
+
 import java.awt.*;
 
 import java.awt.geom.AffineTransform;
 import java.awt.FontMetrics;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.text.AsyncBoxView;
+
 import org.Model.ClassObject;
 import org.Model.Relationship;
+import org.View.GUICmp.UMLClass;
+
 
 public class RelationshipArrow extends JPanel implements PropertyChangeListener {
 
@@ -27,7 +32,6 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 
     @Override
     public Dimension getPreferredSize(){
-	//Quick hack to get working
 	int x,y;
 	ClassObject src,dst;
 	src = rel.getSource();
@@ -35,6 +39,19 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 	x = Math.max(src.getPosition().x,dst.getPosition().x);
 	y = Math.max(src.getPosition().y,dst.getPosition().y);
 	return new Dimension(x,y);
+    }
+
+    private UMLClass findUMLClass(ClassObject cls){
+        JPanel parent = (JPanel) getParent();
+        for (Component child : parent.getComponents()) {
+            if (child.getClass() == UMLClass.class) {
+                UMLClass uc = (UMLClass) child;
+                if(uc.representsClassObject(cls)){
+                    return uc;
+                }
+            }
+        }
+        return null;
     }
 
     /**
