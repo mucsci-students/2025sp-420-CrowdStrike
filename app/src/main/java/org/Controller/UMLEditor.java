@@ -61,6 +61,7 @@ public class UMLEditor {
 	//this aria is very gui spisifc dont tell no body
 	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
 		ClassObject old = new ClassObject(co);
+		co.setName("");
 		model.isValidClassName(name);
 		co.getFieldList().clear();
 		co.getMethodList().clear();
