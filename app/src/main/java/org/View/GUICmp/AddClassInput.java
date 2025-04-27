@@ -3,6 +3,7 @@ package org.View.GUICmp;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.Controller.UMLEditor;
@@ -29,7 +30,11 @@ public class AddClassInput extends JFrame {
 			NamePanel n = (NamePanel) name;
 			FieldPanel f = (FieldPanel) fields;
 			MethodPanel m = (MethodPanel) methods;
-			edit.addClass(n.getData(), f.getData(), m.getData());
+			try {
+				edit.addClass(n.getData(), f.getData(), m.getData());
+			} catch (Exception err) {
+				JOptionPane.showMessageDialog(null, err.getMessage());
+			}
 
 			f.reset();
 			n.reset();

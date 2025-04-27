@@ -45,8 +45,11 @@ public class EditClassInput extends JFrame {
 		tmp.setText("Update Class");
 		tmp.addActionListener(e -> {
 			ClassObject co = (ClassObject) cl.getSelectedItem();
-
-			edit.updateClass(co, name.getData(), fields.getData(), methods.getData());
+			try {
+				edit.updateClass(co, name.getData(), fields.getData(), methods.getData());
+			} catch (Exception err) {
+				JOptionPane.showMessageDialog(null, err.getMessage());
+			}
 
 			fields.reset();
 			name.reset();

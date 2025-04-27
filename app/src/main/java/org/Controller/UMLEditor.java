@@ -59,8 +59,9 @@ public class UMLEditor {
 	}
 
 	//this aria is very gui spisifc dont tell no body
-	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
 		ClassObject old = new ClassObject(co);
+		model.isValidClassName(name);
 		co.getFieldList().clear();
 		co.getMethodList().clear();
 		buildClassFromGUI(co,name,fields,methods);
@@ -68,8 +69,9 @@ public class UMLEditor {
 		pcs.firePropertyChange("FullUpdateClass", old, co);
 	}
 
-	public void addClass(String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+	public void addClass(String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
 		ClassObject nc = new ClassObject(name);
+		model.isValidClassName(name);
 		buildClassFromGUI(nc,name,fields,methods);
 		model.getClassList().add(nc);
 		memento.saveState(this.model);
