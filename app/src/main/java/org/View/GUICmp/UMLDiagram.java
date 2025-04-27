@@ -53,7 +53,6 @@ public class UMLDiagram extends JPanel implements PropertyChangeListener {
 			RelationshipArrow relArrow = new RelationshipArrow(r);
 			add(relArrow);
 			
-System.out.println("DREW ARROW " + r.getSource() + "->" + r.getDestination());  //fucking liar
 			setVisible(true);
 			e.addPropertyChangeListener(relArrow);
 	}
@@ -66,8 +65,11 @@ System.out.println("DREW ARROW " + r.getSource() + "->" + r.getDestination());  
 	public Dimension getPreferredSize() {
 		int x = 0, y = 0;
 		for (Component c : getComponents()) {
-			x = Math.max(x, c.getX() + c.getWidth());
-			y = Math.max(y, c.getY() + c.getHeight());
+			if(c.getClass()!=RelationshipArrow.class)
+			{
+				x = Math.max(x, c.getX() + c.getWidth());
+				y = Math.max(y, c.getY() + c.getHeight());
+			}
 		}
 		return new Dimension(x + 10, y + 10);
 	}

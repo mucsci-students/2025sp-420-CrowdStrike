@@ -38,7 +38,7 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
 	dst = rel.getDestination();
 	x = Math.max(src.getPosition().x,dst.getPosition().x);
 	y = Math.max(src.getPosition().y,dst.getPosition().y);
-	return new Dimension(x,y);
+	return new Dimension(x*x,y*y); //may the god of runtime complexity forgive me
     }
 
     private UMLClass findUMLClass(ClassObject cls){
@@ -54,6 +54,25 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
         return null;
     }
 
+    private Dimension getClassDimension(ClassObject cls){
+        JPanel parent = (JPanel) getParent();
+        for (Component child : parent.getComponents()) {
+            if (child.getClass() == UMLClass.class) {
+                UMLClass uc = (UMLClass) child;
+                if(uc.representsClassObject(cls)){
+                    return new Dimension(child.getWidth(), child.getHeight());
+                }
+            }
+        }
+        return null;
+    }
+
+    private Point getClassCenter(ClassObject cls){
+        return new Point(cls.getPosition().x + (int)(getClassDimension(cls).getWidth()/2), 
+                        cls.getPosition().y + (int)(getClassDimension(cls).getHeight()/2));
+    }
+    
+
     /**
      * Computes the closest edge point of the classbox
      *
@@ -62,11 +81,14 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
      * @return the point on the box's boundary
      */
     private Point getClosestHit(ClassObject cls, Point target) {
-        Point center = cls.getPosition();
+        Point center = getClassCenter(cls);
         double dx = target.x - center.x;
         double dy = target.y - center.y;
-	double halfWidth = 100 / 2.0;
-	double halfHeight = 100 / 2.0;
+        Dimension classSize = getClassDimension(cls);
+        double halfWidth;
+	    double halfHeight;
+        halfWidth = classSize.getWidth()/2;
+        halfHeight = classSize.getHeight()/2;
 
         if (dx == 0 && dy == 0) {
             return center; // if both centers coincide, return center
@@ -115,8 +137,8 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
         }
         if(rel.getSource() != rel.getDestination()){
             // Calculate the intersection points at the boundaries of the ClassBoxes
-            Point sourceCenter = rel.getSource().getPosition();
-            Point destinationCenter = rel.getDestination().getPosition();
+            Point sourceCenter = getClassCenter(rel.getSource());
+            Point destinationCenter = getClassCenter(rel.getDestination());
             Point p1 = getClosestHit(rel.getSource(), destinationCenter);
             Point p2 = getClosestHit(rel.getDestination(), sourceCenter);
 
@@ -132,10 +154,10 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
             g.drawString(rel.getTypeString(),midX-(metrics.stringWidth(rel.getTypeString())/2),midY);
         } 
         else {
-            Point center = rel.getSource().getPosition();
+            Point center = getClassCenter(rel.getSource());
             
 //int w = rel.getSource().getWidth();
-int w = 5;
+            int w = (int)getClassDimension(rel.getSource()).getWidth();
             center.y -= 12;// nuge to change closest hit to top
             Point top = getClosestHit(rel.getSource(),center);
 
