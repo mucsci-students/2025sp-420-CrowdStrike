@@ -14,6 +14,8 @@ import org.Model.Relationship.Type;
 import org.Model.UMLModel;
 import org.UMLToJsonAdapter;
 import org.View.CLView;
+import org.View.GUICmp.UMLDiagram;
+import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -573,6 +575,14 @@ public class CLController {
 		} catch (Exception e) {
 			view.show(e.getMessage());
 		}
+	}
+
+    	@Command(name = "saveimg", description = "Saves model image")
+	private void saveing() {
+		view.show("Where would you like to save:");
+		String path = sc.nextLine();
+		UMLDiagram d = new UMLDiagram(editor);
+		d.save(path);
 	}
 
 	@Command(name = "load", description = "Loads a saved model")
