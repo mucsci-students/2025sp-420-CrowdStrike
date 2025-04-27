@@ -20,13 +20,13 @@ import org.Model.Relationship.Type;
 import org.Controller.UMLEditor;
 
 class FileManagerSaveTest {
-	FileManager file;
+	UMLToJsonAdapter file;
 	UMLModel mdl;
 	static String PATH = "./test.json";
 
 	@BeforeEach
 	void init() {
-		file = new FileManager();
+		file = new UMLToJsonAdapter();
 		mdl = new UMLModel();
 		ClassObject objs[] = { new ClassObject("a"), new ClassObject("b"), new ClassObject("c") };
 		mdl.getClassList().add(objs[0]);
@@ -94,7 +94,7 @@ class FileManagerSaveTest {
 }
 
 class FileManagerLoadTest {
-	FileManager file;
+	UMLToJsonAdapter file;
 	UMLEditor edit;
 	UMLModel mdl;
 	static String PATH = "./Load.json";
@@ -130,7 +130,7 @@ class FileManagerLoadTest {
 	@BeforeEach
 	void init() {
 		// TODO create more full state.
-		file = new FileManager();
+		file = new UMLToJsonAdapter();
 		mdl = new UMLModel();
 		edit = new UMLEditor(mdl);
 		edit.addClass("a");

@@ -208,13 +208,15 @@ public class Method implements AttributeInterface {
 	@Override
 	public String toString(){
 		StringBuilder r = new StringBuilder();
+		r.append(returnType);
+		r.append(" ");
 		r.append(name);
 
 		r.append("(");
 		for(Parameter p : paramList){
-			r.append(p.getName());
-			r.append(":");
 			r.append(p.getType());
+			r.append(" ");
+			r.append(p.getName());
 			r.append(",");
 		}
 		if(r.lastIndexOf(",")>-1)
