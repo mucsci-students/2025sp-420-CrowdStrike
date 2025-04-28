@@ -35,6 +35,11 @@ public class Field implements AttributeInterface {
 		this.name = newName;
 	}
 
+	@Override
+	public String toString() {
+		return varType+" "+name;
+	}
+
 	public void setVarType(String newType) {
 		this.varType = newType;
 	}

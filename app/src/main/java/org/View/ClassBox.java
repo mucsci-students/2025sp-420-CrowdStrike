@@ -28,6 +28,7 @@ import org.Model.ClassObject;
 import org.Model.Method;
 import org.Model.Field;
 
+@Deprecated
 public class ClassBox extends JLayeredPane {
     private DefaultListModel<String> fieldModel;
     private JList<String> fieldsList;
@@ -301,10 +302,10 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void addMethod(String method, LinkedHashMap<String, String> params) {
+    public void addMethod(String method, String methodType, LinkedHashMap<String, String> params) {
         try {
-            controller.getEditor().addMethod(classObject, method, params);
-            Method mthd = classObject.fetchMethod(method, params.size());
+            controller.getEditor().addMethod(classObject, method, methodType, params);
+            Method mthd = classObject.fetchMethod(method, params);
             methodModel.addElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
             revalidate();
@@ -316,9 +317,14 @@ public class ClassBox extends JLayeredPane {
     
     public void removeMethod(String method) {
         try {
-            String[] parts = method.split(":"); // parts = {name, arity}
-            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
-            controller.getEditor().deleteMethod(classObject, mthd.getName(), mthd.getParamList().size());
+            String[] parts = method.split(":"); // parts = {name, paramTypes}
+            Method mthd;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                mthd = classObject.fetchMethod(parts[0]);
+            } else {
+                mthd = classObject.fetchMethod(parts[0], parts[1]);
+            }
+            controller.getEditor().deleteMethod(classObject, mthd);
             methodModel.removeElement(displayMethod(mthd));
             updateMethodsScrollPaneSize();
             revalidate();
@@ -328,14 +334,28 @@ public class ClassBox extends JLayeredPane {
         }
     }
     
-    public void renameMethod(String method, String newName) {
+    public void renameMethod(String method, String newName, String newType) {
         try {
-            String[] parts = method.split(":"); // parts = {name, arity}
-            Method mthd = classObject.fetchMethod(parts[0], Integer.parseInt(parts[1]));
+            String[] parts = method.split(":"); // parts = {name, paramTypes}
+            Method mthd;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                mthd = classObject.fetchMethod(parts[0]);
+            } else {
+                mthd = classObject.fetchMethod(parts[0], parts[1]);
+            }
             int index = methodModel.indexOf(displayMethod(mthd));
             //UMLeditor code
+            if (newType.isEmpty()) {
+                newType = "void";
+            }
             controller.getEditor().renameMethod(classObject, mthd, newName);
-            Method renamedMethod = classObject.fetchMethod(newName, Integer.parseInt(parts[1]));
+            controller.getEditor().changeMethodType(mthd, newType);
+            Method renamedMethod;
+            if (parts[1].replaceAll("\\s", "").isEmpty()) {
+                renamedMethod = classObject.fetchMethod(newName);
+            } else {
+                renamedMethod = classObject.fetchMethod(newName, parts[1]);
+            }
             if (index != -1) {
                 methodModel.set(index, displayMethod(renamedMethod));
             }
@@ -358,7 +378,7 @@ public class ClassBox extends JLayeredPane {
     
     public String displayMethod(Method m) {
         if (m.getParamList().isEmpty()) {
-            return m.getName() + "()";
+            return m.getName() + "() -> " + m.getReturnType();
         }
         StringBuilder sig = new StringBuilder(m.getName() + "(");
         for (int i = 0; i < m.getParamList().size(); i++) {
@@ -367,7 +387,7 @@ public class ClassBox extends JLayeredPane {
                 sig.append(", ");
             }
         }
-        sig.append(")");
+        sig.append(") -> " + m.getReturnType());
         return sig.toString();
     }
     

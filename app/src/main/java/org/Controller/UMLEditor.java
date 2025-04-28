@@ -1,6 +1,7 @@
 package org.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import org.Model.UMLMemento;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 
 public class UMLEditor {
@@ -22,6 +25,7 @@ public class UMLEditor {
 	private ClassObject activeClass;
 	// Memento object keeps track of previous states
 	private UMLMemento memento = new UMLMemento();
+    	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 
 	/**
@@ -51,7 +55,51 @@ public class UMLEditor {
 		ClassObject newClass = new ClassObject(newClassName);
 		model.getClassList().add(newClass);
 		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, newClass);
 	}
+
+	//this aria is very gui spisifc dont tell no body
+	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
+		ClassObject old = new ClassObject(co);
+		co.setName("");
+		model.isValidClassName(name);
+		co.getFieldList().clear();
+		co.getMethodList().clear();
+		buildClassFromGUI(co,name,fields,methods);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("FullUpdateClass", old, co);
+	}
+
+	public void addClass(String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
+		ClassObject nc = new ClassObject(name);
+		model.isValidClassName(name);
+		buildClassFromGUI(nc,name,fields,methods);
+		model.getClassList().add(nc);
+		memento.saveState(this.model);
+		pcs.firePropertyChange("AddClass", null, nc);
+	}
+
+	public void buildClassFromGUI(ClassObject nc, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
+		nc.setName(name);
+		for(Map.Entry<String,String> e: fields.entrySet()){
+		    if(e.getKey() != "" && e.getValue() != ""){
+			Field tmp = new Field(e.getKey(),e.getValue());
+			nc.addAttribute(tmp);
+		    }
+		}
+
+		for(ArrayList<String> a : methods){
+			ArrayList<Parameter> p = new ArrayList<>();
+			for(int i = 2; i<a.size();i+=2){
+			    if(a.get(i+1) != "" && a.get(i) != "")
+				p.add(new Parameter(a.get(i+1),a.get(i)));
+			}
+			if(a.get(1) != "" && a.get(0) != ""){
+			    Method m = new Method(a.get(1),a.get(0),p);
+			    nc.addAttribute(m);
+			}
+		}
+    }
 
 	/**
 	 * Deletes specified class from classList
@@ -83,8 +131,9 @@ public class UMLEditor {
 				}
 			}
 			model.getClassList().remove(activeClass);
-			resetActiveClass();
 			memento.saveState(this.model);
+			pcs.firePropertyChange("DeleteClass", activeClass, null);
+			resetActiveClass();
 			return true;
 		}
 		return false;
@@ -97,8 +146,10 @@ public class UMLEditor {
 	 * @param newName     | New name to give the class
 	 */
 	public void renameClass(ClassObject renameClass, String newName) {
+		String oldName = renameClass.getName();
 		renameClass.setName(newName);
 		memento.saveState(this.model);
+		pcs.firePropertyChange("RenameClass", oldName, newName);
 	}
 
 	/**
@@ -121,6 +172,7 @@ public class UMLEditor {
 						Relationship newRel = new Relationship(sourceClass, destClass, type);
 						model.getRelationshipList().add(newRel);
 						memento.saveState(this.model);
+						pcs.firePropertyChange("AddRelationship", null, newRel);
 						return true;
 					}
 			// Adding relationship failed
@@ -144,6 +196,7 @@ public class UMLEditor {
 				// Relationship does exist
 				model.getRelationshipList().remove(relExist);
 				memento.saveState(this.model);
+				pcs.firePropertyChange("DeleteRelationship", relExist, null);
 				return true;
 			}
 		} catch (Exception e) {
@@ -154,6 +207,7 @@ public class UMLEditor {
 	public void editRelationship(String source, String dest, String fieldToUpdate, String newValue) throws Exception{
 		try {
 			Relationship relExist = model.fetchRelationship(source, dest);
+			Relationship tmp = new Relationship(relExist);
 			if (fieldToUpdate.equals("source")){
 				if(model.fetchClass(newValue)!=null)
 					relExist.setSource(model.fetchClass(newValue));
@@ -179,8 +233,19 @@ public class UMLEditor {
 				}
 			}
 			memento.saveState(this.model);
+			pcs.firePropertyChange("EditRelationship", tmp, relExist);
 		} catch (Exception e) {
 		}
+	}
+
+	//I dont love this fn but it's ez n I dont have time
+	public void updateRelationship(String src, String dst, Type t, Relationship r) throws Exception{
+		Relationship tmp = new Relationship(r);
+		r.setType(t);
+		r.setSource(model.fetchClass(src));
+		r.setDestination(model.fetchClass(dst));
+		memento.saveState(this.model);
+		pcs.firePropertyChange("EditRelationship", tmp, r);
 	}
 
 
@@ -208,10 +273,12 @@ public class UMLEditor {
 	 * 
 	 * @param cls        | The class the method is being added to
 	 * @param methodName | The name of the method
+	 * @param retType	 | The return type of the method
 	 * @param paramList  | The parameter list the method will have
 	 * @throws Exception
 	 */
-	public void addMethod(ClassObject cls, String methodName, LinkedHashMap<String, String> paramNameList) throws Exception {
+	public void addMethod(ClassObject cls, String methodName, String retType, LinkedHashMap<String, String> paramNameList) throws Exception {
+		/*
 		if (cls.methodExists(methodName, paramNameList.size())) {
 			throw new Exception ("Method " + methodName + " with " + paramNameList.size() + " parameters already exists in " + cls.getName());
 		} else {
@@ -221,10 +288,45 @@ public class UMLEditor {
 				param = new Parameter(obj.getKey(), obj.getValue());
 				paramList.add(param);
 			}
-			Method method = new Method(methodName, paramList);
+			Method method = new Method(methodName, retType, paramList);
 			cls.addAttribute(method);
 			memento.saveState(model);
 		}
+		*/
+		// Check all methods for name and paramTypes
+		attrloop:
+		for (AttributeInterface attr : cls.getMethodList()) {
+			if (!attr.getName().equals(methodName)) {
+				// Name does not match method being created, move on to the next
+				continue;
+			}
+			Method activeMethod = (Method) attr;
+			if (activeMethod.getParamList().size() != paramNameList.size()) {
+				// Number of params does not match, move onto next attr
+				continue;
+			}
+			int index = 0;
+			for (String type : paramNameList.values()) {
+				if (!type.equals(activeMethod.getParamList().get(index).getType())) {
+					// Parameter at given index does not match type in same position
+					// Move onto the next attribute
+					continue attrloop;
+				}
+				index++;
+			}
+			// Method has same name, arity, and types as an existing method
+			throw new Exception ("Method " + methodName + " already exists in " + cls.getName());
+		}
+		// No methods matched the one being created
+		ArrayList<Parameter> paramList = new ArrayList<>();
+		Parameter param;
+		for (Map.Entry<String, String> obj : paramNameList.entrySet()) {
+			param = new Parameter(obj.getKey(), obj.getValue());
+			paramList.add(param);
+		}
+		Method method = new Method(methodName, retType, paramList);
+		cls.addAttribute(method);
+		memento.saveState(model);
 	}
 
 	/**
@@ -248,18 +350,13 @@ public class UMLEditor {
 	 * Deletes methods from the designated ClassObject
 	 * 
 	 * @param cls     	 | The class from which the method is to be deleted from
-	 * @param methodName | The method's name
-	 * @param paramArity | The number of params the method has
+	 * @param mthd		 | The method being deleted
 	 * @throws Exception
 	 */
-	public void deleteMethod(ClassObject cls, String methodName, int paramArity) throws Exception {
-		if (!cls.methodExists(methodName, paramArity)) {
-			throw new Exception ("Class " + cls.getName() + " does not have a method with name " + methodName + " and parameter arity " + paramArity);
-		} else {
-			Method delMethod = cls.fetchMethod(methodName, paramArity);
-			cls.removeAttribute(delMethod);
-			memento.saveState(this.model);
-		}
+
+	public void deleteMethod(ClassObject cls, Method mthd) throws Exception {
+		cls.removeAttribute(mthd);
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -284,6 +381,7 @@ public class UMLEditor {
 			throw new Exception ("Fields must have a type");
 		} else {
 			fld.setVarType(newType);
+			memento.saveState(this.model);
 		}
 	}
 
@@ -296,12 +394,20 @@ public class UMLEditor {
 	 * @throws Exception
 	 */
 	public void renameMethod(ClassObject cls, Method renameMethod, String newName) throws Exception {
-		if (cls.fieldNameUsed(newName)) {
+		if (renameMethod.getName().equals(newName)) {
+			return;
+		}
+		if (cls.methodExists(newName, renameMethod.getParamList())) {
 			throw new Exception (newName + " is currently used by another method in the class");
 		} else {
 			renameMethod.renameAttribute(newName);
 			memento.saveState(this.model);
 		}
+	}
+
+	public void changeMethodType(Method mthd, String newType) {
+		mthd.setReturnType(newType);
+		memento.saveState(this.model);
 	}
 
 	/**
@@ -397,5 +503,13 @@ public class UMLEditor {
 
 	public UMLModel getModel()
 	{return this.model;}
-	
+
+    	/**
+	 * Subscribe to changes to the model made by the edditor.
+	 *
+	 * @param listener the object trying to subscribe
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
 }

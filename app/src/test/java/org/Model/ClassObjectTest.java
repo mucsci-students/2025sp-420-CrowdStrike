@@ -36,7 +36,7 @@ public class ClassObjectTest {
 
 	@Test
 	public void attrAddDel() {
-		Method m = new Method("test", new ArrayList<>());
+		Method m = new Method("test", "void", new ArrayList<>());
 		Field f = new Field("test", "int");
 
 		c.addAttribute(m);
@@ -52,7 +52,7 @@ public class ClassObjectTest {
 
 	@Test
 	public void used() {
-		Method m = new Method("test", new ArrayList<>());
+		Method m = new Method("test","void", new ArrayList<>());
 		Field f = new Field("test", "int");
 		c.addAttribute(m);
 		c.addAttribute(f);
@@ -67,11 +67,11 @@ public class ClassObjectTest {
 
 	@Test
 	public void fetch() {
-		Method m = new Method("test", new ArrayList<>());
+		Method m = new Method("test", "void", new ArrayList<>());
 		Field f = new Field("test", "int");
 		c.addAttribute(m);
 		c.addAttribute(f);
-		c.addAttribute(new Method("foo", new ArrayList<>()));
+		c.addAttribute(new Method("foo", "int", new ArrayList<>()));
 
 		assertDoesNotThrow(() -> c.fetchField("test"));
 		assertThrows(java.lang.Exception.class, () -> c.fetchField("none"));

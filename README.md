@@ -37,16 +37,13 @@ This will generate a distribution file in app/build/distributions/app.zip
 ## Running
 ## distribution file
 Unpack the distribution file located in app/build/distributions.
-There will be both a tar an a zip file (unzip or tar -xf) depending on which version you want to unpack.
-## Linux/Macos
+There will be both a tar and a zip file (unzip or tar -xf), depending on which version you want to unpack.
+## Linux/Macos/Windows
 ```sh
-./bin/app
-```
-## Window
-```sh
-.\bin\app.bat
-```
+cd app/build/distributions
 
+tar -xf app.tar
+```
 ### Tests
 #### Linux/Macos
 ```sh
@@ -58,37 +55,19 @@ There will be both a tar an a zip file (unzip or tar -xf) depending on which ver
 .\gradlew.bat test
 ```
 
-### Project (develop)
-#### Linux/Macos
-#### GUI
-```sh
-./gradlew run
-```
-#### CLI
-```sh
-./gradlew run-cli
-```
-
-#### Windows
-#### GUI
-```sh
-.\gradlew.bat run
-```
-#### CLI
-```sh
-.\gradlew.bat run-cli
-```
 ## Usage
- Below is our available commands in command line 
+ Below is our available commands in command line  
+ Use help [command] to get usage information for each command
  ```
 Commands:
-  commands, com             Prints help list
+  help                      Displays available commands
   addclass, ac              Add a new class
   addfield, af              Adds a field
   addmethod, am             Adds a method
   addparameter, ap          Adds a parameter
   addrelationship, ar       Add relationship between classes
-  changeparameter, cp       Replaces one or all params
+  changeparameter, cp       Replaces one param
+  changeallparameters, cap  Replaces all params
   delete class, dc          Delete a class
   deletefield, df           Delete a field
   deletemethod, dm          Deletes a method
@@ -104,7 +83,15 @@ Commands:
   renamemethod, rm          Renames a method
   load                      Loads a saved model
   save                      Saves model
+  saveimg                   Saves the UML editor as an image
+  exit                      Exits the application
 ```
+Command Line Parameter Formatting:  
+paramList - () or (paramName1: paramType1, paramName2: paramtype2, ...)  
+methodSig - methodName or methodName() (if no parameters)  
+            methodName(paramName1: paramType1, paramName2: paramtype2, ...) (has parameters)  
+When adding a method if it does not have parameters, but you want to give it a type specify paramList as ()
+
 ## Codebase
 We followed the Model/View/Controller (MVC) paradigm to design easy-to-follow code.
 
@@ -131,8 +118,12 @@ We also have a controller for our gui view call `GUIController.java` that accept
  Seen in the CLController as for:each loops to iterate through various lists. 
 ### 3. Decorator
  Seen in the CLI as we did not change the base functionality of calling commands, but rather added a command feature that allows users to tab complete.
-### 4. Composite
- Seen in the classbox as we take in a class object and reference it later.
+### 4. Builder
+ Seen in UMLToJson file using string builder to build out the save file.
+### 5. Adapter
+ Seen in the FileManager file where it takes in an adapter for save and load.
+### 6. 
+ Seen in the GUIView where each box in the view subscribes to one relative item in the model.
 ## Devs
 Brought to you by:  
 

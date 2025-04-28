@@ -8,6 +8,7 @@ public class Method implements AttributeInterface {
 
 	// Data Fields
 	private String name;
+	private String returnType;
 	private String type;
 	private ArrayList<Parameter> paramList;
 
@@ -17,8 +18,9 @@ public class Method implements AttributeInterface {
 	 * @param name      | The name of the method
 	 * @param paramList | List of parameters the method contains
 	 */
-	public Method(String name, ArrayList<Parameter> paramList) {
+	public Method(String name, String returnType, ArrayList<Parameter> paramList) {
 		this.name = name;
+		this.returnType = returnType;
 		type = "Method";
 		this.paramList = paramList;
 	}
@@ -26,6 +28,10 @@ public class Method implements AttributeInterface {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	public String getReturnType() {
+		return returnType;
 	}
 
 	@Override
@@ -45,6 +51,10 @@ public class Method implements AttributeInterface {
 	@Override
 	public void renameAttribute(String newName) {
 		name = newName;
+	}
+
+	public void setReturnType(String newType) {
+		returnType = newType;
 	}
 
 	/**
@@ -85,7 +95,17 @@ public class Method implements AttributeInterface {
 	 * @return True if this is equal to compareMethod, false otherwise
 	 */
 	public boolean equals(Method compareMethod) {
+		// Check if method name and paramArity are the same
 		if (this.name.equals(compareMethod.getName()) && this.paramList.size() == compareMethod.getParamList().size()) {
+			// Check types of parameters in both methods to make sure they are the same (in type and order)
+			int index = 0;
+			for (Parameter param : paramList) {
+				if (!param.getType().equalsIgnoreCase(paramList.get(index).getType())) {
+					// If parameters in the same position don't have the same type, they are not equal
+					return false;
+				}
+				index++;
+			}
 			return true;
 		} else {
 			return false;
@@ -184,6 +204,27 @@ public class Method implements AttributeInterface {
         }
         throw new IllegalArgumentException("Parameter not found: " + oldParamName);
     }
+
+	@Override
+	public String toString(){
+		StringBuilder r = new StringBuilder();
+		r.append(returnType);
+		r.append(" ");
+		r.append(name);
+
+		r.append("(");
+		for(Parameter p : paramList){
+			r.append(p.getType());
+			r.append(" ");
+			r.append(p.getName());
+			r.append(",");
+		}
+		if(r.lastIndexOf(",")>-1)
+		    r.deleteCharAt(r.lastIndexOf(","));
+		r.append(")");
+
+		return r.toString();
+	}
 
 
 }
