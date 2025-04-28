@@ -288,36 +288,34 @@ public class ClassObjectTest {
 	}
 
 	@Test
-	public void fetchMethodStringForceContinue() {
-		Method m3 = new Method("mismatchMethod", "void", new ArrayList<>());
-		// Add one parameter to m3
-		m3.addParameter("param1", "int");
-		c.addAttribute(m3);
+	public void fetchMethodStringWrongParamCountTriggersContinue() {
+		Method m = new Method("wrongCount", "void", new ArrayList<>());
+		m.addParameter("param1", "int"); // expects 1 parameter
+		c.addAttribute(m);
 
-		String wrongParamTypes = ""; // Empty string -> no parameters
+		// Provide 2 parameters instead of 1 to mismatch number
+		String tooManyParams = "int,String"; // types.length = 2
 
-		boolean caughtException = false;
-		try {
-			c.fetchMethod("mismatchMethod", wrongParamTypes);
-		} catch (Exception e) {
-			caughtException = true;
-		}
-
-		assertTrue(caughtException);
+		Exception exception = assertThrows(Exception.class, () -> {
+			c.fetchMethod("wrongCount", tooManyParams);
+		});
+		assertNotNull(exception.getMessage());
 	}
 
+	
+
 	@Test
-	public void fetchMethodLinkedHashMapNoParamsSuccess() throws Exception {
-		Method method = new Method("zeroParamsMethod", "void", new ArrayList<>());
-		method.addParameter("dummy", "String");  // <-- ADD DUMMY
+	public void fetchMethodLinkedHashMapCorrectParams() throws Exception {
+		Method method = new Method("linkedParamsMethod", "void", new ArrayList<>());
+		method.addParameter("param1", "String");
 		c.addAttribute(method);
 
 		LinkedHashMap<String, String> map = new LinkedHashMap<>();
-		map.put("dummy", "String");
+		map.put("param1", "String");
 
-		Method result = c.fetchMethod("zeroParamsMethod", map);
+		Method result = c.fetchMethod("linkedParamsMethod", map);
 		assertNotNull(result);
-		assertEquals("zeroParamsMethod", result.getName());
+		assertEquals("linkedParamsMethod", result.getName());
 	}
 
 	@Test
@@ -379,6 +377,51 @@ public class ClassObjectTest {
 		assertNotNull(result);
 		assertEquals("processData", result.getName());
 	}
+
+	@Test
+	public void fetchMethodString_NameMismatch() {
+		Method m = new Method("correctName", "void", new ArrayList<>());
+		c.addAttribute(m);
+
+		String paramTypes = "";
+
+		Exception exception = assertThrows(Exception.class, () -> {
+			c.fetchMethod("wrongName", paramTypes);  // different method name
+		});
+
+		assertNotNull(exception.getMessage());
+	}
+
+	@Test
+	public void fetchMethodString_CorrectNameAndParams_ReachesReturn() throws Exception {
+		// Arrange
+		Method m = new Method("findMe", "void", new ArrayList<>());
+		m.addParameter("p1", "String");
+		c.addAttribute(m);
+
+		// Act
+		Method result = c.fetchMethod("findMe", "String"); // name matches + params match
+
+		// Assert
+		assertNotNull(result);
+		assertEquals("findMe", result.getName());
+	}
+
+	@Test
+	public void fetchMethodString_ElseIfBranch_Triggers() throws Exception {
+		Method m = new Method("anotherName", "void", new ArrayList<>()); // different method name
+		c.addAttribute(m);
+
+		String emptyParamTypes = "";
+
+		Exception exception = assertThrows(Exception.class, () -> {
+			c.fetchMethod("differentName", emptyParamTypes);
+		});
+
+		assertNotNull(exception.getMessage());
+	}
+
+
 
 
 }
