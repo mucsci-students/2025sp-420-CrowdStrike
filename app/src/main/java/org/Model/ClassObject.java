@@ -2,6 +2,8 @@ package org.Model;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 //Creates a Class object
 public class ClassObject implements ClassObjectInterface {
@@ -14,7 +16,8 @@ public class ClassObject implements ClassObjectInterface {
 
 	// Stores all attributes belonging to a class
 	private LinkedHashMap<String, ArrayList<AttributeInterface>> attrMap;
-	
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
 	/**
 	 * Constructs a class object
 	 * @param name		| The name to be given to the class object
@@ -104,12 +107,20 @@ public class ClassObject implements ClassObjectInterface {
 	
 	@Override
 	public void addAttribute(AttributeInterface attr) {
-		attrMap.get(attr.getType()).add(attr);
+		ArrayList<AttributeInterface> n = attrMap.get(attr.getType());
+		ArrayList<AttributeInterface> o = new ArrayList<>(n);
+		n.add(attr);
+
+		pcs.firePropertyChange("Updated"+attr.getType()+"s", o, n);
 	}
 	
 	@Override
 	public void removeAttribute(AttributeInterface attr) {
-		attrMap.get(attr.getType()).remove(attr);
+		ArrayList<AttributeInterface> n = attrMap.get(attr.getType());
+		ArrayList<AttributeInterface> o = new ArrayList<>(n);
+		n.remove(attr);
+
+		pcs.firePropertyChange("Updated"+attr.getType()+"s", o, n);
 	}
 	
 	@Override
@@ -296,5 +307,18 @@ public class ClassObject implements ClassObjectInterface {
 		}
 		return sameNameList;
 	}
-}
 
+	/**
+	 * Subscribe to changes to the model made by the edditor.
+	 *
+	 * @param listener the object trying to subscribe
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+
+    @Override
+    public String toString(){
+	return name;
+    }
+}
