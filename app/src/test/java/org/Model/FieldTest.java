@@ -65,7 +65,15 @@ public class FieldTest {
 
     @Test
     public void testToString() {
-        String result = fld.toString();
-        assertEquals("field1:int", result, "toString should return 'field1:int'");
+        // Expected format: varType + " " + name
+        assertEquals("int field1", fld.toString(), "Field toString() should return 'int field1'");
+
+        // Also check after changing the varType and name
+        fld.setVarType("String");
+        fld.renameAttribute("newField");
+        assertEquals("String newField", fld.toString(), "Field toString() should return 'String newField' after changes");
     }
+
+
+
 }
