@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,6 +93,42 @@ public class MethodTest {
 
 		assertDoesNotThrow(() -> m.updateParameter("buz", "zbuz", "zub"));
 		assertDoesNotThrow(() -> m.fetchParameter("zbuz"));
+	}
+
+	@Test
+	public void testToString() {
+		String str = m.toString();
+		assertNotNull(str);
+		assertTrue(str.contains("foo"));
+		assertTrue(str.contains("bar"));
+	}
+
+	@Test
+	public void testToStringEmpty() {
+		Method m2 = new Method("foo", "void", new ArrayList<>());
+		String str = m2.toString();
+		assertNotNull(str);
+		assertTrue(str.contains("foo"));
+		assertFalse(str.contains("bar"));
+	}
+
+	@Test
+	public void testSetReturnType() {
+		m.setReturnType("int");
+		assertEquals("int", m.getReturnType());
+	}
+
+	@Test
+	public void equalsDifferentParamTypes() {
+		Method original = new Method("foo", "void", new ArrayList<>(p));
+		ArrayList<Parameter> differentParams = new ArrayList<>();
+		differentParams.add(new Parameter("bar", "String")); // <-- wrong type here
+		differentParams.add(new Parameter("baz", "String"));
+		differentParams.add(new Parameter("buz", "boolean"));
+		
+		Method compare = new Method("foo", "void", differentParams);
+
+		assertFalse(original.equals(compare)); // should be FALSE because types mismatch
 	}
 
 }

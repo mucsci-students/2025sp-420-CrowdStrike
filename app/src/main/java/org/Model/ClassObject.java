@@ -1,7 +1,7 @@
 package org.Model;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.awt.Point;
 
 //Creates a Class object
 public class ClassObject implements ClassObjectInterface {

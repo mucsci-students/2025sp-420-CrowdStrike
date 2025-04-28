@@ -1,16 +1,10 @@
 package org.Model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+import org.Controller.UMLEditor;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.beans.Transient;
-
-import org.Model.UMLModel;
-import org.Model.ClassObject;
-import org.Model.Field;
-import org.Controller.UMLEditor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FieldTest {
 
@@ -67,5 +61,11 @@ public class FieldTest {
     public void testSetVarType() {
         fld.setVarType("String");
         assertEquals(fld.getVarType(), "String", "fld varType should now be String");
+    }
+
+    @Test
+    public void testToString() {
+        String result = fld.toString();
+        assertEquals("field1:int", result, "toString should return 'field1:int'");
     }
 }
