@@ -61,6 +61,7 @@ public class UMLEditor {
 	//this aria is very gui spisifc dont tell no body
 	public void updateClass(ClassObject co, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods) throws Exception{
 		ClassObject old = new ClassObject(co);
+		co.setName("");
 		model.isValidClassName(name);
 		co.getFieldList().clear();
 		co.getMethodList().clear();
@@ -81,17 +82,22 @@ public class UMLEditor {
 	public void buildClassFromGUI(ClassObject nc, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
 		nc.setName(name);
 		for(Map.Entry<String,String> e: fields.entrySet()){
+		    if(e.getKey() != "" && e.getValue() != ""){
 			Field tmp = new Field(e.getKey(),e.getValue());
 			nc.addAttribute(tmp);
+		    }
 		}
 
 		for(ArrayList<String> a : methods){
 			ArrayList<Parameter> p = new ArrayList<>();
 			for(int i = 2; i<a.size();i+=2){
+			    if(a.get(i+1) != "" && a.get(i) != "")
 				p.add(new Parameter(a.get(i+1),a.get(i)));
 			}
-			Method m = new Method(a.get(1),a.get(0),p);
-			nc.addAttribute(m);
+			if(a.get(1) != "" && a.get(0) != ""){
+			    Method m = new Method(a.get(1),a.get(0),p);
+			    nc.addAttribute(m);
+			}
 		}
     }
 
