@@ -79,6 +79,10 @@ public class UMLEditor {
 		pcs.firePropertyChange("AddClass", null, nc);
 	}
 
+	public void updatemdl(UMLModel m){
+		model = m;
+	}
+
 	public void buildClassFromGUI(ClassObject nc, String name,HashMap<String,String> fields,ArrayList<ArrayList<String>> methods){
 		nc.setName(name);
 		for(Map.Entry<String,String> e: fields.entrySet()){

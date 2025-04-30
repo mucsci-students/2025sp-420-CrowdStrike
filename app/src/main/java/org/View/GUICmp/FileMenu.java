@@ -13,6 +13,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.FileManager;
 import org.UMLToJsonAdapter;
 import org.Controller.UMLEditor;
+import org.Model.UMLModel;
 
 //TODO finish mock
 public class FileMenu extends JMenu {
@@ -96,7 +97,10 @@ public class FileMenu extends JMenu {
 		FileManager m = new FileManager();
 		UMLToJsonAdapter a = new UMLToJsonAdapter();
 		try {
-		    d.updatemdl(m.load(a,f.getPath()));
+		    UMLModel mm;
+		    mm = m.load(a,f.getPath());
+		    e.updatemdl(mm);
+		    d.updatemdl(mm);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
