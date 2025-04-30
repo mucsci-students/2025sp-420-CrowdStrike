@@ -109,6 +109,7 @@ public class UMLClass extends JPanel implements PropertyChangeListener {
 		methods.setMaximumSize(maxWidth);
 
 		revalidate();
+		doLayout();
 		setSize(getPreferredSize());
 	}
 
@@ -175,10 +176,14 @@ public class UMLClass extends JPanel implements PropertyChangeListener {
 			assert p != null : true;
 			p.removeAll();
 			for (AttributeInterface i : a) {
-				p.add(new JLabel(i.toString()));
+				JLabel t = new JLabel(i.toString());
+				t.setSize(t.getPreferredSize());
+				t.setMinimumSize(t.getPreferredSize());
+				t.setVisible(true);
+				p.add(t);
+				p.setSize(p.getPreferredSize());
+				p.doLayout();
 			}
-			p.revalidate();
-			p.repaint();
 		}
 	}
 }
