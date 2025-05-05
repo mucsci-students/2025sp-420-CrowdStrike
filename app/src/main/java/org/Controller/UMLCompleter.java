@@ -79,14 +79,15 @@ public class UMLCompleter implements Completer {
         List<CharSequence> cs = new ArrayList<CharSequence>();
         if (words[0].trim().equalsIgnoreCase("help")) {
             for (int i = 0; i < classCommands.size(); i++) {
+                if (classCommands.get(i).length() < 4) {
+                    // Skip any shorthand commands
+                    continue;
+                }
                 candidates.add(new Candidate(classCommands.get(i)));
             }
             candidates.add(new Candidate("listclasses"));
-            candidates.add(new Candidate("lcs"));
             candidates.add(new Candidate("listrelationships"));
-            candidates.add(new Candidate("lr"));
             candidates.add(new Candidate("addclass"));
-            candidates.add(new Candidate("ac"));
             candidates.add(new Candidate("save"));
             candidates.add(new Candidate("saveimg"));
             candidates.add(new Candidate("load"));
@@ -97,6 +98,10 @@ public class UMLCompleter implements Completer {
             cs.add("exit");
             AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
             for (CharSequence c : cs) {
+                if (c.length() < 4) {
+                    // Skip any shorthand commands
+                    continue;
+                }
                 candidates.add(new Candidate((String) c));
             }
         }
