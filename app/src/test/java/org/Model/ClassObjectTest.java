@@ -18,6 +18,10 @@ public class ClassObjectTest {
 	@BeforeEach
 	public void init() {
 		c = new ClassObject("test");
+		c.addAttribute(new Method("z","z",new ArrayList<>()));
+		c.addAttribute(new Method("hit","hit",new ArrayList<>()));
+		c.addAttribute(new Field("zf", "int"));
+		c.addAttribute(new Field("zmk", "float"));
 	}
 
 	@Test
