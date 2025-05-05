@@ -99,4 +99,11 @@ System.out.println("CREATED ARROW " + rel.getSource() + "->" + rel.getDestinatio
 		revalidate();
 		repaint();
 	}
+
+    @Override
+    public void doLayout() {
+	super.doLayout();
+	for (Component c : getComponents())
+	    c.doLayout();
+    }
 }

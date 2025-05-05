@@ -586,6 +586,7 @@ public class CLController {
     	@Command(name = "saveimg", description = "Saves model image")
 	private void saveing(@Parameters(paramLabel = "path", description = "Location to save UML image") String path) {
 		UMLDiagram d = new UMLDiagram(editor);
+		d.doLayout();
 		d.save(path);
 	}
 
