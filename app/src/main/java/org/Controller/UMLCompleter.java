@@ -36,16 +36,16 @@ public class UMLCompleter implements Completer {
                                                                     "addrelationship", "ar", "editrelationship", "er", "deleterelationship", "dr",
                                                                     "addfield", "af", "deletefield", "df", "editfield", "ef", "addmethod", "am",
                                                                     "deletemethod", "dm", "editmethod", "em", "addparameter", "ap", "removeparameter",
-                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp"));
+                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp", "changeallparameters", "cap"));
 
     private final ArrayList<String> relCommands = new ArrayList<>(Arrays.asList("addrelationship", "ar", "editrelationship", "er", "deleterelationship", "dr"));
 
     private final ArrayList<String> fieldCommands = new ArrayList<>(Arrays.asList("deletefield", "df", "editfield", "ef"));
 
     private final ArrayList<String> methodCommands = new ArrayList<>(Arrays.asList("deletemethod", "dm", "editmethod", "em", "addparameter", "ap", "removeparameter",
-                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp"));
+                                                                    "rp", "removeallparameters", "rap", "changeparameter", "cp", "changeallparameters", "cap"));
 
-    private final ArrayList<String> paramCommands = new ArrayList<>(Arrays.asList("removeparameter","rp", "removeallparameters", "rap", "changeparameter", "cp"));
+    private final ArrayList<String> paramCommands = new ArrayList<>(Arrays.asList("removeparameter", "rp", "changeparameter", "cp"));
 
     /**
      * Constructs a new completer for the given command spec
@@ -69,14 +69,51 @@ public class UMLCompleter implements Completer {
         this.model = model;
     }
 
+    /**
+     * Handles tab-completion of commands
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on (used to track cursor location)
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void commandCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         List<CharSequence> cs = new ArrayList<CharSequence>();
-        AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
-        for (CharSequence c : cs) {
-            candidates.add(new Candidate((String) c));
+        if (words[0].trim().equalsIgnoreCase("help")) {
+            for (int i = 0; i < classCommands.size(); i++) {
+                if (classCommands.get(i).length() < 4) {
+                    // Skip any shorthand commands
+                    continue;
+                }
+                candidates.add(new Candidate(classCommands.get(i)));
+            }
+            candidates.add(new Candidate("listclasses"));
+            candidates.add(new Candidate("listrelationships"));
+            candidates.add(new Candidate("addclass"));
+            candidates.add(new Candidate("save"));
+            candidates.add(new Candidate("saveimg"));
+            candidates.add(new Candidate("load"));
+            candidates.add(new Candidate("undo"));
+            candidates.add(new Candidate("redo"));
+        } else {
+            cs.add("help");
+            cs.add("exit");
+            AutoComplete.complete(spec, words, line.wordIndex(), 0, line.cursor(), cs);
+            for (CharSequence c : cs) {
+                if (c.length() < 4) {
+                    // Skip any shorthand commands
+                    continue;
+                }
+                candidates.add(new Candidate((String) c));
+            }
         }
     }
 
+    /**
+     * Handles tab-completion of classes
+     * @param words          | Array of Strings containing what has already been typed
+     * @param line           | The parsed line being worked on
+     * @param candidates     | Struct that contains the list of completion candidates
+     * @param stringLocation | The location of the String being completed in the array
+     */
     private void classCompletion(String[] words, ParsedLine line, List<Candidate> candidates, int stringLocation) {
         if (words.length == stringLocation) {
             // List all classes if user has not started class input yet
@@ -93,6 +130,12 @@ public class UMLCompleter implements Completer {
         }
     }
 
+    /**
+     * Handles tab-completion of fields
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void fieldCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         try {
             ClassObject cls = model.fetchClass(words[1]);
@@ -113,6 +156,12 @@ public class UMLCompleter implements Completer {
         }
     }
 
+    /**
+     * Handles tab-completion of methods
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void methodCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         try {
             ClassObject cls = model.fetchClass(words[1]);
@@ -153,6 +202,12 @@ public class UMLCompleter implements Completer {
         return str + ")";
 	}
 
+    /**
+     * Handles tab-completion of parameters
+     * @param words         | Array of Strings containing what has already been typed
+     * @param line          | The parsed line being worked on
+     * @param candidates    | Struct that contains the list of completion candidates
+     */
     private void paramCompletion(String[] words, ParsedLine line, List<Candidate> candidates) {
         try {
             ClassObject cls = model.fetchClass(words[1]);
@@ -209,7 +264,7 @@ public class UMLCompleter implements Completer {
         // the command that has been entered
 
         // If no input or working on first inputautocomplete commands
-        if (words.length == 1 || line.line().isEmpty()) {
+        if (words.length == 1 || line.line().isEmpty() || words[0].trim().equalsIgnoreCase("help")) {
             // Completion function for commands
             commandCompletion(words, line, candidates);
         } else if (words.length == 2 && isValidClassCommand(words[0])) {

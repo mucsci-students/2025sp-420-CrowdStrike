@@ -37,6 +37,7 @@ import org.Model.Parameter;
 import org.Model.Relationship;
 import org.Model.Relationship.Type;
 import org.Model.UMLModel;
+import org.UMLToJsonAdapter;
 import org.View.ClassBox;
 import org.View.GUIView;
 
@@ -1476,7 +1477,8 @@ public class GUIController {
         try {
             FileManager fileManager = new FileManager();
             // Save the model to the specified file path.
-            fileManager.save(path.trim(), model);
+            UMLToJsonAdapter adapter = new UMLToJsonAdapter();
+            fileManager.save(adapter, model, path.trim());
             JOptionPane.showMessageDialog(view, "Diagram saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(view, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -1491,6 +1493,7 @@ public class GUIController {
         String path = JOptionPane.showInputDialog(view, "Where would you like to load from:");
         try {
             FileManager fileManager = new FileManager();
+            
 		for(ClassBox cb: classBoxes){
 		    view.getDrawingPanel().remove(cb);
 		    removeRelationships(cb);
@@ -1498,8 +1501,10 @@ public class GUIController {
 
 		view.getDrawingPanel().revalidate();
 		view.getDrawingPanel().repaint();
+        
+    	UMLToJsonAdapter adapter = new UMLToJsonAdapter();
 
-                model = fileManager.load(path.trim());
+        model = fileManager.load(adapter, path.trim());
 		editor = new UMLEditor(model);
 		refreshClassBoxes(model);
 		JOptionPane.showMessageDialog(view, "Diagram loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);

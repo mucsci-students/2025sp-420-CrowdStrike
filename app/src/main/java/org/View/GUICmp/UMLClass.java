@@ -10,21 +10,25 @@ import javax.swing.border.TitledBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.awt.event.MouseAdapter;
 
-import org.Model.Field;
-import org.Model.Method;
 import org.Model.ClassObject;
 import org.Model.AttributeInterface;
 
-public class UMLClass extends JPanel {
+public class UMLClass extends JPanel implements PropertyChangeListener {
 	private int mouseX, mouseY;
 
 	public UMLClass(ClassObject c) {
 		super();
+
+		c.addPropertyChangeListener(this);
 
 		setLocation(c.getPosition());
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -79,38 +83,107 @@ public class UMLClass extends JPanel {
 		JPanel fields, methods;
 		Dimension maxWidth;
 
-		methods = new JPanel();
 		fields = new JPanel();
+		methods = new JPanel();
 
 		fields.setLayout(new BoxLayout(fields, BoxLayout.Y_AXIS));
 		methods.setLayout(new BoxLayout(methods, BoxLayout.Y_AXIS));
+
+		fields.setName("fields");
+		methods.setName("methods");
 
 		setBorder(new CompoundBorder(BorderFactory.createTitledBorder(c.getName()),
 				new EmptyBorder(5, 5, 5, 5)));
 		fields.setBorder(BorderFactory.createTitledBorder("Fields"));
 		methods.setBorder(BorderFactory.createTitledBorder("Methods"));
 
-		for (AttributeInterface i : c.getFieldList()) {
-			Field f = (Field) i;// I hate this
-			fields.add(new JLabel(f.toString()));
-		}
-
-		for (AttributeInterface i : c.getMethodList()) {
-			Method m = (Method) i;// I hate this
-			methods.add(new JLabel(m.toString()));
-		}
-
 		add(fields);
 		add(Box.createVerticalStrut(3));
 		add(methods);
 
-		maxWidth = new Dimension(Short.MAX_VALUE, fields.getPreferredSize().height);
-		fields.setMaximumSize(maxWidth);
+		updateSub("fields", c.getFieldList());
+		updateSub("methods", c.getMethodList());
 
-		maxWidth = new Dimension(Short.MAX_VALUE, methods.getPreferredSize().height);
+		maxWidth = new Dimension(Short.MAX_VALUE, Short.MAX_VALUE);
+		fields.setMaximumSize(maxWidth);
 		methods.setMaximumSize(maxWidth);
 
 		revalidate();
+		doLayout();
 		setSize(getPreferredSize());
+	}
+
+	@Override
+	public void propertyChange(java.beans.PropertyChangeEvent evt) {
+		Border border = getBorder();
+		CompoundBorder cb = (CompoundBorder) border;
+		TitledBorder tb = (TitledBorder) cb.getOutsideBorder();
+		revalidate();
+		repaint();
+
+		switch (evt.getPropertyName()) {
+			case "DeleteClass":
+				ClassObject o = (ClassObject) evt.getOldValue();
+				if (o.getName() == tb.getTitle())
+					getParent().remove(this);
+				break;
+			case "RenameClass":
+				if (evt.getOldValue() == tb.getTitle())
+					tb.setTitle((String) evt.getNewValue());
+				break;
+			case "UpdatedFields":
+				@SuppressWarnings("unchecked")
+				ArrayList<AttributeInterface> a = (ArrayList<AttributeInterface>) evt.getNewValue();
+				updateSub("fields", a);
+				break;
+			case "UpdatedMethods":
+				@SuppressWarnings("unchecked")
+				ArrayList<AttributeInterface> b = (ArrayList<AttributeInterface>) evt.getNewValue();
+				updateSub("methods", b);
+				break;
+
+			case "FullUpdateClass":
+				fullUpdate(evt, tb);
+
+		}
+		revalidate();
+		setSize(getPreferredSize());
+		repaint();
+	}
+
+	public boolean representsClassObject(ClassObject cls){
+		Border border = getBorder();
+		CompoundBorder cb = (CompoundBorder) border;
+		TitledBorder tb = (TitledBorder) cb.getOutsideBorder();
+		return tb.getTitle() == cls.getName();
+	}
+
+	private void fullUpdate(PropertyChangeEvent evt, TitledBorder tb) {
+		ClassObject co = (ClassObject) evt.getOldValue();
+		ClassObject cn = (ClassObject) evt.getNewValue();
+		if (co.getName() != tb.getTitle())
+			return;
+		tb.setTitle(cn.getName());
+		updateSub("fields", cn.getFieldList());
+		updateSub("methods", cn.getMethodList());
+	}
+
+	private void updateSub(String name, ArrayList<AttributeInterface> a) {
+		for (Component c : getComponents()) {
+			if (c.getName() != name)
+				continue;
+			JPanel p = (JPanel) c;
+			assert p != null : true;
+			p.removeAll();
+			for (AttributeInterface i : a) {
+				JLabel t = new JLabel(i.toString());
+				t.setSize(t.getPreferredSize());
+				t.setMinimumSize(t.getPreferredSize());
+				t.setVisible(true);
+				p.add(t);
+				p.setSize(p.getPreferredSize());
+				p.doLayout();
+			}
+		}
 	}
 }
