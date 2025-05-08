@@ -171,13 +171,33 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
             // Calculate the intersection points at the boundaries of the ClassBoxes
             Point sourceCenter = getClassCenter(rel.getSource());
             Point destinationCenter = getClassCenter(rel.getDestination());
-            Point p1 = getClosestHit(rel.getSource(), destinationCenter);
-            Point p2 = getClosestHit(rel.getDestination(), sourceCenter);
 
-            // Draw the main line between the edges of the boxes
             int bendingOffset = -100; 
             //hardcoding this^^ as default behavior: a better fix would change back to 0 and then subtract 100 once reverse rel is detected like in our original implementation
 
+            JPanel parent = (JPanel) getParent();
+            for (Component comp : parent.getComponents()) {
+                if (comp instanceof UMLClass){
+                    UMLClass cls = (UMLClass) comp;
+                    if (!cls.equals(findUMLClass(rel.getSource())) && !cls.equals(findUMLClass(rel.getDestination()))){
+                        
+                        // ^^IF ANOTHER CLASS OUTSIDE OF THE RELATIONSHIP EXISTS
+
+                        Point p1 = getClosestHit(rel.getSource(), destinationCenter);
+                        Point p2 = getClosestHit(rel.getDestination(), sourceCenter);
+
+                        Point bent = getBendPoint(p1, p2, bendingOffset);
+                        QuadCurve2D curve = new QuadCurve2D.Double(p1.x, p1.y, bent.x, bent.y, p2.x, p2.y);
+                        if(curve.intersects(cls.getLocation().x, cls.getLocation().y, cls.getWidth(), cls.getHeight())){
+                            bendingOffset-=100
+                        }
+                        //^^ make a test curve and see if it intersects with class, increment bend if so
+                    }
+                }
+            }
+
+            Point p1 = getClosestHit(rel.getSource(), destinationCenter);
+            Point p2 = getClosestHit(rel.getDestination(), sourceCenter);
 
             Point bent = getBendPoint(p1, p2, bendingOffset);
             Graphics2D g2 = (Graphics2D) g; // used to draw curves instead of lines
