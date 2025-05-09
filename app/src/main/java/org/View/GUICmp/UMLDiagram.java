@@ -88,7 +88,6 @@ public class UMLDiagram extends JPanel implements PropertyChangeListener {
 			case "AddRelationship":
 				Relationship rel = (Relationship) evt.getNewValue();
 				RelationshipArrow r = new RelationshipArrow(rel);
-System.out.println("CREATED ARROW " + rel.getSource() + "->" + rel.getDestination());  
 				add(r);
 				e.addPropertyChangeListener(r);
 				updatemdl(e.getModel());
