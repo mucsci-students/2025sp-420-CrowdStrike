@@ -189,7 +189,7 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
                         Point bent = getBendPoint(p1, p2, bendingOffset);
                         QuadCurve2D curve = new QuadCurve2D.Double(p1.x, p1.y, bent.x, bent.y, p2.x, p2.y);
                         if(curve.intersects(cls.getLocation().x, cls.getLocation().y, cls.getWidth(), cls.getHeight())){
-                            bendingOffset-=100
+                            bendingOffset-=100;
                         }
                         //^^ make a test curve and see if it intersects with class, increment bend if so
                     }
