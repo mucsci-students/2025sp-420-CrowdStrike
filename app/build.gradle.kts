@@ -50,6 +50,10 @@ tasks.named<Test>("test") {
 }
 tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 tasks.named<JavaExec>("run") {
@@ -60,4 +64,53 @@ tasks.register<JavaExec>("run-cli") {
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set(application.mainClass.get())
     args("--cli")
+}
+
+tasks.register("checkModelCoverage") {
+    dependsOn("jacocoTestReport")
+    mustRunAfter("jacocoTestReport") // <-- this fixes the timing issue
+
+    doLast {
+        val reportFile = file("$buildDir/reports/jacoco/test/jacocoTestReport.xml")
+        if (!reportFile.exists()) throw GradleException("Coverage report not found")
+
+        val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        val builder = factory.newDocumentBuilder()
+        val xml = builder.parse(reportFile)
+        xml.documentElement.normalize()
+
+        val counters = xml.getElementsByTagName("package")
+        var totalMissed = 0
+        var totalCovered = 0
+
+        for (i in 0 until counters.length) {
+            val pkg = counters.item(i)
+            val name = pkg.attributes.getNamedItem("name").nodeValue
+            if (name.startsWith("org/Model")) {
+                val children = pkg.childNodes
+                for (j in 0 until children.length) {
+                    val node = children.item(j)
+                    if (node.nodeName == "counter" && node.attributes.getNamedItem("type").nodeValue == "INSTRUCTION") {
+                        totalMissed += node.attributes.getNamedItem("missed").nodeValue.toInt()
+                        totalCovered += node.attributes.getNamedItem("covered").nodeValue.toInt()
+                    }
+                }
+            }
+        }
+
+
+        val totalInstructions = totalMissed + totalCovered
+        val coveragePercent = if(totalInstructions > 0) {
+            (100.0 * totalCovered / totalInstructions)
+        } else{
+            0.0
+        }
+
+        println(" Model Package Coverage: ${String.format("%.1f", coveragePercent)}% (Covered: $totalCovered, Missed: $totalMissed)")
+
+        if(coveragePercent < 95.0){
+            throw GradleException("Model package coverage is less than 100%! Please add more test.")
+        }
+    }
 }

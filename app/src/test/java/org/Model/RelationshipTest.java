@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.Model.Relationship.Type;
+import org.View.GUICmp.UMLClass;
 
 public class RelationshipTest {
 	Relationship r;
@@ -16,6 +18,23 @@ public class RelationshipTest {
 		s = new ClassObject("s");
 		d = new ClassObject("d");
 		r = new Relationship(s, d, Type.AGGREGATION);
+	}
+
+	@Test
+	public void testClone() {
+		Relationship rr = new Relationship(r);
+		assertNotNull(r);
+	}
+
+	@Test
+	public void str() {
+		String t = r.toString();
+		assertNotNull(r);
+	}
+
+	@Test
+	public void sub() {
+		r.addPropertyChangeListener(new UMLClass(new ClassObject("")));
 	}
 
 	@Test

@@ -1,7 +1,7 @@
 package org.Model;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
@@ -196,9 +196,6 @@ public class ClassObject implements ClassObjectInterface {
 				if (match) {
 					return activeMethod;
 				}
-			} else if (types.length == 0 && activeMethod.getParamList().size() == 0) {
-				// activeMethod and method being searched for have same name & no params
-				return activeMethod;
 			}
 		}
 		// Class with className did not exist, return false
@@ -244,9 +241,6 @@ public class ClassObject implements ClassObjectInterface {
 				if (match) {
 					return activeMethod;
 				}
-			} else if (paramMap.size() == 0 && activeMethod.getParamList().size() == 0) {
-				// activeMethod and method being searched for have same name & no params
-				return activeMethod;
 			}
 		}
 		// Class with className did not exist, return false
