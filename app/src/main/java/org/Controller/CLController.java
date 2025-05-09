@@ -159,15 +159,19 @@ public class CLController {
 				Type type = null;
 				switch(relType.toLowerCase()) {
 					case "aggregation":
+					case "a":
 						type = Type.AGGREGATION;
 						break;
 					case "composition":
+					case "c":
 						type = Type.COMPOSITION;
 						break;
 					case "inheritance":
+					case "i":
 						type = Type.INHERITANCE;
 						break;
 					case "realization":
+					case "r":
 						type = Type.REALIZATION;
 						break;
 					default:
@@ -232,15 +236,19 @@ public class CLController {
 					case "type":
 						switch(newValue.toLowerCase()) {
 							case "aggregation":
+							case "a":
 								newValue = "AGGREGATION";
 								break;
 							case "composition":
+							case "c":
 								newValue = "COMPOSITION";
 								break;
 							case "inheritance":
+							case "i":
 								newValue = "INHERITANCE";
 								break;
 							case "realization":
+							case "r":
 								newValue = "REALIZATION";
 								break;
 							default:
@@ -578,6 +586,7 @@ public class CLController {
     	@Command(name = "saveimg", description = "Saves model image")
 	private void saveing(@Parameters(paramLabel = "path", description = "Location to save UML image") String path) {
 		UMLDiagram d = new UMLDiagram(editor);
+		d.doLayout();
 		d.save(path);
 	}
 
