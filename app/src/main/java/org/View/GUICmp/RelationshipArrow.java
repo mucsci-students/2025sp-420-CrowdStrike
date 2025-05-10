@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import java.awt.*;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.QuadCurve2D;
 import java.awt.FontMetrics;
 import java.beans.PropertyChangeListener;
 
@@ -71,6 +72,36 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
     private Point getClassCenter(ClassObject cls){
         return new Point(cls.getPosition().x + (int)(getClassDimension(cls).getWidth()/2), 
                         cls.getPosition().y + (int)(getClassDimension(cls).getHeight()/2));
+    }
+
+    /**
+     * Computes the position of the new vertex that the arrow will bend to include
+     *
+     * @param p1 source point
+     * @param p2 destination point
+     * @param bendingOffset the magnitude of the perpendicular offset to apply
+     * @return the computed position
+     */
+    private Point getBendPoint(Point p1, Point p2, double bendingOffset) {
+        // Compute midpoint of the line
+        int midX = (p1.x + p2.x) / 2;
+        int midY = (p1.y + p2.y) / 2;
+
+        // Compute the vector from p1 to p2
+        double dx = p2.x - p1.x;
+        double dy = p2.y - p1.y;
+        double length = Math.hypot(dx, dy);
+        if (length == 0) {
+            return new Point(midX, midY); // degenerate case
+        }
+        // Compute a perpendicular unit vector (rotate (dx,dy) 90Â°)
+        double pdx = -dy / length;
+        double pdy = dx / length;
+
+        // Apply the bending offset to the midpoint
+        int bentX = (int) (midX + bendingOffset * pdx);
+        int bentY = (int) (midY + bendingOffset * pdy);
+        return new Point(bentX, bentY);
     }
     
 
@@ -140,19 +171,46 @@ public class RelationshipArrow extends JPanel implements PropertyChangeListener 
             // Calculate the intersection points at the boundaries of the ClassBoxes
             Point sourceCenter = getClassCenter(rel.getSource());
             Point destinationCenter = getClassCenter(rel.getDestination());
+
+            int bendingOffset = -100; 
+            //hardcoding this^^ as default behavior: a better fix would change back to 0 and then subtract 100 once reverse rel is detected like in our original implementation
+
+            JPanel parent = (JPanel) getParent();
+            for (Component comp : parent.getComponents()) {
+                if (comp instanceof UMLClass){
+                    UMLClass cls = (UMLClass) comp;
+                    if (!cls.equals(findUMLClass(rel.getSource())) && !cls.equals(findUMLClass(rel.getDestination()))){
+                        
+                        // ^^IF ANOTHER CLASS OUTSIDE OF THE RELATIONSHIP EXISTS
+
+                        Point p1 = getClosestHit(rel.getSource(), destinationCenter);
+                        Point p2 = getClosestHit(rel.getDestination(), sourceCenter);
+
+                        Point bent = getBendPoint(p1, p2, bendingOffset);
+                        QuadCurve2D curve = new QuadCurve2D.Double(p1.x, p1.y, bent.x, bent.y, p2.x, p2.y);
+                        if(curve.intersects(cls.getLocation().x, cls.getLocation().y, cls.getWidth(), cls.getHeight())){
+                            bendingOffset-=100;
+                        }
+                        //^^ make a test curve and see if it intersects with class, increment bend if so
+                    }
+                }
+            }
+
             Point p1 = getClosestHit(rel.getSource(), destinationCenter);
             Point p2 = getClosestHit(rel.getDestination(), sourceCenter);
 
-            // Draw the main line between the edges of the boxes
-            g.drawLine(p1.x, p1.y, p2.x, p2.y);
+            Point bent = getBendPoint(p1, p2, bendingOffset);
+            Graphics2D g2 = (Graphics2D) g; // used to draw curves instead of lines
+            QuadCurve2D curve = new QuadCurve2D.Double(p1.x, p1.y, bent.x, bent.y, p2.x, p2.y);
+            g2.draw(curve);
             arrowhead((Graphics2D)g,p1,p2);
 
             Point a = new Point(p2.y - p1.y, p2.x - p1.x);
 
-            // Draw the relationship type label near the midpoint of the line
+            // Draw the relationship type label near the bent point of the line
             int midX = (p1.x + p2.x) / 2;
             int midY = (p1.y + p2.y) / 2;
-            g.drawString(rel.getTypeString(),midX-(metrics.stringWidth(rel.getTypeString())/2),midY);
+            g.drawString(rel.getTypeString(),midX-(metrics.stringWidth(rel.getTypeString())/2),midY+bendingOffset/(sourceCenter.x<=destinationCenter.x?2:-2));
         } 
         else {
             Point center = getClassCenter(rel.getSource());

@@ -18,4 +18,10 @@ public class ParameterTest {
 		p.setName("test2");
 		assertEquals(p.getName(), "test2");
 	}
+
+	@Test
+	public void callSetType() {
+		p = new Parameter("test", "String");
+		assertEquals("String", p.setType());
+	}
 }

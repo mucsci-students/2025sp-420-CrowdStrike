@@ -122,7 +122,7 @@ We also have a controller for our gui view call `GUIController.java` that accept
  Seen in UMLToJson file using string builder to build out the save file.
 ### 5. Adapter
  Seen in the FileManager file where it takes in an adapter for save and load.
-### 6. 
+### 6. Observer
  Seen in the GUIView where each box in the view subscribes to one relative item in the model.
 ## Devs
 Brought to you by:  

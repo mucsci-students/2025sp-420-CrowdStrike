@@ -100,7 +100,7 @@ public class Method implements AttributeInterface {
 			// Check types of parameters in both methods to make sure they are the same (in type and order)
 			int index = 0;
 			for (Parameter param : paramList) {
-				if (!param.getType().equalsIgnoreCase(paramList.get(index).getType())) {
+				if (!param.getType().equalsIgnoreCase(compareMethod.getParamList().get(index).getType())) {
 					// If parameters in the same position don't have the same type, they are not equal
 					return false;
 				}
